@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            - id: member-service
+              uri: lb://member-service
+              predicates:
+                - Path=/api/members/**
+            - id: course-service
+              uri: lb://course-service
+              predicates:
+                - Path=/api/courses/**
+            - id: payment-aggregator
+              uri: lb://payment-aggregator
+              predicates:
+                - Path=/api/payment-aggregate/**

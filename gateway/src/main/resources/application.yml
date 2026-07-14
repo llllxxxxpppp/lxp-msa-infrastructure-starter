@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: gateway
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        instance-id: ${spring.application.name}-${random.value}
+        prefer-ip-address: true
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            - id: member-service
+              uri: lb://member-service
+              predicates:
+                - Path=/api/members/**
+            - id: course-service
+              uri: lb://course-service
+              predicates:
+                - Path=/api/courses/**
+            - id: payment-aggregator
+              uri: lb://payment-aggregator
+              predicates:
+                - Path=/api/payment-aggregate/**
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  file:
+    name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log

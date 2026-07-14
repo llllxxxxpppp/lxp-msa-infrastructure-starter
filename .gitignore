@@ -1,0 +1,9 @@
+.idea/
+*.iml
+.gradle/
+**/.gradle/
+**/build/
+**/out/
+infrastructure/logs/*.log
+!infrastructure/logs/.gitkeep
+.env
