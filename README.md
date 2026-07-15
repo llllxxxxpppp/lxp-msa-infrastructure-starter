@@ -40,8 +40,8 @@ lxp-msa-infrastructure-starter
 ├─ payment-service
 ├─ config-repo
 ├─ infrastructure
-├─ docker-compose.infra.yml
-└─ docker-compose.yml
+├─ compose.infra.yaml
+└─ compose.yaml
 ```
 
 ## 사용 버전
@@ -63,7 +63,7 @@ lxp-msa-infrastructure-starter
 Docker Desktop을 실행한 후 루트 터미널에서 다음 명령을 실행합니다.
 
 ```bash
-docker compose -f docker-compose.infra.yml up -d
+docker compose -f compose.infra.yaml up -d
 ```
 
 ### 3. IntelliJ 실행 순서
