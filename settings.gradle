@@ -1,6 +1,7 @@
 rootProject.name = 'lxp-msa-workspace'
 
-// 각 하위 폴더는 향후 독립 Git Repository / Git Submodule로 전환할 수 있는 독립 Gradle 프로젝트입니다.
+// 모노레포 구성: 각 하위 폴더는 자체 settings.gradle을 가진 독립 Gradle 빌드이며,
+// includeBuild(Composite Build)로 하나의 워크스페이스에 묶어 함께 개발합니다.
 includeBuild('gateway')
 includeBuild('config-server')
 includeBuild('auth-service')

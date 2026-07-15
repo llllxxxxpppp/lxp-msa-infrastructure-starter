@@ -130,22 +130,12 @@ docker compose up --build
 - Zipkin
 - 실제 결제 로직
 
-## Git Submodule 전환
+## 저장소 구조
 
-각 하위 프로젝트를 별도 GitHub Repository에 push한 후 부모 레포에서 기존 폴더를 제거하고 다음처럼 연결합니다.
+이 프로젝트는 **하나의 저장소 안에 서비스별 하위 프로젝트를 두는 모노레포**로 운영합니다.
 
-```bash
-git submodule add <gateway-repository-url> gateway
-git submodule add <config-server-repository-url> config-server
-git submodule add <auth-service-repository-url> auth-service
-git submodule add <member-service-repository-url> member-service
-git submodule add <course-service-repository-url> course-service
-git submodule add <subscription-service-repository-url> subscription-service
-git submodule add <payment-service-repository-url> payment-service
-```
+각 하위 폴더는 자체 `settings.gradle`을 가진 독립 Gradle 빌드이며, 루트 `settings.gradle`이 `includeBuild`(Composite Build)로 이들을 하나의 워크스페이스로 묶습니다. 이렇게 하면 한 저장소에서 함께 개발하면서도, 각 서비스를 자체 Dockerfile로 독립 빌드·배포할 수 있습니다.
 
-팀원이 부모 레포를 처음 받을 때는 다음 명령을 사용합니다.
-
-```bash
-git clone --recurse-submodules <parent-repository-url>
-```
+- 서비스별 빌드 설정(의존성, 포트 등)은 각 하위 폴더의 `build.gradle`에 있습니다.
+- 루트 `build.gradle`은 전체를 한 번에 빌드하는 `buildAll` 태스크만 제공합니다.
+- Gradle Wrapper는 루트에만 두고 모든 서비스가 공유합니다.
