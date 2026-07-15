@@ -62,12 +62,6 @@ lxp-msa-infrastructure-starter
 
 Docker Desktop을 실행한 후 루트 터미널에서 다음 명령을 실행합니다.
 
-```powershell
-.\start-infra.ps1
-```
-
-또는:
-
 ```bash
 docker compose -f docker-compose.infra.yml up -d
 ```
