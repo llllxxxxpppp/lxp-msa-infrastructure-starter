@@ -259,32 +259,6 @@ services:
       retries: 20
       start_period: 30s
 
-  payment-aggregator:
-    build:
-      context: ./payment-aggregator
-    container_name: lxp-payment-aggregator
-    environment:
-      CONSUL_HOST: consul-1
-      CONSUL_PORT: 8500
-      LOG_DIR: /logs
-      CONFIG_SERVER_URL: http://config-server:8888
-    ports:
-      - "8086:8086"
-    volumes:
-      - ./infrastructure/logs:/logs
-    depends_on:
-      consul-1:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    networks: [lxp-net]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8086/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
-
 
 networks:
   lxp-net:

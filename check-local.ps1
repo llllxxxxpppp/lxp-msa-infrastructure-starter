@@ -5,7 +5,7 @@ $urls = @(
     "http://localhost:8080/api/members/ping",
     "http://localhost:8080/api/courses/ping",
     "http://localhost:8080/api/subscriptions/1",
-    "http://localhost:8080/api/payment-aggregate/1"
+    "http://localhost:8080/api/payments/subscriptions/1"
 )
 
 foreach ($url in $urls) {

@@ -11,9 +11,6 @@ Public API Gateway
   ├─ auth-service
   ├─ member-service
   ├─ course-service
-  └─ payment-aggregator
-
-payment-aggregator 내부 조회
   ├─ subscription-service
   └─ payment-service
 
@@ -26,7 +23,7 @@ payment-aggregator 내부 조회
   └─ Promtail : 서비스 로그를 Loki로 전달
 ```
 
-`subscription-service`와 `payment-service`는 Gateway에 직접 노출하지 않고, `payment-aggregator`가 호출하는 내부 서버로 구성했습니다.
+모든 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
 
 ## 프로젝트 구성
 
@@ -41,7 +38,6 @@ lxp-msa-infrastructure-starter
 ├─ course-service
 ├─ subscription-service
 ├─ payment-service
-├─ payment-aggregator
 ├─ config-repo
 ├─ infrastructure
 ├─ docker-compose.infra.yml
@@ -87,8 +83,7 @@ docker compose -f docker-compose.infra.yml up -d
 4. CourseServiceApplication
 5. SubscriptionServiceApplication
 6. PaymentServiceApplication
-7. PaymentAggregatorApplication
-8. GatewayApplication
+7. GatewayApplication
 ```
 
 ### 4. 확인 주소
@@ -99,7 +94,8 @@ docker compose -f docker-compose.infra.yml up -d
 | Auth via Gateway | http://localhost:8080/api/auth/ping |
 | Member via Gateway | http://localhost:8080/api/members/ping |
 | Course via Gateway | http://localhost:8080/api/courses/ping |
-| Payment Aggregator | http://localhost:8080/api/payment-aggregate/1 |
+| Subscription via Gateway | http://localhost:8080/api/subscriptions/1 |
+| Payment via Gateway | http://localhost:8080/api/payments/subscriptions/1 |
 | Config Server | http://localhost:8888/gateway/default |
 | Consul UI | http://localhost:8500 |
 | Prometheus | http://localhost:9090 |
@@ -128,7 +124,6 @@ docker compose up --build
 - Actuator / Prometheus metrics
 - Grafana 데이터소스 자동 설정
 - Loki + Promtail 로그 수집
-- Payment Aggregator의 `Mono.zip()` 비동기 병렬 조회 예제 -> subscription-service payment-service 이 두 서버를 동시에 조회한 뒤, 결과를 하나로 합쳐서 응답하는 예제
 - 각 서비스의 최소 테스트 API
 
 미포함:
@@ -153,7 +148,6 @@ git submodule add <member-service-repository-url> member-service
 git submodule add <course-service-repository-url> course-service
 git submodule add <subscription-service-repository-url> subscription-service
 git submodule add <payment-service-repository-url> payment-service
-git submodule add <payment-aggregator-repository-url> payment-aggregator
 ```
 
 팀원이 부모 레포를 처음 받을 때는 다음 명령을 사용합니다.

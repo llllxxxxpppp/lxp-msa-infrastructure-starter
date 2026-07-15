@@ -12,7 +12,6 @@ tasks.register('buildAll') {
         gradle.includedBuild('member-service').task(':build'),
         gradle.includedBuild('course-service').task(':build'),
         gradle.includedBuild('subscription-service').task(':build'),
-        gradle.includedBuild('payment-service').task(':build'),
-        gradle.includedBuild('payment-aggregator').task(':build')
+        gradle.includedBuild('payment-service').task(':build')
     )
 }
