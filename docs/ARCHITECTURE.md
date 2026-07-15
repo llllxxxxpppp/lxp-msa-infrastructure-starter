@@ -18,7 +18,8 @@ Shared Infrastructure
   ├─ Consul :8500
   ├─ Prometheus :9090
   ├─ Grafana :3000
-  └─ Loki :3100
+  ├─ Loki :3100
+  └─ Zipkin :9411
 ```
 
 ## 적용 원칙

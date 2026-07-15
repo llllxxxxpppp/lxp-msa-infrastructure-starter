@@ -23,7 +23,8 @@ payment-aggregator 내부 조회
   ├─ Prometheus : CPU, JVM, HTTP 요청 수 같은 메트릭 수집
   ├─ Grafana : 메트릭과 로그를 시각화
   ├─ Loki : 로그 저장
-  └─ Promtail : 서비스 로그를 Loki로 전달
+  ├─ Alloy : 서비스 로그를 Loki로 전달
+  └─ Zipkin : 분산 트레이싱 저장/조회
 ```
 
 `subscription-service`와 `payment-service`는 Gateway에 직접 노출하지 않고, `payment-aggregator`가 호출하는 내부 서버로 구성했습니다.
@@ -105,6 +106,7 @@ docker compose -f docker-compose.infra.yml up -d
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
 | Loki readiness | http://localhost:3100/ready |
+| Zipkin | http://localhost:9411 |
 
 Grafana 기본 계정은 `admin / admin`입니다.
 
@@ -127,7 +129,8 @@ docker compose up --build
 - Consul 서비스 등록 및 탐색
 - Actuator / Prometheus metrics
 - Grafana 데이터소스 자동 설정
-- Loki + Promtail 로그 수집
+- Loki + Alloy 로그 수집
+- Zipkin 분산 트레이싱
 - Payment Aggregator의 `Mono.zip()` 비동기 병렬 조회 예제 -> subscription-service payment-service 이 두 서버를 동시에 조회한 뒤, 결과를 하나로 합쳐서 응답하는 예제
 - 각 서비스의 최소 테스트 API
 
@@ -138,7 +141,6 @@ docker compose up --build
 - 서비스별 DB
 - gRPC 구현
 - Kafka 또는 RabbitMQ
-- Zipkin
 - 실제 결제 로직
 
 ## Git Submodule 전환
