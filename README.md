@@ -27,7 +27,7 @@ Public API Gateway
 
 ## 프로젝트 구성
 
-각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, `Dockerfile`, `src`를 가진 독립 프로젝트입니다. 
+각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, Gradle Wrapper(`gradlew`), `Dockerfile`, `src`를 가진 완전히 독립된 프로젝트입니다. 루트에는 빌드 설정을 두지 않습니다.
 
 ```text
 lxp-msa-infrastructure-starter
@@ -56,7 +56,7 @@ lxp-msa-infrastructure-starter
 
 ### 1. 프로젝트 열기
 
-루트의 `settings.gradle`이 각 하위 프로젝트를 Composite Build로 연결합니다. Gradle JVM은 Java 17로 설정합니다.
+각 서비스는 독립 프로젝트이므로, IntelliJ에서 각 서비스 폴더(`gateway`, `auth-service` 등)를 Gradle 프로젝트로 각각 열거나 임포트합니다. Gradle JVM은 Java 17로 설정합니다.
 
 ### 2. 공통 인프라 실행
 
@@ -134,8 +134,9 @@ docker compose up --build
 
 이 프로젝트는 **하나의 저장소 안에 서비스별 하위 프로젝트를 두는 모노레포**로 운영합니다.
 
-각 하위 폴더는 자체 `settings.gradle`을 가진 독립 Gradle 빌드이며, 루트 `settings.gradle`이 `includeBuild`(Composite Build)로 이들을 하나의 워크스페이스로 묶습니다. 이렇게 하면 한 저장소에서 함께 개발하면서도, 각 서비스를 자체 Dockerfile로 독립 빌드·배포할 수 있습니다.
+**루트에는 빌드 설정이 없습니다.** 각 서비스 폴더가 자체 `settings.gradle` + `build.gradle` + Gradle Wrapper(`gradlew`)를 가진 완전히 독립된 빌드이며, 각자 자기 폴더 안에서 단독으로 빌드·실행됩니다.
 
 - 서비스별 빌드 설정(의존성, 포트 등)은 각 하위 폴더의 `build.gradle`에 있습니다.
-- 루트 `build.gradle`은 전체를 한 번에 빌드하는 `buildAll` 태스크만 제공합니다.
-- Gradle Wrapper는 루트에만 두고 모든 서비스가 공유합니다.
+- 특정 서비스만 빌드/실행: `cd <service> && ./gradlew bootRun`
+- 특정 서비스만 도커로 실행: `docker compose up --build <service>`
+- 전체 실행: `docker compose up --build` (아래 참고)
