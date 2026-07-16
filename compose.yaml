@@ -94,7 +94,8 @@ services:
 
   gateway:
     build:
-      context: ./gateway
+      context: .
+      dockerfile: ./gateway/Dockerfile
     container_name: lxp-gateway
     environment:
       CONSUL_HOST: consul-1
@@ -148,7 +149,8 @@ services:
 
   auth-service:
     build:
-      context: ./auth-service
+      context: .
+      dockerfile: ./auth-service/Dockerfile
     container_name: lxp-auth-service
     environment:
       CONSUL_HOST: consul-1
@@ -175,7 +177,8 @@ services:
 
   member-service:
     build:
-      context: ./member-service
+      context: .
+      dockerfile: ./member-service/Dockerfile
     container_name: lxp-member-service
     environment:
       CONSUL_HOST: consul-1
@@ -202,7 +205,8 @@ services:
 
   course-service:
     build:
-      context: ./course-service
+      context: .
+      dockerfile: ./course-service/Dockerfile
     container_name: lxp-course-service
     environment:
       CONSUL_HOST: consul-1
