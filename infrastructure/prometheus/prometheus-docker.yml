@@ -13,4 +13,3 @@ scrape_configs:
           - "member-service:8082"
           - "course-service:8083"
           - "subscription-service:8084"
-          - "payment-service:8085"

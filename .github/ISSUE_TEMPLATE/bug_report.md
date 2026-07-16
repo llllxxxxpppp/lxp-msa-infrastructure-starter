@@ -18,7 +18,6 @@ assignees: []
 - [ ] member-service
 - [ ] course-service
 - [ ] subscription-service
-- [ ] payment-service
 - [ ] 공통 인프라 (Consul, Config, Prometheus, Grafana, Loki)
 - [ ] 기타:
 

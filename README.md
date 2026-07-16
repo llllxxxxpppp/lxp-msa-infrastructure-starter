@@ -11,8 +11,7 @@ Public API Gateway
   ├─ auth-service
   ├─ member-service
   ├─ course-service
-  ├─ subscription-service
-  └─ payment-service
+  └─ subscription-service   # 구독 + 결제(payment 도메인 임시 통합)
 
 공통 인프라
   ├─ config-server
@@ -26,6 +25,8 @@ Public API Gateway
 
 모든 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
 
+> 구독(subscription)과 결제(payment) 도메인은 현재 결합도가 높아 `subscription-service` 하나로 통합해 운영합니다. `/api/subscriptions/**`와 `/api/payments/**` 모두 이 서비스가 서빙하며, 도메인 경계가 명확해지면 별도 서비스로 분리할 예정입니다.
+
 ## 프로젝트 구성
 
 각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, Gradle Wrapper(`gradlew`), `Dockerfile`, `src`를 가진 완전히 독립된 프로젝트입니다. 루트에는 빌드 설정을 두지 않습니다.
@@ -38,7 +39,6 @@ lxp-msa-infrastructure-starter
 ├─ member-service
 ├─ course-service
 ├─ subscription-service
-├─ payment-service
 ├─ config-repo
 ├─ infrastructure
 ├─ compose.infra.yaml
@@ -77,8 +77,7 @@ docker compose -f compose.infra.yaml up -d
 3. MemberServiceApplication
 4. CourseServiceApplication
 5. SubscriptionServiceApplication
-6. PaymentServiceApplication
-7. GatewayApplication
+6. GatewayApplication
 ```
 
 ### 4. 확인 주소
