@@ -121,7 +121,8 @@ services:
 
   config-server:
     build:
-      context: ./config-server
+      context: .
+      dockerfile: ./config-server/Dockerfile
     container_name: lxp-config-server
     environment:
       CONSUL_HOST: consul-1
@@ -228,7 +229,8 @@ services:
 
   subscription-service:
     build:
-      context: ./subscription-service
+      context: .
+      dockerfile: ./subscription-service/Dockerfile
     container_name: lxp-subscription-service
     environment:
       CONSUL_HOST: consul-1
