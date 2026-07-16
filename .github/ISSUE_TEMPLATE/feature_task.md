@@ -22,7 +22,6 @@ assignees: []
 - [ ] member-service
 - [ ] course-service
 - [ ] subscription-service
-- [ ] payment-service
 
 ## 작업 항목
 
