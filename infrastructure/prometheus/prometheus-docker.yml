@@ -14,3 +14,8 @@ scrape_configs:
           - "course-service:8083"
           - "subscription-service:8084"
           - "payment-service:8085"
+
+  - job_name: "rabbitmq"
+    static_configs:
+      - targets:
+          - "rabbitmq:15692"

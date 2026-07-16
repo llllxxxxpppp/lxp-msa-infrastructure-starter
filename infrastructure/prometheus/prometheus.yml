@@ -14,3 +14,8 @@ scrape_configs:
           - "host.docker.internal:8083"
           - "host.docker.internal:8084"
           - "host.docker.internal:8085"
+
+  - job_name: "rabbitmq"
+    static_configs:
+      - targets:
+          - "host.docker.internal:15692"
