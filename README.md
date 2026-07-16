@@ -11,9 +11,6 @@ Public API Gateway
   ├─ auth-service
   ├─ member-service
   ├─ course-service
-  └─ payment-aggregator
-
-payment-aggregator 내부 조회
   ├─ subscription-service
   └─ payment-service
 
@@ -27,11 +24,11 @@ payment-aggregator 내부 조회
   └─ Zipkin : 분산 트레이싱 저장/조회
 ```
 
-`subscription-service`와 `payment-service`는 Gateway에 직접 노출하지 않고, `payment-aggregator`가 호출하는 내부 서버로 구성했습니다.
+모든 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
 
 ## 프로젝트 구성
 
-각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, `Dockerfile`, `src`를 가진 독립 프로젝트입니다. 
+각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, Gradle Wrapper(`gradlew`), `Dockerfile`, `src`를 가진 완전히 독립된 프로젝트입니다. 루트에는 빌드 설정을 두지 않습니다.
 
 ```text
 lxp-msa-infrastructure-starter
@@ -42,11 +39,10 @@ lxp-msa-infrastructure-starter
 ├─ course-service
 ├─ subscription-service
 ├─ payment-service
-├─ payment-aggregator
 ├─ config-repo
 ├─ infrastructure
-├─ docker-compose.infra.yml
-└─ docker-compose.yml
+├─ compose.infra.yaml
+└─ compose.yaml
 ```
 
 ## 사용 버전
@@ -61,20 +57,14 @@ lxp-msa-infrastructure-starter
 
 ### 1. 프로젝트 열기
 
-루트의 `settings.gradle`이 각 하위 프로젝트를 Composite Build로 연결합니다. Gradle JVM은 Java 17로 설정합니다.
+각 서비스는 독립 프로젝트이므로, IntelliJ에서 각 서비스 폴더(`gateway`, `auth-service` 등)를 Gradle 프로젝트로 각각 열거나 임포트합니다. Gradle JVM은 Java 17로 설정합니다.
 
 ### 2. 공통 인프라 실행
 
 Docker Desktop을 실행한 후 루트 터미널에서 다음 명령을 실행합니다.
 
-```powershell
-.\start-infra.ps1
-```
-
-또는:
-
 ```bash
-docker compose -f docker-compose.infra.yml up -d
+docker compose -f compose.infra.yaml up -d
 ```
 
 ### 3. IntelliJ 실행 순서
@@ -88,8 +78,7 @@ docker compose -f docker-compose.infra.yml up -d
 4. CourseServiceApplication
 5. SubscriptionServiceApplication
 6. PaymentServiceApplication
-7. PaymentAggregatorApplication
-8. GatewayApplication
+7. GatewayApplication
 ```
 
 ### 4. 확인 주소
@@ -100,7 +89,8 @@ docker compose -f docker-compose.infra.yml up -d
 | Auth via Gateway | http://localhost:8080/api/auth/ping |
 | Member via Gateway | http://localhost:8080/api/members/ping |
 | Course via Gateway | http://localhost:8080/api/courses/ping |
-| Payment Aggregator | http://localhost:8080/api/payment-aggregate/1 |
+| Subscription via Gateway | http://localhost:8080/api/subscriptions/1 |
+| Payment via Gateway | http://localhost:8080/api/payments/subscriptions/1 |
 | Config Server | http://localhost:8888/gateway/default |
 | Consul UI | http://localhost:8500 |
 | Prometheus | http://localhost:9090 |
@@ -131,7 +121,6 @@ docker compose up --build
 - Grafana 데이터소스 자동 설정
 - Loki + Alloy 로그 수집
 - Zipkin 분산 트레이싱
-- Payment Aggregator의 `Mono.zip()` 비동기 병렬 조회 예제 -> subscription-service payment-service 이 두 서버를 동시에 조회한 뒤, 결과를 하나로 합쳐서 응답하는 예제
 - 각 서비스의 최소 테스트 API
 
 미포함:
@@ -143,23 +132,13 @@ docker compose up --build
 - Kafka 또는 RabbitMQ
 - 실제 결제 로직
 
-## Git Submodule 전환
+## 저장소 구조
 
-각 하위 프로젝트를 별도 GitHub Repository에 push한 후 부모 레포에서 기존 폴더를 제거하고 다음처럼 연결합니다.
+이 프로젝트는 **하나의 저장소 안에 서비스별 하위 프로젝트를 두는 모노레포**로 운영합니다.
 
-```bash
-git submodule add <gateway-repository-url> gateway
-git submodule add <config-server-repository-url> config-server
-git submodule add <auth-service-repository-url> auth-service
-git submodule add <member-service-repository-url> member-service
-git submodule add <course-service-repository-url> course-service
-git submodule add <subscription-service-repository-url> subscription-service
-git submodule add <payment-service-repository-url> payment-service
-git submodule add <payment-aggregator-repository-url> payment-aggregator
-```
+**루트에는 빌드 설정이 없습니다.** 각 서비스 폴더가 자체 `settings.gradle` + `build.gradle` + Gradle Wrapper(`gradlew`)를 가진 완전히 독립된 빌드이며, 각자 자기 폴더 안에서 단독으로 빌드·실행됩니다.
 
-팀원이 부모 레포를 처음 받을 때는 다음 명령을 사용합니다.
-
-```bash
-git clone --recurse-submodules <parent-repository-url>
-```
+- 서비스별 빌드 설정(의존성, 포트 등)은 각 하위 폴더의 `build.gradle`에 있습니다.
+- 특정 서비스만 빌드/실행: `cd <service> && ./gradlew bootRun`
+- 특정 서비스만 도커로 실행: `docker compose up --build <service>`
+- 전체 실행: `docker compose up --build` (아래 참고)

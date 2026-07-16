@@ -28,10 +28,14 @@ spring:
               uri: lb://course-service
               predicates:
                 - Path=/api/courses/**
-            - id: payment-aggregator
-              uri: lb://payment-aggregator
+            - id: subscription-service
+              uri: lb://subscription-service
               predicates:
-                - Path=/api/payment-aggregate/**
+                - Path=/api/subscriptions/**
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payments/**
 
 server:
   port: ${SERVER_PORT:8080}

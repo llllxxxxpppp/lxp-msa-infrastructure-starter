@@ -23,7 +23,6 @@ assignees: []
 - [ ] course-service
 - [ ] subscription-service
 - [ ] payment-service
-- [ ] payment-aggregator
 
 ## 작업 항목
 

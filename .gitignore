@@ -4,6 +4,6 @@
 **/.gradle/
 **/build/
 **/out/
-infrastructure/logs/*.log
+infrastructure/logs/*
 !infrastructure/logs/.gitkeep
 .env

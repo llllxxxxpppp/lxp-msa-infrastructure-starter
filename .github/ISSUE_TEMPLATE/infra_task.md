@@ -17,7 +17,7 @@ assignees: []
 - [ ] Consul (서비스 등록·탐색)
 - [ ] Prometheus (메트릭 수집)
 - [ ] Grafana (시각화)
-- [ ] Loki / Promtail (로그)
+- [ ] Loki / Alloy (로그)
 - [ ] Gateway 라우팅
 - [ ] 기타:
 
