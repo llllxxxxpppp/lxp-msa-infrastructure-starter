@@ -20,7 +20,8 @@ Public API Gateway
   ├─ Prometheus : CPU, JVM, HTTP 요청 수 같은 메트릭 수집
   ├─ Grafana : 메트릭과 로그를 시각화
   ├─ Loki : 로그 저장
-  └─ Promtail : 서비스 로그를 Loki로 전달
+  ├─ Alloy : 서비스 로그를 Loki로 전달
+  └─ Zipkin : 분산 트레이싱 저장/조회
 ```
 
 모든 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
@@ -95,6 +96,7 @@ docker compose -f compose.infra.yaml up -d
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
 | Loki readiness | http://localhost:3100/ready |
+| Zipkin | http://localhost:9411 |
 
 Grafana 기본 계정은 `admin / admin`입니다.
 
@@ -117,7 +119,8 @@ docker compose up --build
 - Consul 서비스 등록 및 탐색
 - Actuator / Prometheus metrics
 - Grafana 데이터소스 자동 설정
-- Loki + Promtail 로그 수집
+- Loki + Alloy 로그 수집
+- Zipkin 분산 트레이싱
 - 각 서비스의 최소 테스트 API
 
 미포함:
@@ -127,7 +130,6 @@ docker compose up --build
 - 서비스별 DB
 - gRPC 구현
 - Kafka 또는 RabbitMQ
-- Zipkin
 - 실제 결제 로직
 
 ## 저장소 구조

@@ -66,15 +66,29 @@ services:
       - "3100:3100"
     networks: [lxp-net]
 
-  promtail:
-    image: grafana/promtail:3.3.2
-    container_name: lxp-promtail
-    command: -config.file=/etc/promtail/config.yml
+  alloy:
+    image: grafana/alloy:latest
+    container_name: lxp-alloy
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
     volumes:
-      - ./infrastructure/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./infrastructure/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - ./infrastructure/logs:/var/log/lxp:ro
+      - alloy-data:/var/lib/alloy/data
+    ports:
+      - "12345:12345"
     depends_on:
       - loki
+    networks: [lxp-net]
+
+  zipkin:
+    image: openzipkin/zipkin:3.4
+    container_name: lxp-zipkin
+    ports:
+      - "9411:9411"
     networks: [lxp-net]
 
 
@@ -86,3 +100,4 @@ networks:
 volumes:
   grafana-data:
   loki-data:
+  alloy-data:
