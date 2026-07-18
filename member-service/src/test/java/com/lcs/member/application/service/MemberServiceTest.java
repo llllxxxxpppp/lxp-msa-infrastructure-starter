@@ -1,5 +1,9 @@
 package com.lcs.member.application.service;
 
+import com.lcs.member.application.dto.response.CreateMemberResponse;
+import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
+import com.lcs.member.application.dto.response.MemberCredentialResponse;
+import com.lcs.member.application.dto.response.SuspensionStatusResponse;
 import com.lcs.member.application.dto.response.UserResponseDTO;
 import com.lcs.member.domain.event.InstructorSuspendedEvent;
 import com.lcs.member.domain.event.MemberSuspendedEvent;
@@ -24,11 +28,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -414,5 +421,195 @@ class MemberServiceTest {
 
         verify(memberRepository).findById(instructorId);
         verify(memberRepository, never()).save(any());
+    }
+
+    // -------------------------------------------------------------------------
+    // createFromHash (MEMBER-08: internal API for Auth service)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("이메일 중복이 없으면 이미 해시된 비밀번호를 재인코딩 없이 그대로 저장하고 memberId를 반환한다")
+    void givenNonDuplicateEmailAndAlreadyHashedPassword_whenCreateFromHash_thenSavesHashAsIsAndReturnsMemberId() {
+        String email = "auth-user@example.com";
+        String passwordHash = "$2a$10$alreadyHashedValueFromAuth";
+
+        RegularMember savedMember = RegularMember.create(email, passwordHash);
+        ReflectionTestUtils.setField(savedMember, "id", 10L);
+
+        when(memberRepository.existsByEmail(email)).thenReturn(false);
+        when(memberRepository.save(any(RegularMember.class))).thenReturn(savedMember);
+
+        CreateMemberResponse result = memberService.createFromHash(email, passwordHash);
+
+        ArgumentCaptor<RegularMember> memberCaptor = ArgumentCaptor.forClass(RegularMember.class);
+        verify(memberRepository).save(memberCaptor.capture());
+        verifyNoInteractions(passwordEncoder);
+
+        assertEquals(passwordHash, memberCaptor.getValue().getPassword());
+        assertEquals(10L, result.memberId());
+    }
+
+    @Test
+    @DisplayName("이미 존재하는 이메일로 해시 기반 회원 생성을 요청하면 MemberException이 발생하고 save와 인코딩이 호출되지 않는다")
+    void givenExistingEmail_whenCreateFromHash_thenThrowsMemberExceptionAndSaveAndEncodeAreNotInvoked() {
+        String email = "auth-user@example.com";
+        String passwordHash = "$2a$10$alreadyHashedValueFromAuth";
+
+        when(memberRepository.existsByEmail(email)).thenReturn(true);
+
+        MemberException exception = assertThrows(MemberException.class,
+                () -> memberService.createFromHash(email, passwordHash));
+
+        assertEquals("이미 사용 중인 이메일 입니다.", exception.getMessage());
+        verify(memberRepository, never()).save(any());
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    // -------------------------------------------------------------------------
+    // findByEmailForAuth (MEMBER-08: internal API for Auth login)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("존재하는 이메일로 조회하면 memberId, passwordHash, role, suspended, deleted를 담은 응답을 반환한다")
+    void givenExistingEmail_whenFindByEmailForAuth_thenReturnsMemberCredentialResponse() {
+        String email = "user@example.com";
+        String passwordHash = "$2a$10$storedHashValue";
+
+        RegularMember member = RegularMember.create(email, passwordHash);
+        ReflectionTestUtils.setField(member, "id", 5L);
+
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
+
+        MemberCredentialResponse result = memberService.findByEmailForAuth(email);
+
+        verify(memberRepository).findByEmail(email);
+
+        assertEquals(5L, result.memberId());
+        assertEquals(passwordHash, result.passwordHash());
+        assertEquals(MemberRole.MEMBER, result.role());
+        assertFalse(result.suspended());
+        assertFalse(result.deleted());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이메일로 조회하면 MemberException이 발생한다")
+    void givenNonExistingEmail_whenFindByEmailForAuth_thenThrowsMemberException() {
+        String email = "missing@example.com";
+
+        when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        MemberException exception = assertThrows(MemberException.class,
+                () -> memberService.findByEmailForAuth(email));
+
+        assertEquals("존재하지 않는 회원입니다.", exception.getMessage());
+        verify(memberRepository).findByEmail(email);
+    }
+
+    // -------------------------------------------------------------------------
+    // getAuthStatus (MEMBER-08: internal API for Auth token reissue)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("존재하는 강사 회원 ID로 조회하면 role, suspended, deleted를 담은 인증 상태 응답을 반환한다")
+    void givenExistingInstructorMember_whenGetAuthStatus_thenReturnsMemberAuthStatusResponse() {
+        Long memberId = 1L;
+        InstructorMember instructorMember = InstructorMember.create(
+                "instructor@example.com", "hash", "홍길동", null, null);
+        ReflectionTestUtils.setField(instructorMember, "id", memberId);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(instructorMember));
+
+        MemberAuthStatusResponse result = memberService.getAuthStatus(memberId);
+
+        verify(memberRepository).findById(memberId);
+
+        assertEquals(MemberRole.INSTRUCTOR, result.role());
+        assertFalse(result.suspended());
+        assertFalse(result.deleted());
+    }
+
+    @Test
+    @DisplayName("정지된 회원의 인증 상태를 조회하면 suspended와 deleted가 true로 반환된다")
+    void givenSuspendedMember_whenGetAuthStatus_thenReturnsSuspendedAndDeletedTrue() {
+        Long memberId = 2L;
+        RegularMember regularMember = RegularMember.create("suspended@example.com", "hash");
+        regularMember.suspend();
+        ReflectionTestUtils.setField(regularMember, "id", memberId);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(regularMember));
+
+        MemberAuthStatusResponse result = memberService.getAuthStatus(memberId);
+
+        verify(memberRepository).findById(memberId);
+
+        assertEquals(MemberRole.MEMBER, result.role());
+        assertTrue(result.suspended());
+        assertTrue(result.deleted());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원 ID로 인증 상태를 조회하면 MemberException이 발생한다")
+    void givenNonExistingMember_whenGetAuthStatus_thenThrowsMemberException() {
+        Long memberId = 999L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        MemberException exception = assertThrows(MemberException.class,
+                () -> memberService.getAuthStatus(memberId));
+
+        assertEquals("존재하지 않는 회원입니다.", exception.getMessage());
+        verify(memberRepository).findById(memberId);
+    }
+
+    // -------------------------------------------------------------------------
+    // getSuspensionStatus (MEMBER-08: internal API for Course 2nd-line defense)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("강사 회원의 정지 상태를 조회하면 suspended=true를 반환한다")
+    void givenSuspendedInstructorMember_whenGetSuspensionStatus_thenReturnsSuspendedTrue() {
+        Long instructorId = 1L;
+        InstructorMember instructorMember = InstructorMember.create(
+                "instructor@example.com", "hash", "홍길동", null, null);
+        instructorMember.suspend();
+        ReflectionTestUtils.setField(instructorMember, "id", instructorId);
+
+        when(memberRepository.findById(instructorId)).thenReturn(Optional.of(instructorMember));
+
+        SuspensionStatusResponse result = memberService.getSuspensionStatus(instructorId);
+
+        verify(memberRepository).findById(instructorId);
+
+        assertTrue(result.suspended());
+    }
+
+    @Test
+    @DisplayName("강사가 아닌 일반 회원의 정지 상태를 조회해도 강사 여부 검증 없이 suspended 값을 반환한다")
+    void givenNonInstructorRegularMember_whenGetSuspensionStatus_thenReturnsSuspendedStatusWithoutInstructorCheck() {
+        Long memberId = 2L;
+        RegularMember regularMember = RegularMember.create("user@example.com", "hash");
+        ReflectionTestUtils.setField(regularMember, "id", memberId);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(regularMember));
+
+        SuspensionStatusResponse result = memberService.getSuspensionStatus(memberId);
+
+        verify(memberRepository).findById(memberId);
+
+        assertFalse(result.suspended());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ID로 정지 상태를 조회하면 MemberException이 발생한다")
+    void givenNonExistingId_whenGetSuspensionStatus_thenThrowsMemberException() {
+        Long memberId = 999L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        MemberException exception = assertThrows(MemberException.class,
+                () -> memberService.getSuspensionStatus(memberId));
+
+        assertEquals("존재하지 않는 회원입니다.", exception.getMessage());
+        verify(memberRepository).findById(memberId);
     }
 }

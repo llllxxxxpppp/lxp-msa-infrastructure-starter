@@ -1,5 +1,9 @@
 package com.lcs.member.application.service;
 
+import com.lcs.member.application.dto.response.CreateMemberResponse;
+import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
+import com.lcs.member.application.dto.response.MemberCredentialResponse;
+import com.lcs.member.application.dto.response.SuspensionStatusResponse;
 import com.lcs.member.application.dto.response.UserResponseDTO;
 import com.lcs.member.domain.event.InstructorSuspendedEvent;
 import com.lcs.member.domain.event.MemberRegisteredEvent;
@@ -114,6 +118,39 @@ public class MemberService {
         Member savedMember = memberRepository.save(instructorMember);
 
         return UserResponseDTO.from(savedMember);
+    }
+
+    @Transactional
+    public CreateMemberResponse createFromHash(String email, String passwordHash) {
+        ensureEmailNotTaken(email);
+
+        RegularMember member = RegularMember.create(email, passwordHash);
+
+        Member savedMember = memberRepository.save(member);
+
+        return CreateMemberResponse.from(savedMember);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberCredentialResponse findByEmailForAuth(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
+
+        return MemberCredentialResponse.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberAuthStatusResponse getAuthStatus(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+
+        return MemberAuthStatusResponse.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public SuspensionStatusResponse getSuspensionStatus(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+
+        return SuspensionStatusResponse.from(member);
     }
 
     private void ensureEmailNotTaken(String email) {
