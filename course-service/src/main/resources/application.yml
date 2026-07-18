@@ -42,3 +42,7 @@ management:
 logging:
   file:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
+
+course:
+  instructor-status:
+    rest-enabled: ${INSTRUCTOR_STATUS_REST_ENABLED:false}
