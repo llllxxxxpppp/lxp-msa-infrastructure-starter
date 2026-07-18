@@ -10,6 +10,8 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -137,6 +139,23 @@ class JwtAuthenticationFilterTest {
     void 공개_경로는_토큰_없이_통과한다() {
         MockServerWebExchange exchange = MockServerWebExchange.from(
                 MockServerHttpRequest.get("/api/auth/ping"));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+        assertThat(exchange.getResponse().getStatusCode()).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/v3/api-docs",
+            "/v3/api-docs/course-service",
+            "/swagger-ui/index.html",
+            "/swagger-ui.html"})
+    void swagger_문서_경로는_토큰_없이_통과한다(String path) {
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get(path));
         CapturingChain chain = new CapturingChain();
 
         filter.filter(exchange, chain).block();

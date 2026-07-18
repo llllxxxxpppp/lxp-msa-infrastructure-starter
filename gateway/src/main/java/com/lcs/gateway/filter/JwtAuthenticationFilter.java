@@ -54,7 +54,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
      */
     private static final List<String> PUBLIC_PATH_PATTERNS = List.of(
             "/api/auth/**",
-            "/actuator/**");
+            "/actuator/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html");
 
     /**
      * 요청 경로가 규칙에 매칭되면 토큰 role에 허용하는 role이 하나라도 있어야 통과한다(없으면 403)
