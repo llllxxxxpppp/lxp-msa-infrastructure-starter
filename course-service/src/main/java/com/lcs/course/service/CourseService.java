@@ -1,5 +1,6 @@
 package com.lcs.course.service;
 
+import com.lcs.course.client.InstructorStatusClient;
 import com.lcs.course.dto.response.CourseDetailResponse;
 import com.lcs.course.dto.response.CoursePageResponse;
 import com.lcs.course.dto.response.CourseSummaryResponse;
@@ -26,9 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final InstructorStatusClient instructorStatusClient;
 
-    public CourseService(CourseRepository courseRepository) {
+    public CourseService(CourseRepository courseRepository, InstructorStatusClient instructorStatusClient) {
         this.courseRepository = courseRepository;
+        this.instructorStatusClient = instructorStatusClient;
     }
 
     @Transactional(readOnly = true)
@@ -54,6 +57,7 @@ public class CourseService {
     }
 
     public void createCourse(Long instructorId, String title, String description, String thumbnailUrl) {
+        rejectIfSuspended(instructorId);
         Course course = Course.create(new InstructorId(instructorId), new Title(title), description, thumbnailUrl);
         courseRepository.save(course);
     }
@@ -61,50 +65,59 @@ public class CourseService {
     public void updateCourse(
             Long courseId, String newTitle, String description, String thumbnailUrl,
             Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.update(new Title(newTitle), description, thumbnailUrl);
     }
 
     public void publishCourse(Long courseId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.publish();
     }
 
     public void unpublishCourse(Long courseId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.unpublish();
     }
 
-    public void addLecture(Long courseId, String title, String contentUrl, String contentType) {
+    public void addLecture(Long courseId, Long requesterId, String title, String contentUrl, String contentType) {
+        rejectIfSuspended(requesterId);
         getCourse(courseId).addLecture(new Title(title), contentUrl, contentType);
     }
 
     public void publishLecture(Long courseId, Long lectureId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.publishLecture(new LectureId(lectureId));
     }
 
     public void unpublishLecture(Long courseId, Long lectureId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.unpublishLecture(new LectureId(lectureId));
     }
 
-    public void addMission(Long courseId, String title, String content) {
+    public void addMission(Long courseId, Long requesterId, String title, String content) {
+        rejectIfSuspended(requesterId);
         getCourse(courseId).addMission(new Title(title), content);
     }
 
     public void publishMission(Long courseId, Long missionId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.publishMission(new MissionId(missionId));
     }
 
     public void unpublishMission(Long courseId, Long missionId, Long requesterId, boolean isAdmin) {
+        rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.unpublishMission(new MissionId(missionId));
@@ -144,6 +157,12 @@ public class CourseService {
                 courseRepository.findAllByInstructorIdAndStatusAndDeletedAtIsNull(instructorId, ContentStatus.PUBLIC);
         for (Course course : publicCourses) {
             course.unpublish();
+        }
+    }
+
+    private void rejectIfSuspended(Long requesterId) {
+        if (instructorStatusClient.isSuspended(requesterId)) {
+            throw new CourseAccessDeniedException("정지된 강사는 해당 작업을 수행할 수 없습니다.");
         }
     }
 

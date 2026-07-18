@@ -105,8 +105,9 @@ public class CourseController {
     @PostMapping("/{courseId}/lectures")
     public ResponseEntity<Void> addLecture(
             @PathVariable Long courseId,
-            @RequestBody @Valid AddLectureRequest request) {
-        courseService.addLecture(courseId, request.title(), request.contentUrl(), request.contentType());
+            @RequestBody @Valid AddLectureRequest request,
+            @RequestHeader("X-User-Id") Long userId) {
+        courseService.addLecture(courseId, userId, request.title(), request.contentUrl(), request.contentType());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -143,8 +144,9 @@ public class CourseController {
     @PostMapping("/{courseId}/missions")
     public ResponseEntity<Void> addMission(
             @PathVariable Long courseId,
-            @RequestBody @Valid AddMissionRequest request) {
-        courseService.addMission(courseId, request.title(), request.content());
+            @RequestBody @Valid AddMissionRequest request,
+            @RequestHeader("X-User-Id") Long userId) {
+        courseService.addMission(courseId, userId, request.title(), request.content());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
