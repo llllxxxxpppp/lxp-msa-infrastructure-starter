@@ -191,6 +191,72 @@ class JwtAuthenticationFilterTest {
         assertThat(chain.called).isFalse();
     }
 
+    // --- 경로별 role 게이팅 ---
+
+    @Test
+    void admin_경로는_ADMIN_롤이면_통과한다() {
+        String jwt = token(key, 1L, "ROLE_ADMIN", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/admin/members").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+    }
+
+    @Test
+    void admin_경로는_ADMIN_롤이_없으면_403이다() {
+        String jwt = token(key, 1L, "ROLE_MEMBER", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/admin/members").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(chain.called).isFalse();
+    }
+
+    @Test
+    void members_경로는_MEMBER_롤이면_통과한다() {
+        String jwt = token(key, 1L, "ROLE_MEMBER", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/members/ping").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+    }
+
+    @Test
+    void members_경로는_ADMIN만_있고_MEMBER가_없으면_403이다() {
+        // 롤 계층 없음: ADMIN이라도 MEMBER 전용 경로는 통과하지 못한다.
+        String jwt = token(key, 1L, "ROLE_ADMIN", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/members/ping").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(chain.called).isFalse();
+    }
+
+    @Test
+    void 규칙이_없는_경로는_롤과_무관하게_통과한다() {
+        // /api/courses는 role 게이팅 규칙 대상이 아니므로 인증만 통과하면 된다(세밀 인가는 서비스 몫).
+        String jwt = token(key, 1L, "ROLE_MEMBER", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/courses").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+    }
+
     @Test
     void 필터_순서는_라우팅보다_앞선다() {
         assertThat(filter.getOrder()).isEqualTo(-1);
