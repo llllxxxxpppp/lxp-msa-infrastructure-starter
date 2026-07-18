@@ -1,0 +1,13 @@
+package com.lcs.subscription.domain.model.vo;
+
+public enum PaymentStatus {
+    PAYMENT_NOT_REQUESTED,
+    PAYMENT_REQUESTED,
+    PAYMENT_REQUEST_FAILED,
+    PAYMENT_SUCCESS,
+    PAYMENT_FAILED,
+    REFUND_REQUESTED,
+    REFUND_REQUEST_FAILED,
+    REFUND_SUCCESS,
+    REFUND_FAILED
+}
