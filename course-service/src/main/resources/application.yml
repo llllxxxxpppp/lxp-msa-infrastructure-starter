@@ -3,6 +3,20 @@ spring:
     name: course-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  datasource:
+    url: jdbc:h2:mem:coursedb
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
