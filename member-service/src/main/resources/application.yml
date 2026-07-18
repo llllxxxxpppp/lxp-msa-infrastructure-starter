@@ -37,3 +37,10 @@ management:
 logging:
   file:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
+
+member:
+  notification:
+    subscription-service:
+      base-url: ${SUBSCRIPTION_SERVICE_URL:http://localhost:8084}
+    course-service:
+      base-url: ${COURSE_SERVICE_URL:http://localhost:8083}
