@@ -11,8 +11,10 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -274,6 +276,47 @@ class JwtAuthenticationFilterTest {
         filter.filter(exchange, chain).block();
 
         assertThat(chain.called).isTrue();
+    }
+
+    // --- course 경로별 role 게이팅 (모놀리식 SecurityConfig 이식) ---
+
+    @ParameterizedTest(name = "[{index}] {0} {1} role={2} forbidden={3}")
+    @CsvSource({
+            // INSTRUCTOR 전용
+            "POST,   /api/courses,                       ROLE_INSTRUCTOR, false",
+            "POST,   /api/courses,                       ROLE_MEMBER,     true",
+            "POST,   /api/courses,                       ROLE_ADMIN,      true",
+            "POST,   /api/courses/5/publish,             ROLE_INSTRUCTOR, false",
+            "POST,   /api/courses/5/publish,             ROLE_ADMIN,      true",
+            "POST,   /api/courses/5/lectures,            ROLE_INSTRUCTOR, false",
+            "POST,   /api/courses/5/missions,            ROLE_MEMBER,     true",
+            // INSTRUCTOR 또는 ADMIN
+            "POST,   /api/courses/5/unpublish,           ROLE_ADMIN,      false",
+            "POST,   /api/courses/5/unpublish,           ROLE_INSTRUCTOR, false",
+            "POST,   /api/courses/5/unpublish,           ROLE_MEMBER,     true",
+            "DELETE, /api/courses/5,                     ROLE_ADMIN,      false",
+            "DELETE, /api/courses/5,                     ROLE_MEMBER,     true",
+            "PATCH,  /api/courses/5/reorder,             ROLE_INSTRUCTOR, false",
+            "DELETE, /api/courses/5/lectures/3,          ROLE_ADMIN,      false",
+            "DELETE, /api/courses/5/missions/3,          ROLE_MEMBER,     true",
+            // GET 등 규칙 없는 메서드/경로는 role 무관 통과
+            "GET,    /api/courses,                       ROLE_MEMBER,     false",
+            "GET,    /api/courses/5,                     ROLE_MEMBER,     false"})
+    void course_경로_role_게이팅(String method, String path, String role, boolean forbidden) {
+        String jwt = token(key, 1L, role, 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.method(HttpMethod.valueOf(method), path)
+                        .header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        if (forbidden) {
+            assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(chain.called).isFalse();
+        } else {
+            assertThat(chain.called).isTrue();
+        }
     }
 
     @Test

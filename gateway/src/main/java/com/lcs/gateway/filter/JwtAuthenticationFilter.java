@@ -1,5 +1,9 @@
 package com.lcs.gateway.filter;
 
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
+
 import com.lcs.gateway.jwt.JwtTokenValidator;
 import com.lcs.gateway.jwt.exception.ExpiredTokenException;
 import com.lcs.gateway.jwt.exception.InvalidTokenException;
@@ -14,6 +18,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -30,8 +35,9 @@ import reactor.core.publisher.Mono;
  * <p>모놀리식 {@code JwtAuthenticationFilter}(서블릿 {@code OncePerRequestFilter})를 리액티브
  * {@code GlobalFilter}로 재작성했다. 다음 원칙을 따른다.
  * <ul>
- *   <li><b>인증 + 경로별 role 게이팅</b>을 수행한다. role만으로 판정되는 안정적인 경로 게이팅만 담당하고,
- *       소유권·상태처럼 서비스 로직과 함께 바뀌는 세밀 인가는 각 도메인 서비스가 담당한다.</li>
+ *   <li><b>인증 + 경로별 role 게이팅</b>을 수행한다. 요청 메서드·경로에 매핑된 role 규칙을 검사하되
+ *       role 차원만 거른다. 소유권(작성자 본인)·정지 상태처럼 데이터 조회가 필요한 세밀 인가는 각
+ *       도메인 서비스가 담당한다.</li>
  *   <li>만료 토큰은 재발급을 시도하지 않고 401로 응답한다(재발급은 auth-service 책임).</li>
  *   <li>검증 성공 시 {@code X-User-Id}·{@code X-Role} 헤더를 주입한다. 위조 방지를 위해
  *       클라이언트가 보낸 동일 헤더는 먼저 제거한 뒤 Gateway가 값을 설정한다(신뢰 경계).</li>
@@ -59,16 +65,44 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/swagger-ui/**",
             "/swagger-ui.html");
 
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private static final String ROLE_MEMBER = "ROLE_MEMBER";
+    private static final String ROLE_INSTRUCTOR = "ROLE_INSTRUCTOR";
+
     /**
-     * 요청 경로가 규칙에 매칭되면 토큰 role에 허용하는 role이 하나라도 있어야 통과한다(없으면 403)
-     * role 계층은 두지 않고 명시된 롤만 검증한다.
-     * 소유권·상태 같은 세밀 인가는 여기에 두지 않고 각 서비스가 담당한다.
+     * (HTTP 메서드, 경로 패턴) → 허용 role. 요청이 규칙에 매칭되면 토큰 role에 허용 role이
+     * 하나라도 있어야 통과한다(없으면 403). {@code method == null}이면 모든 메서드에 적용.
+     * role 계층은 두지 않고 명시된 role만 검증한다.
+     *
+     * <p>모놀리식 {@code SecurityConfig}의 경로별 권한 규칙을 그대로 이식한 것이다. 단, 이 게이팅은
+     * role 차원만 거른다. 소유권(작성자 본인)·정지 상태 같은 판정은 데이터 조회가 필요하므로 각
+     * 도메인 서비스가 담당해야 한다.
      */
     private static final List<RoleRule> ROLE_RULES = List.of(
-            new RoleRule("/api/admin/**", Set.of("ROLE_ADMIN")),
-            new RoleRule("/api/members/**", Set.of("ROLE_MEMBER")));
+            rule(null, "/api/admin/**", ROLE_ADMIN),
+            rule(null, "/api/members/**", ROLE_MEMBER),
 
-    private record RoleRule(String pathPattern, Set<String> allowedRoles) {
+            rule(POST, "/api/courses", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/publish", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
+            rule(DELETE, "/api/courses/*", ROLE_INSTRUCTOR, ROLE_ADMIN),
+            rule(PATCH, "/api/courses/*/reorder", ROLE_INSTRUCTOR, ROLE_ADMIN),
+
+            rule(POST, "/api/courses/*/lectures", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/lectures/*/publish", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/lectures/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
+            rule(DELETE, "/api/courses/*/lectures/*", ROLE_INSTRUCTOR, ROLE_ADMIN),
+
+            rule(POST, "/api/courses/*/missions", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/missions/*/publish", ROLE_INSTRUCTOR),
+            rule(POST, "/api/courses/*/missions/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
+            rule(DELETE, "/api/courses/*/missions/*", ROLE_INSTRUCTOR, ROLE_ADMIN));
+
+    private static RoleRule rule(HttpMethod method, String pathPattern, String... allowedRoles) {
+        return new RoleRule(method, pathPattern, Set.of(allowedRoles));
+    }
+
+    private record RoleRule(HttpMethod method, String pathPattern, Set<String> allowedRoles) {
     }
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -106,7 +140,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
         String roles = tokenValidator.getRoles(claims);
 
-        if (!isAuthorized(request.getPath().value(), parseRoles(roles))) {
+        if (!isAuthorized(request.getMethod(), request.getPath().value(), parseRoles(roles))) {
             return forbidden(exchange);
         }
 
@@ -130,9 +164,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
      * 경로에 매칭되는 role 게이팅 규칙을 모두 만족하는지 검사한다. 매칭되는 규칙이 없으면
      * 게이트웨이 인가 대상이 아니므로 통과(true)시키고, 세밀 인가는 서비스에 위임한다.
      */
-    private boolean isAuthorized(String path, Set<String> userRoles) {
+    private boolean isAuthorized(HttpMethod method, String path, Set<String> userRoles) {
         for (RoleRule rule : ROLE_RULES) {
-            if (pathMatcher.match(rule.pathPattern(), path)
+            boolean methodMatches = rule.method() == null || rule.method().equals(method);
+            if (methodMatches
+                    && pathMatcher.match(rule.pathPattern(), path)
                     && rule.allowedRoles().stream().noneMatch(userRoles::contains)) {
                 return false;
             }
