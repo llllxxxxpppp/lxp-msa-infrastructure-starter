@@ -8,6 +8,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -38,6 +39,42 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().message()).isEqualTo("Bad credentials");
+    }
+
+    @Test
+    @DisplayName("MemberServiceUnavailableException은 503 Service Unavailable로 변환된다")
+    void handleMemberServiceUnavailableException_returns503() {
+        ResponseEntity<ErrorResponse> response = handler.handleMemberServiceUnavailableException(
+                new MemberServiceUnavailableException("connection refused", new RuntimeException()));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getBody()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("member-service 장애로 인한 InternalAuthenticationServiceException은 401이 아닌 503으로 변환된다")
+    void handleInternalAuthenticationServiceException_causedByMemberServiceUnavailable_returns503() {
+        MemberServiceUnavailableException cause =
+                new MemberServiceUnavailableException("connection refused", new RuntimeException());
+        InternalAuthenticationServiceException exception =
+                new InternalAuthenticationServiceException(cause.getMessage(), cause);
+
+        ResponseEntity<ErrorResponse> response =
+                handler.handleInternalAuthenticationServiceException(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @Test
+    @DisplayName("member-service 장애가 원인이 아닌 InternalAuthenticationServiceException은 500으로 변환된다")
+    void handleInternalAuthenticationServiceException_otherCause_returns500() {
+        InternalAuthenticationServiceException exception =
+                new InternalAuthenticationServiceException("unexpected", new IllegalStateException());
+
+        ResponseEntity<ErrorResponse> response =
+                handler.handleInternalAuthenticationServiceException(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test

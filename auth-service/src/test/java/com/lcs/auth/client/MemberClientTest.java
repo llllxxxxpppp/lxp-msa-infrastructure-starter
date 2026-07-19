@@ -1,14 +1,17 @@
 package com.lcs.auth.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.lcs.auth.client.dto.response.MemberLoginInfoResponseDTO;
+import com.lcs.auth.exception.MemberServiceUnavailableException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -65,5 +68,16 @@ class MemberClientTest {
         Optional<MemberLoginInfoResponseDTO> result = memberClient.findByEmail("missing@test.com");
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("member-service가 5xx로 응답하면 MemberServiceUnavailableException을 던진다")
+    void findByEmail_memberServiceServerError_throwsMemberServiceUnavailableException() {
+        mockServer.expect(requestTo("http://member-service/members/email"))
+                .andExpect(method(POST))
+                .andRespond(withServerError());
+
+        assertThatThrownBy(() -> memberClient.findByEmail("user@test.com"))
+                .isInstanceOf(MemberServiceUnavailableException.class);
     }
 }
