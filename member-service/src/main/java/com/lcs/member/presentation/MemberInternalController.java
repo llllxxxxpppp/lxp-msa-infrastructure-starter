@@ -6,6 +6,7 @@ import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
 import com.lcs.member.application.dto.response.MemberCredentialResponse;
 import com.lcs.member.application.dto.response.SuspensionStatusResponse;
 import com.lcs.member.application.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
  * 인증/인가는 이 서비스의 책임이 아니며, Gateway가 외부 노출을 차단한다고 가정한다
  * (Msa-Conversion-member.md §3.1, §3.2, §4.3).
  */
+@Tag(name = "내부 API (Auth/Course 전용 - 외부 미노출)",
+        description = "Auth/Course 서비스가 호출하는 내부 전용 API. Gateway 외부에 노출되면 안 된다.")
 @RestController
 @RequestMapping("/internal/members")
 public class MemberInternalController {
