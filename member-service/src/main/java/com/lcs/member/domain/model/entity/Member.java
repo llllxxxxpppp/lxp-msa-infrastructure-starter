@@ -3,48 +3,26 @@ package com.lcs.member.domain.model.entity;
 import com.lcs.member.domain.exception.MemberException;
 import com.lcs.member.domain.model.MemberRole;
 import com.lcs.member.domain.model.vo.MemberId;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.regex.Pattern;
 
-@Entity
-@Table(name = "members")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public abstract class Member {
 
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[\\w._%+\\-]+@[\\w.\\-]+\\.[A-Za-z]{2,}$");
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private boolean deleted;
 
-    @Column
     private OffsetDateTime suspendedAt;
 
-    @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    @Column
     private OffsetDateTime updatedAt;
 
     protected Member() {}
@@ -58,7 +36,26 @@ public abstract class Member {
         this.createdAt = OffsetDateTime.now();
     }
 
+    /**
+     * 이미 검증된 영속 데이터를 복원(reconstitute)하기 위한 생성자.
+     * 검증 없이 그대로 대입한다.
+     */
+    protected Member(Long id, String email, String password, boolean deleted,
+            OffsetDateTime suspendedAt, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.deleted = deleted;
+        this.suspendedAt = suspendedAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public abstract MemberRole getRole();
+
+    public boolean isPersisted() {
+        return id != null;
+    }
 
     public MemberId getId() {
         return new MemberId(id);

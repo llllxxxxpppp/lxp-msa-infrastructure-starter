@@ -10,7 +10,7 @@ import com.lcs.member.domain.model.MemberRole;
 import com.lcs.member.domain.model.entity.InstructorMember;
 import com.lcs.member.domain.model.entity.RegularMember;
 import com.lcs.member.domain.repository.MemberRepository;
-import com.lcs.member.infrastructure.notification.MemberStateChangeNotifier;
+import com.lcs.member.domain.notification.MemberStateChangeNotifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

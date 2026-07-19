@@ -18,14 +18,18 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * MEMBER-13: 헥사고날 전환 1단계로 신설되는 {@code infrastructure.persistence} 패키지의
+ * MEMBER-13/MEMBER-14+15: {@code infrastructure.persistence} 패키지의
  * JPA 엔티티 4종({@code MemberJpaEntity}(추상)/{@code RegularMemberJpaEntity}/
  * {@code InstructorMemberJpaEntity}/{@code AdminMemberJpaEntity})과
- * {@code MemberJpaRepository}가 임시 테이블 {@code members_staging}에 정상적으로
+ * {@code MemberJpaRepository}가 실제 테이블 {@code members}에 정상적으로
  * 저장/조회되는지 검증한다.
  *
- * <p>기존 도메인 {@code Member} 계층({@code members} 테이블)과는 완전히 독립된 별도 테이블을
- * 사용하므로 기존 테스트 스위트({@code SeedDataTest} 등)에 영향을 주지 않는다(완료 기준 4).</p>
+ * <p>MEMBER-14+15에서 도메인 {@code Member} 계층의 JPA 어노테이션이 전부 제거되고
+ * {@code MemberJpaEntity}의 {@code @Table} 이름이 임시값 {@code members_staging}에서
+ * 실제 {@code members}로 변경되었다 - 이제 이 JPA 엔티티들이 {@code members} 테이블의
+ * 유일한 매핑이므로, 여기서 사용하는 이메일 값은 MEMBER-11 시드 데이터 3건
+ * ({@code admin@lxp.local}/{@code instructor@lxp.local}/{@code member@lxp.local})과
+ * 겹치지 않아야 한다(겹치면 unique 제약 위반).</p>
  *
  * <p>Mockito 협력자가 없는 {@code @DataJpaTest} 기반 리포지토리 테스트이므로
  * {@code verify()}/{@code verifyNoInteractions()} 대신 JUnit assert로 검증한다
@@ -264,7 +268,7 @@ class MemberJpaRepositoryTest {
 
     private String readRoleColumn(Long memberId) {
         Object role = entityManager.getEntityManager()
-                .createNativeQuery("SELECT role FROM members_staging WHERE id = :id")
+                .createNativeQuery("SELECT role FROM members WHERE id = :id")
                 .setParameter("id", memberId)
                 .getSingleResult();
         return String.valueOf(role);

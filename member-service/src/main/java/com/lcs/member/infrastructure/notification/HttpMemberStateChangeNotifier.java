@@ -5,6 +5,7 @@ import com.lcs.member.domain.event.InstructorSuspendedEvent;
 import com.lcs.member.domain.event.MemberRegisteredEvent;
 import com.lcs.member.domain.event.MemberSuspendedEvent;
 import com.lcs.member.domain.event.MemberWithdrawnEvent;
+import com.lcs.member.domain.notification.MemberStateChangeNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

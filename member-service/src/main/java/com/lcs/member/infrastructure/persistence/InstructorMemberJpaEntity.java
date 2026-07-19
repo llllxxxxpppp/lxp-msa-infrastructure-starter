@@ -7,7 +7,7 @@ import jakarta.persistence.Entity;
 import java.time.OffsetDateTime;
 
 /**
- * MEMBER-13: 임시 테이블 {@code members_staging}에 매핑되는 강사 회원 JPA 엔티티({@code role = INSTRUCTOR}).
+ * MEMBER-13/MEMBER-14+15: {@code members} 테이블에 매핑되는 강사 회원 JPA 엔티티({@code role = INSTRUCTOR}).
  *
  * <p>프로필은 도메인 {@code InstructorProfile} VO를 {@code @Embedded}로 재사용하지 않고,
  * 평범한 String 필드 3개로 매핑한다.</p>

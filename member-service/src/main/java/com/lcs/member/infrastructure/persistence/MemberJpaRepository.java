@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * MEMBER-13: 임시 테이블 {@code members_staging}에 매핑된 {@link MemberJpaEntity}용 Spring Data 리포지토리.
+ * MEMBER-13/MEMBER-14+15: {@code members} 테이블에 매핑된 {@link MemberJpaEntity}용 Spring Data 리포지토리.
  */
 public interface MemberJpaRepository extends JpaRepository<MemberJpaEntity, Long> {
     boolean existsByEmail(String email);

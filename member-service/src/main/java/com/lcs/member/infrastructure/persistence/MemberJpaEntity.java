@@ -14,13 +14,14 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
 /**
- * MEMBER-13: 헥사고날 전환 1단계로 신설된 JPA 엔티티(임시 테이블 {@code members_staging}).
+ * MEMBER-13/MEMBER-14+15: {@code members} 테이블에 매핑되는 JPA 엔티티.
  *
- * <p>기존 도메인 {@code Member}({@code members} 테이블)와는 완전히 독립된 별도 매핑이며,
+ * <p>도메인 {@code Member}는 MEMBER-14+15에서 JPA 어노테이션이 전부 제거된 순수 POJO가
+ * 되었고, 실제 영속성은 이 클래스(및 서브타입)와 {@link MemberRepositoryAdapter}가 담당한다.
  * 이 클래스는 순수 영속성 모델로서 도메인 규칙(불변식 검증 등)을 갖지 않는다.</p>
  */
 @Entity
-@Table(name = "members_staging")
+@Table(name = "members")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public abstract class MemberJpaEntity {
@@ -68,6 +69,10 @@ public abstract class MemberJpaEntity {
 
     public Long getId() {
         return id;
+    }
+
+    void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {

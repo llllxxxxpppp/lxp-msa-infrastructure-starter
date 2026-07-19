@@ -1,19 +1,13 @@
 package com.lcs.member.domain.model.vo;
 
 import com.lcs.member.domain.exception.MemberException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
-@Embeddable
 public class InstructorProfile {
 
-    @Column(name = "profile_name")
     private String name;
 
-    @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @Column(name = "profile_introduction", columnDefinition = "TEXT")
     private String introduction;
 
     protected InstructorProfile() {}

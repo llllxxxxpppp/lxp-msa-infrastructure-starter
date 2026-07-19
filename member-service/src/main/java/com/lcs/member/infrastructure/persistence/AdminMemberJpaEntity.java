@@ -6,7 +6,7 @@ import jakarta.persistence.Entity;
 import java.time.OffsetDateTime;
 
 /**
- * MEMBER-13: 임시 테이블 {@code members_staging}에 매핑되는 관리자 회원 JPA 엔티티({@code role = ADMIN}).
+ * MEMBER-13/MEMBER-14+15: {@code members} 테이블에 매핑되는 관리자 회원 JPA 엔티티({@code role = ADMIN}).
  */
 @Entity
 @DiscriminatorValue("ADMIN")
