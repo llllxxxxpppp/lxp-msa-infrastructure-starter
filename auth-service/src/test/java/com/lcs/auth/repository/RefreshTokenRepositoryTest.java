@@ -57,4 +57,17 @@ class RefreshTokenRepositoryTest {
         assertThatThrownBy(() -> refreshTokenRepository.saveAndFlush(duplicate))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    @DisplayName("동일한 토큰 값으로 두 번 저장하면 unique 제약조건 위반이 발생한다")
+    void duplicateToken_violatesUniqueConstraint() {
+        refreshTokenRepository.saveAndFlush(
+                new RefreshToken("user-a@test.com", "same-token", Instant.now().plusSeconds(600)));
+
+        RefreshToken duplicate =
+                new RefreshToken("user-b@test.com", "same-token", Instant.now().plusSeconds(600));
+
+        assertThatThrownBy(() -> refreshTokenRepository.saveAndFlush(duplicate))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
 }

@@ -11,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +67,9 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken() {
-        return Jwts.builder().issuedAt(new Date()) // NOPMD - JJWT API requires java.util.Date
+        return Jwts.builder()
+                .id(UUID.randomUUID().toString())
+                .issuedAt(new Date()) // NOPMD - JJWT API requires java.util.Date
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpireTime)) // NOPMD
                 .signWith(key, Jwts.SIG.HS512).compact();
     }

@@ -61,6 +61,22 @@ class JwtTokenProviderTest {
     }
 
     @Test
+    @DisplayName("리프레시 토큰은 같은 초에 발급되어도 jti(랜덤 값)로 인해 서로 다른 값을 가진다")
+    void createRefreshToken_generatesUniqueTokensEvenWithinSameSecond() {
+        String token1 = jwtTokenProvider.createRefreshToken();
+        String token2 = jwtTokenProvider.createRefreshToken();
+
+        assertThat(token1).isNotEqualTo(token2);
+
+        SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        Claims claims1 = Jwts.parser().verifyWith(key).build().parseSignedClaims(token1).getPayload();
+        Claims claims2 = Jwts.parser().verifyWith(key).build().parseSignedClaims(token2).getPayload();
+
+        assertThat(claims1.getId()).isNotBlank();
+        assertThat(claims1.getId()).isNotEqualTo(claims2.getId());
+    }
+
+    @Test
     @DisplayName("만료된 토큰을 검증하면 ExpiredJwtCustomException이 발생한다")
     void validateToken_expiredToken_throwsExpiredJwtCustomException() {
         ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpireTime", -1_000L);

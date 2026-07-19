@@ -19,7 +19,7 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 1024)
+    @Column(nullable = false, unique = true, length = 1024)
     private String token;
 
     @Column(nullable = false)
