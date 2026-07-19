@@ -1,4 +1,4 @@
-package com.lcs.auth.presentation;
+package com.lcs.auth.controller;
 
 import java.time.Instant;
 import java.util.Map;
@@ -12,10 +12,12 @@ public class AuthController {
 
     @GetMapping("/ping")
     public Map<String, Object> ping() {
+        // @formatter:off
         return Map.of(
                 "service", "auth-service",
                 "status", "UP",
                 "timestamp", Instant.now().toString()
         );
+        // @formatter:on
     }
 }

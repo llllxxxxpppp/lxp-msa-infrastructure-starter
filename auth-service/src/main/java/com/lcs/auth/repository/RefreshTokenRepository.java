@@ -1,5 +1,6 @@
-package com.lcs.auth.refresh;
+package com.lcs.auth.repository;
 
+import com.lcs.auth.domain.RefreshToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

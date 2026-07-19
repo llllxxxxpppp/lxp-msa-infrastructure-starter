@@ -3,7 +3,7 @@ package com.lcs.auth.jwt;
 import com.lcs.auth.exception.ExpiredJwtCustomException;
 import com.lcs.auth.exception.InvalidJwtCustomException;
 import com.lcs.auth.exception.InvalidRefreshTokenException;
-import com.lcs.auth.refresh.RefreshService;
+import com.lcs.auth.service.RefreshService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

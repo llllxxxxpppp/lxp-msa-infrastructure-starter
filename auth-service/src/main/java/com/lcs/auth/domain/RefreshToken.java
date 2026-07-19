@@ -1,4 +1,4 @@
-package com.lcs.auth.refresh;
+package com.lcs.auth.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

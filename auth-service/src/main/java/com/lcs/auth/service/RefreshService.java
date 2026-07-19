@@ -1,10 +1,11 @@
-package com.lcs.auth.refresh;
+package com.lcs.auth.service;
 
+import com.lcs.auth.domain.RefreshToken;
 import com.lcs.auth.exception.ExpiredJwtCustomException;
 import com.lcs.auth.exception.InvalidJwtCustomException;
 import com.lcs.auth.exception.InvalidRefreshTokenException;
 import com.lcs.auth.jwt.JwtTokenProvider;
-import com.lcs.auth.service.CustomUserDetailsService;
+import com.lcs.auth.repository.RefreshTokenRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
