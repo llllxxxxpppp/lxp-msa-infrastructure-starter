@@ -1,24 +1,39 @@
 package com.lcs.member.infrastructure.notification;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lcs.member.domain.event.InstructorSuspendedEvent;
+import com.lcs.member.domain.event.MemberRegisteredEvent;
+import com.lcs.member.domain.event.MemberSuspendedEvent;
+import com.lcs.member.domain.event.MemberWithdrawnEvent;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * MEMBER-09: HttpMemberStateChangeNotifier의 핵심 계약("무시+로그" 정책)을 검증한다.
@@ -35,6 +50,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class HttpMemberStateChangeNotifierTest {
 
     private static final String UNREACHABLE_URL_PLACEHOLDER = "http://127.0.0.1:1";
+
+    private static final Pattern UUID_PATTERN = Pattern.compile(
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+
+    private static final Pattern OFFSET_DATE_TIME_PATTERN = Pattern.compile(
+            "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})");
 
     private final List<HttpServer> startedServers = new ArrayList<>();
 
@@ -176,6 +197,213 @@ class HttpMemberStateChangeNotifierTest {
                 new HttpMemberStateChangeNotifier(UNREACHABLE_URL_PLACEHOLDER, unreachableUrl);
 
         assertDoesNotThrow(() -> notifier.notifyInstructorSuspended(4L));
+    }
+
+    // -------------------------------------------------------------------------
+    // MEMBER-12: INFO 레벨 이벤트 로깅 검증 (완료 기준 1, 3)
+    // HTTP 호출 성공 시에도 INFO 로그가 남고, ERROR 로그는 남지 않는다.
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("구독 서비스가 정상 응답해도 회원가입 통지는 MemberRegisteredEvent의 타입/ID/발생시각을 INFO로 로깅한다")
+    void givenRespondingSubscriptionServer_whenNotifyMemberRegistered_thenLogsInfoWithEventTypeIdAndOccurredAt() throws IOException {
+        HttpServer subscriptionServer = startCapturingServer(
+                200, new AtomicReference<>(), new AtomicReference<>(), new AtomicReference<>(), new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(baseUrl(subscriptionServer), UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberRegistered(123L));
+
+            assertEventLoggedAtInfo(appender, MemberRegisteredEvent.class.getSimpleName());
+            assertEquals(0, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("구독 서비스가 정상 응답해도 회원정지 통지는 MemberSuspendedEvent의 타입/ID/발생시각을 INFO로 로깅한다")
+    void givenRespondingSubscriptionServer_whenNotifyMemberSuspended_thenLogsInfoWithEventTypeIdAndOccurredAt() throws IOException {
+        HttpServer subscriptionServer = startCapturingServer(
+                200, new AtomicReference<>(), new AtomicReference<>(), new AtomicReference<>(), new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(baseUrl(subscriptionServer), UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberSuspended(45L));
+
+            assertEventLoggedAtInfo(appender, MemberSuspendedEvent.class.getSimpleName());
+            assertEquals(0, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("구독 서비스가 정상 응답해도 회원탈퇴 통지는 MemberWithdrawnEvent의 타입/ID/발생시각을 INFO로 로깅한다")
+    void givenRespondingSubscriptionServer_whenNotifyMemberWithdrawn_thenLogsInfoWithEventTypeIdAndOccurredAt() throws IOException {
+        HttpServer subscriptionServer = startCapturingServer(
+                200, new AtomicReference<>(), new AtomicReference<>(), new AtomicReference<>(), new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(baseUrl(subscriptionServer), UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberWithdrawn(77L));
+
+            assertEventLoggedAtInfo(appender, MemberWithdrawnEvent.class.getSimpleName());
+            assertEquals(0, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("강좌 서비스가 정상 응답해도 강사정지 통지는 InstructorSuspendedEvent의 타입/ID/발생시각을 INFO로 로깅한다")
+    void givenRespondingCourseServer_whenNotifyInstructorSuspended_thenLogsInfoWithEventTypeIdAndOccurredAt() throws IOException {
+        HttpServer courseServer = startCapturingServer(
+                200, new AtomicReference<>(), new AtomicReference<>(), new AtomicReference<>(), new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(UNREACHABLE_URL_PLACEHOLDER, baseUrl(courseServer));
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyInstructorSuspended(9L));
+
+            assertEventLoggedAtInfo(appender, InstructorSuspendedEvent.class.getSimpleName());
+            assertEquals(0, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // MEMBER-12: 실패 시에도 INFO 로그가 남고, 기존 ERROR 로그와 함께 존재한다 (완료 기준 2, 4)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("구독 서비스가 500을 반환해도 회원가입 통지는 INFO 이벤트 로그와 ERROR 실패 로그를 모두 남긴다")
+    void givenSubscriptionServerReturns500_whenNotifyMemberRegistered_thenLogsInfoAndErrorTogether() throws IOException {
+        HttpServer subscriptionServer = startFailingServer(500, new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(baseUrl(subscriptionServer), UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberRegistered(1L));
+
+            assertEventLoggedAtInfo(appender, MemberRegisteredEvent.class.getSimpleName());
+            assertEquals(1, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("구독 서비스에 연결할 수 없어도 회원정지 통지는 INFO 이벤트 로그와 ERROR 실패 로그를 모두 남긴다")
+    void givenUnreachableSubscriptionServer_whenNotifyMemberSuspended_thenLogsInfoAndErrorTogether() throws IOException {
+        String unreachableUrl = "http://127.0.0.1:" + closedPort();
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(unreachableUrl, UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberSuspended(2L));
+
+            assertEventLoggedAtInfo(appender, MemberSuspendedEvent.class.getSimpleName());
+            assertEquals(1, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("구독 서비스가 500을 반환해도 회원탈퇴 통지는 INFO 이벤트 로그와 ERROR 실패 로그를 모두 남긴다")
+    void givenSubscriptionServerReturns500_whenNotifyMemberWithdrawn_thenLogsInfoAndErrorTogether() throws IOException {
+        HttpServer subscriptionServer = startFailingServer(500, new AtomicInteger());
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(baseUrl(subscriptionServer), UNREACHABLE_URL_PLACEHOLDER);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyMemberWithdrawn(3L));
+
+            assertEventLoggedAtInfo(appender, MemberWithdrawnEvent.class.getSimpleName());
+            assertEquals(1, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("강좌 서비스에 연결할 수 없어도 강사정지 통지는 INFO 이벤트 로그와 ERROR 실패 로그를 모두 남긴다")
+    void givenUnreachableCourseServer_whenNotifyInstructorSuspended_thenLogsInfoAndErrorTogether() throws IOException {
+        String unreachableUrl = "http://127.0.0.1:" + closedPort();
+        HttpMemberStateChangeNotifier notifier =
+                new HttpMemberStateChangeNotifier(UNREACHABLE_URL_PLACEHOLDER, unreachableUrl);
+
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            assertDoesNotThrow(() -> notifier.notifyInstructorSuspended(4L));
+
+            assertEventLoggedAtInfo(appender, InstructorSuspendedEvent.class.getSimpleName());
+            assertEquals(1, logsAtLevel(appender, Level.ERROR).size());
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 로그 캡처 헬퍼 (MEMBER-12)
+    // -------------------------------------------------------------------------
+
+    private ListAppender<ILoggingEvent> attachAppender() {
+        Logger logbackLogger = (Logger) LoggerFactory.getLogger(HttpMemberStateChangeNotifier.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logbackLogger.addAppender(appender);
+        return appender;
+    }
+
+    private void detachAppender(ListAppender<ILoggingEvent> appender) {
+        Logger logbackLogger = (Logger) LoggerFactory.getLogger(HttpMemberStateChangeNotifier.class);
+        logbackLogger.detachAppender(appender);
+        appender.stop();
+    }
+
+    private List<ILoggingEvent> logsAtLevel(ListAppender<ILoggingEvent> appender, Level level) {
+        return appender.list.stream()
+                .filter(event -> event.getLevel().equals(level))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * INFO 레벨 로그가 정확히 1건 존재하며, 그 로그(메시지+인자 포함)에
+     * 이벤트 타입(클래스 simple name)/UUID로 파싱 가능한 이벤트 ID/OffsetDateTime으로 파싱 가능한
+     * 발생 시각이 모두 포함되어 있는지 검증한다.
+     */
+    private void assertEventLoggedAtInfo(ListAppender<ILoggingEvent> appender, String expectedEventType) {
+        List<ILoggingEvent> infoLogs = logsAtLevel(appender, Level.INFO);
+        assertEquals(1, infoLogs.size());
+
+        String message = infoLogs.get(0).getFormattedMessage();
+        assertTrue(message.contains(expectedEventType),
+                "Expected message to contain event type [" + expectedEventType + "] but was: " + message);
+
+        String uuidText = extractFirstMatch(UUID_PATTERN, message);
+        assertDoesNotThrow(() -> UUID.fromString(uuidText));
+
+        String occurredAtText = extractFirstMatch(OFFSET_DATE_TIME_PATTERN, message);
+        assertDoesNotThrow(() -> OffsetDateTime.parse(occurredAtText));
+    }
+
+    private String extractFirstMatch(Pattern pattern, String text) {
+        Matcher matcher = pattern.matcher(text);
+        assertTrue(matcher.find(), "Expected pattern [" + pattern + "] to be found in: " + text);
+        return matcher.group();
     }
 
     // -------------------------------------------------------------------------
