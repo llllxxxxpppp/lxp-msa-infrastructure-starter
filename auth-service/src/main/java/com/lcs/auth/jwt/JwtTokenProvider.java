@@ -9,19 +9,13 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,46 +37,9 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            return null;
-        }
-
-        return bearerToken.substring(7);
-    }
-
-    public String resolveRefreshToken(HttpServletRequest req) {
-        return req.getHeader("X-Refresh-Token");
-    }
-
     public boolean validateToken(String token) {
         parseClaims(token);
         return true;
-    }
-
-    public Authentication getAuthentication(String token) {
-        Claims claims = parseClaims(token);
-        String username = claims.getSubject();
-        Long userId = claims.get("userId", Long.class);
-        String rolesString = claims.get("roles", String.class);
-
-        Collection<? extends GrantedAuthority> authorities = List.of();
-        if (rolesString != null && !rolesString.isBlank()) {
-            authorities = Arrays.stream(rolesString.split(","))
-                    .map(String::trim)
-                    .filter(role -> !role.isEmpty())
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-        }
-
-        CustomUserPrincipal principal =
-                new CustomUserPrincipal(userId, username, "", authorities, false);
-
-        return UsernamePasswordAuthenticationToken.authenticated(
-                principal,
-                token,
-                principal.getAuthorities());
     }
 
     public String createAccessToken(Authentication authentication) {

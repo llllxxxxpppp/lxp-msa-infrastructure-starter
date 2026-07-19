@@ -1,5 +1,7 @@
 package com.lcs.auth.service;
 
+import com.lcs.auth.client.MemberClient;
+import com.lcs.auth.client.dto.response.MemberLoginInfoResponseDTO;
 import com.lcs.auth.principal.CustomUserPrincipal;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,25 +13,25 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-    private final MemberRepository memberRepository;
+    private final MemberClient memberClient;
 
-    public CustomUserDetailsService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
+    public CustomUserDetailsService(MemberClient memberClient) {
+        this.memberClient = memberClient;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(username)
+        MemberLoginInfoResponseDTO member = memberClient.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found with email: " + username));
 
-        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + member.getRole().name());
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + member.role());
 
         return new CustomUserPrincipal(
-                member.getId().value(),
-                member.getEmail(),
-                member.getPassword(),
+                member.id(),
+                member.email(),
+                member.password(),
                 List.of(authority),
-                member.isDeleted());
+                member.deleted());
     }
 }

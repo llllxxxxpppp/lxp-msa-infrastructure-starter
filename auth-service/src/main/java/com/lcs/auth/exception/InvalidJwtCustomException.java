@@ -2,7 +2,7 @@ package com.lcs.auth.exception;
 
 import java.io.Serial;
 
-public class InvalidJwtCustomException extends RuntimeException {
+public class InvalidJwtCustomException extends AuthException {
 
     @Serial
     private static final long serialVersionUID = 1L;

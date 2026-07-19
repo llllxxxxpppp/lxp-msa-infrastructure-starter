@@ -1,0 +1,31 @@
+package com.lcs.auth.client;
+
+import com.lcs.auth.client.dto.request.MemberLoginInfoRequestDTO;
+import com.lcs.auth.client.dto.response.MemberLoginInfoResponseDTO;
+import java.util.Optional;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+
+@Component
+public class MemberClient {
+    private final RestClient restClient;
+
+    public MemberClient(RestClient.Builder restClientBuilder) {
+        this.restClient = restClientBuilder.build();
+    }
+
+    public Optional<MemberLoginInfoResponseDTO> findByEmail(String email) {
+        try {
+            return Optional.ofNullable(restClient.post()
+                    .uri("http://member-service/members/email")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new MemberLoginInfoRequestDTO(email))
+                    .retrieve()
+                    .body(MemberLoginInfoResponseDTO.class));
+        } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        }
+    }
+}

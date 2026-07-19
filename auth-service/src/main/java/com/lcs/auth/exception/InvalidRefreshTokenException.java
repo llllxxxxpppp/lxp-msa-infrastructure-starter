@@ -2,7 +2,7 @@ package com.lcs.auth.exception;
 
 import java.io.Serial;
 
-public class InvalidRefreshTokenException extends RuntimeException {
+public class InvalidRefreshTokenException extends AuthException {
 
     @Serial
     private static final long serialVersionUID = 1L;
