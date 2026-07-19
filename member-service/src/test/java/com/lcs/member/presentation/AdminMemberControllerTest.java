@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lcs.member.application.dto.request.RegisterInstructorRequest;
 import com.lcs.member.application.dto.response.UserResponseDTO;
 import com.lcs.member.application.service.MemberService;
+import com.lcs.member.domain.exception.MemberException;
 import com.lcs.member.domain.model.MemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -81,5 +85,31 @@ class AdminMemberControllerTest {
                 .andExpect(status().isOk());
 
         verify(memberService).suspendInstructor(1L);
+    }
+
+    // --- POST /api/admin/members/{memberId}/suspend (suspendMember) ---
+
+    @Test
+    @DisplayName("일반 회원 정지를 요청하면 200 OK를 반환한다")
+    void givenValidMemberId_whenSuspendMember_thenReturns200() throws Exception {
+        doNothing().when(memberService).suspendMember(1L);
+
+        mockMvc.perform(post("/api/admin/members/1/suspend"))
+                .andExpect(status().isOk());
+
+        verify(memberService).suspendMember(1L);
+    }
+
+    @Test
+    @DisplayName("강사 ID로 일반 회원 정지를 요청하면 서비스가 던진 예외로 400 Bad Request를 반환한다")
+    void givenInstructorId_whenSuspendMember_thenReturns400() throws Exception {
+        doThrow(new MemberException("일반 회원이 아닙니다."))
+                .when(memberService).suspendMember(2L);
+
+        mockMvc.perform(post("/api/admin/members/2/suspend"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("일반 회원이 아닙니다."));
+
+        verify(memberService).suspendMember(2L);
     }
 }

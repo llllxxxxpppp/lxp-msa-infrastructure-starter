@@ -41,4 +41,11 @@ public class AdminMemberController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{memberId}/suspend")
+    public ResponseEntity<Void> suspendMember(@PathVariable Long memberId) {
+        memberService.suspendMember(memberId);
+
+        return ResponseEntity.ok().build();
+    }
 }
