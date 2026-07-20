@@ -63,6 +63,32 @@ lxp-msa-infrastructure-starter
 
 > ⚠️ Consul은 `bootstrap-expect=3` 구성이라 **consul-1·2·3 세 노드가 모두** 떠야 리더가 선출됩니다. 하나만 띄우면 서비스가 config-server를 기다리며 멈춥니다.
 
+### 필수 환경 변수: `JWT_SECRET`
+
+`gateway`(토큰 검증)와 `auth-service`(토큰 서명)는 **동일한 `JWT_SECRET`** 이 있어야 기동합니다. 기본값을 두지 않으므로 값이 없으면 기동에 실패합니다(fail-fast).
+HS512 서명이라 **64바이트(= hex 64자) 이상**이어야 합니다.
+
+루트에 `.env` 파일을 만들어 값을 넣으면 `docker compose`가 자동으로 각 서비스에 주입합니다. `.env`는 git에 커밋되지 않습니다(`.gitignore` 등록됨).
+
+**macOS / Linux**
+
+```bash
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
+cat .env   # 값 확인 (hex 64자)
+```
+
+**Windows (PowerShell)**
+
+```powershell
+"JWT_SECRET=$(-join ((1..32) | ForEach-Object { '{0:x2}' -f (Get-Random -Maximum 256) }))" | Out-File -Encoding ascii -NoNewline .env
+Get-Content .env   # 값 확인 (hex 64자)
+```
+
+> Windows에서 Git Bash를 쓴다면 macOS/Linux 방식의 `openssl` 명령을 그대로 사용해도 됩니다.
+
+- **IntelliJ로 서비스만 실행**할 때는 `.env` 대신 각 서비스 Run Configuration의 Environment variables에 `JWT_SECRET`을 직접 추가합니다.
+- 테스트(`gradlew test`)는 별도 설정이 필요 없습니다(빌드 설정에서 테스트 전용 값 주입).
+
 ### 전체 실행
 
 모든 서비스 + 인프라를 Docker로 한 번에 빌드·실행합니다.
@@ -111,7 +137,9 @@ docker compose up --build \
 
 2. IntelliJ에서 `config-server`와 서비스 폴더를 Gradle 프로젝트로 엽니다. (Gradle JVM: Java 17)
 
-3. `ConfigServerApplication`을 먼저 실행한 뒤, 서비스의 Application 클래스를 실행합니다.
+3. `gateway`·`auth-service`를 실행한다면, 각 Run Configuration의 Environment variables에 `JWT_SECRET`을 추가합니다. IntelliJ는 `.env`를 자동으로 읽지 않으므로 직접 넣어야 하며, 두 서비스는 **같은 값**을 써야 합니다. (→ 위 `필수 환경 변수: JWT_SECRET` 참고)
+
+4. `ConfigServerApplication`을 먼저 실행한 뒤, 서비스의 Application 클래스를 실행합니다.
 
 > `compose.infra.yaml`에는 **config-server가 없습니다.** 모든 서비스의 공통 의존성이므로 IntelliJ에서 직접 실행해야 합니다.
 > 전체를 IDE에서 띄운다면 `config-server → auth → member → course → subscription → gateway` 순서를 권장합니다.
@@ -156,9 +184,5 @@ docker compose up --build \
 
 미포함:
 
-- 기존 모놀리식 도메인 코드
-- JWT 실제 검증
-- 서비스별 DB
 - gRPC 구현
 - Kafka 또는 RabbitMQ
-- 실제 결제 로직
