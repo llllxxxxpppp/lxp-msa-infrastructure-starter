@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Gateway가 인증을 마친 뒤 신뢰 헤더({@code X-Member-Id})로 호출자를 식별해 전달한다고
+ * Gateway가 인증을 마친 뒤 신뢰 헤더({@code X-User-Id})로 호출자를 식별해 전달한다고
  * 가정한다(Msa-Conversion-member.md §4.2). 헤더 검증 자체는 Gateway 책임이므로
  * 이 서비스 레벨 테스트는 헤더가 있을 때의 정상 흐름과, 헤더 누락 시 Spring이
  * 기본 제공하는 400 응답만 검증한다.
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class MemberSelfControllerTest {
 
-    private static final String MEMBER_ID_HEADER = "X-Member-Id";
+    private static final String USER_ID_HEADER = "X-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,12 +47,12 @@ class MemberSelfControllerTest {
     // --- PATCH /api/members/me/password (changePassword) ---
 
     @Test
-    @DisplayName("X-Member-Id 헤더를 포함해 비밀번호 변경을 요청하면 204 No Content를 반환한다")
+    @DisplayName("X-User-Id 헤더를 포함해 비밀번호 변경을 요청하면 204 No Content를 반환한다")
     void givenMemberIdHeader_whenChangePassword_thenReturns204() throws Exception {
         ChangePasswordRequest request = new ChangePasswordRequest("current_password", "new_password");
 
         mockMvc.perform(patch("/api/members/me/password")
-                        .header(MEMBER_ID_HEADER, "1")
+                        .header(USER_ID_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
@@ -61,7 +61,7 @@ class MemberSelfControllerTest {
     }
 
     @Test
-    @DisplayName("X-Member-Id 헤더가 없으면 400 Bad Request를 반환하고 서비스는 호출되지 않는다")
+    @DisplayName("X-User-Id 헤더가 없으면 400 Bad Request를 반환하고 서비스는 호출되지 않는다")
     void givenNoMemberIdHeader_whenChangePassword_thenReturns400() throws Exception {
         ChangePasswordRequest request = new ChangePasswordRequest("current_password", "new_password");
 
@@ -76,7 +76,7 @@ class MemberSelfControllerTest {
     // --- PATCH /api/members/me/instructor-profile (updateInstructorProfile) ---
 
     @Test
-    @DisplayName("X-Member-Id 헤더를 포함해 프로필 변경을 요청하면 200 OK를 반환하고 UserResponseDTO를 반환한다")
+    @DisplayName("X-User-Id 헤더를 포함해 프로필 변경을 요청하면 200 OK를 반환하고 UserResponseDTO를 반환한다")
     void givenMemberIdHeader_whenUpdateInstructorProfile_thenReturns200() throws Exception {
         UpdateInstructorProfileRequest request = new UpdateInstructorProfileRequest(
                 "홍길동", "https://example.com/profile.jpg", "안녕하세요.");
@@ -90,7 +90,7 @@ class MemberSelfControllerTest {
         )).thenReturn(responseDTO);
 
         mockMvc.perform(patch("/api/members/me/instructor-profile")
-                        .header(MEMBER_ID_HEADER, "1")
+                        .header(USER_ID_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -105,10 +105,10 @@ class MemberSelfControllerTest {
     // --- DELETE /api/members/me (withdrawMember) ---
 
     @Test
-    @DisplayName("X-Member-Id 헤더를 포함해 탈퇴를 요청하면 204 No Content를 반환한다")
+    @DisplayName("X-User-Id 헤더를 포함해 탈퇴를 요청하면 204 No Content를 반환한다")
     void givenMemberIdHeader_whenWithdraw_thenReturns204() throws Exception {
         mockMvc.perform(delete("/api/members/me")
-                        .header(MEMBER_ID_HEADER, "1"))
+                        .header(USER_ID_HEADER, "1"))
                 .andExpect(status().isNoContent());
 
         verify(memberService).withdrawMember(1L);
