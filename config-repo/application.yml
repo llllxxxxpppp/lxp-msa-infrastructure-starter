@@ -49,6 +49,11 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
+        # 4xx(HttpClientErrorException)는 member 장애가 아니라 클라이언트/요청 문제이므로
+        # 회로 실패로 집계하지 않는다(집계 제외, 예외는 그대로 전파). 예: 미존재 이메일 400,
+        # 미존재 강사 404. 이로써 정상 member에 대한 오탐 OPEN을 방지한다.
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
 
 # JWT 서명/검증 공유 비밀키. gateway(검증)와 auth-service(서명)가 반드시 동일한 값을 써야 하므로
 # 공통 설정에 단일 출처로 둔다. 기본값을 두지 않아 JWT_SECRET 미설정 시 기동을 실패(fail-fast)시킨다.
