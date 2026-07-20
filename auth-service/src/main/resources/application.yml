@@ -12,6 +12,20 @@ spring:
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:lxp-test
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
 
 server:
   port: ${SERVER_PORT:8081}
@@ -28,3 +42,8 @@ management:
 logging:
   file:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
+
+jwt:
+  secret: ${JWT_SECRET:4d553a82c87c2a2e0b7000d63eb926f3ef75fd528977b9c956efcec692845953}
+  access-token-validity-milliseconds: 3600000
+  refresh-token-validity-milliseconds: 864000000
