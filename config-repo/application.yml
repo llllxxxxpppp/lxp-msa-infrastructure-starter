@@ -32,6 +32,6 @@ logging:
     correlation: "[%X{traceId:-},%X{spanId:-}] "
 
 # JWT 서명/검증 공유 비밀키. gateway(검증)와 auth-service(서명)가 반드시 동일한 값을 써야 하므로
-# 공통 설정에 단일 출처로 둔다. 배포 시 JWT_SECRET 환경변수로 오버라이드.
+# 공통 설정에 단일 출처로 둔다. 기본값을 두지 않아 JWT_SECRET 미설정 시 기동을 실패(fail-fast)시킨다.
 jwt:
-  secret: ${JWT_SECRET:4d553a82c87c2a2e0b7000d63eb926f3ef75fd528977b9c956efcec692845953}
+  secret: ${JWT_SECRET}

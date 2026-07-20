@@ -62,4 +62,6 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // 컨텍스트 부팅 테스트용 더미 시크릿. 프로덕션은 JWT_SECRET 환경변수로 주입한다(기본값 없음).
+    environment 'JWT_SECRET', '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 }

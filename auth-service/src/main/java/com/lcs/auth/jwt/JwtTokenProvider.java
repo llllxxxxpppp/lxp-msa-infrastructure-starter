@@ -35,6 +35,10 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
+        if (secretKey == null || secretKey.getBytes(StandardCharsets.UTF_8).length < 64) {
+            throw new IllegalStateException(
+                    "JWT_SECRET이 설정되지 않았거나 너무 짧습니다(HS512는 64바이트 이상 필요).");
+        }
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 

@@ -44,6 +44,6 @@ logging:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
 
 jwt:
-  secret: ${JWT_SECRET:4d553a82c87c2a2e0b7000d63eb926f3ef75fd528977b9c956efcec692845953}
+  secret: ${JWT_SECRET}
   access-token-validity-milliseconds: 3600000
   refresh-token-validity-milliseconds: 864000000
