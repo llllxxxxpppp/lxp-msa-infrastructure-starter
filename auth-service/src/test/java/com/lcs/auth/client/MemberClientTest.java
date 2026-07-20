@@ -37,28 +37,30 @@ class MemberClientTest {
     @Test
     @DisplayName("member-service가 200으로 응답하면 회원 정보를 담은 Optional을 반환한다")
     void findByEmail_memberExists_returnsDto() {
-        mockServer.expect(requestTo("http://member-service/members/email"))
+        mockServer.expect(requestTo("http://member-service/internal/members/by-email/info"))
                 .andExpect(method(POST))
                 .andExpect(content().json("""
                         {"email":"user@test.com"}
                         """))
                 .andRespond(withSuccess(
                         """
-                        {"id":1,"email":"user@test.com","password":"encoded","deleted":false,"role":"USER"}
+                        {"id":1,"password":"encoded","role":"USER","suspended":false,"deleted":false}
                         """,
                         MediaType.APPLICATION_JSON));
 
         Optional<MemberLoginInfoResponseDTO> result = memberClient.findByEmail("user@test.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().email()).isEqualTo("user@test.com");
+        assertThat(result.get().id()).isEqualTo(1L);
         assertThat(result.get().role()).isEqualTo("USER");
+        assertThat(result.get().suspended()).isFalse();
+        assertThat(result.get().deleted()).isFalse();
     }
 
     @Test
     @DisplayName("member-service가 404로 응답하면 빈 Optional을 반환한다")
     void findByEmail_memberNotFound_returnsEmptyOptional() {
-        mockServer.expect(requestTo("http://member-service/members/email"))
+        mockServer.expect(requestTo("http://member-service/internal/members/by-email/info"))
                 .andExpect(method(POST))
                 .andExpect(content().json("""
                         {"email":"missing@test.com"}
@@ -73,7 +75,7 @@ class MemberClientTest {
     @Test
     @DisplayName("member-service가 5xx로 응답하면 MemberServiceUnavailableException을 던진다")
     void findByEmail_memberServiceServerError_throwsMemberServiceUnavailableException() {
-        mockServer.expect(requestTo("http://member-service/members/email"))
+        mockServer.expect(requestTo("http://member-service/internal/members/by-email/info"))
                 .andExpect(method(POST))
                 .andRespond(withServerError());
 

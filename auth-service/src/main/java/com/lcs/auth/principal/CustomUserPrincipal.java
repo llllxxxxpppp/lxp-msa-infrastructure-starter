@@ -13,20 +13,20 @@ public class CustomUserPrincipal implements UserDetails {
     private final String email;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
-    private final boolean isDeleted;
+    private final boolean enabled;
 
     public CustomUserPrincipal(
             Long userId,
             String email,
             String password,
             Collection<? extends GrantedAuthority> authorities,
-            boolean isDeleted
+            boolean enabled
     ) {
         this.userId = userId;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
-        this.isDeleted = isDeleted;
+        this.enabled = enabled;
     }
 
     public Long getUserId() {
@@ -50,6 +50,6 @@ public class CustomUserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !isDeleted;
+        return enabled;
     }
 }

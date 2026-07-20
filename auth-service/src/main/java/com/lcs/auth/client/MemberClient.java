@@ -22,7 +22,7 @@ public class MemberClient {
     public Optional<MemberLoginInfoResponseDTO> findByEmail(String email) {
         try {
             return Optional.ofNullable(restClient.post()
-                    .uri("http://member-service/members/email")
+                    .uri("http://member-service/internal/members/by-email/info")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new MemberLoginInfoRequestDTO(email))
                     .retrieve()

@@ -32,7 +32,7 @@ class CustomUserDetailsServiceTest {
     @DisplayName("활성 회원이면 member-service 응답을 활성화된 CustomUserPrincipal로 변환한다")
     void loadUserByUsername_activeMember_returnsEnabledPrincipal() {
         MemberLoginInfoResponseDTO member =
-                new MemberLoginInfoResponseDTO(1L, "user@test.com", "encoded-password", false, "USER");
+                new MemberLoginInfoResponseDTO(1L, "encoded-password", "USER", false, false);
         given(memberClient.findByEmail("user@test.com")).willReturn(Optional.of(member));
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername("user@test.com");
@@ -52,7 +52,19 @@ class CustomUserDetailsServiceTest {
     @DisplayName("탈퇴한 회원이면 비활성화된 CustomUserPrincipal을 반환한다")
     void loadUserByUsername_deletedMember_returnsDisabledPrincipal() {
         MemberLoginInfoResponseDTO member =
-                new MemberLoginInfoResponseDTO(1L, "user@test.com", "encoded-password", true, "USER");
+                new MemberLoginInfoResponseDTO(1L, "encoded-password", "USER", false, true);
+        given(memberClient.findByEmail("user@test.com")).willReturn(Optional.of(member));
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername("user@test.com");
+
+        assertThat(userDetails.isEnabled()).isFalse();
+    }
+
+    @Test
+    @DisplayName("정지된 회원이면 비활성화된 CustomUserPrincipal을 반환한다")
+    void loadUserByUsername_suspendedMember_returnsDisabledPrincipal() {
+        MemberLoginInfoResponseDTO member =
+                new MemberLoginInfoResponseDTO(1L, "encoded-password", "USER", true, false);
         given(memberClient.findByEmail("user@test.com")).willReturn(Optional.of(member));
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername("user@test.com");
