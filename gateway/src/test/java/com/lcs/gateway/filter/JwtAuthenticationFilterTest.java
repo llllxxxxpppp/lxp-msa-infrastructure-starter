@@ -149,6 +149,18 @@ class JwtAuthenticationFilterTest {
         assertThat(exchange.getResponse().getStatusCode()).isNull();
     }
 
+    @Test
+    void signup_경로는_토큰_없이_통과한다() {
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.post("/api/members/signup"));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+        assertThat(exchange.getResponse().getStatusCode()).isNull();
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/v3/api-docs",

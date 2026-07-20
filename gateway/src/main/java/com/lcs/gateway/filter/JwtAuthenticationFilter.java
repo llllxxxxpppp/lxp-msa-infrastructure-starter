@@ -60,6 +60,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
      */
     private static final List<String> PUBLIC_PATH_PATTERNS = List.of(
             "/api/auth/**",
+            "/api/members/signup",
             "/actuator/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
