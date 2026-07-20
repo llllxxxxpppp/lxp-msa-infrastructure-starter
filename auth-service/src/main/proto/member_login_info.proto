@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.lcs.grpc.member";
+
+package member;
+
+service MemberLoginInfoService {
+  rpc GetMemberLoginInfo(MemberInfoLoginRequest) returns (MemberInfoLoginResponse) {}
+}
+
+message MemberInfoLoginRequest {
+  string email = 1;
+}
+
+message MemberInfoLoginResponse {
+  int64 id = 1;
+  string password = 2;
+  string role = 3;
+  bool suspended = 4;
+  bool deleted = 5;
+}

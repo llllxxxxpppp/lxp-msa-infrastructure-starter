@@ -21,8 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-@DisplayName("MemberClient 단위 테스트")
-class MemberClientTest {
+@DisplayName("RestMemberClient 단위 테스트")
+class RestMemberClientTest {
 
     private MockRestServiceServer mockServer;
     private MemberClient memberClient;
@@ -31,7 +31,7 @@ class MemberClientTest {
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
-        memberClient = new MemberClient(builder);
+        memberClient = new RestMemberClient(builder);
     }
 
     @Test
