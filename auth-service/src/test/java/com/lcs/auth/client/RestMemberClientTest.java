@@ -21,8 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-@DisplayName("MemberClient 단위 테스트")
-class MemberClientTest {
+@DisplayName("RestMemberClient 단위 테스트")
+class RestMemberClientTest {
 
     private MockRestServiceServer mockServer;
     private MemberClient memberClient;
@@ -31,7 +31,7 @@ class MemberClientTest {
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
-        memberClient = new MemberClient(builder);
+        memberClient = new RestMemberClient(builder);
     }
 
     @Test
@@ -44,14 +44,14 @@ class MemberClientTest {
                         """))
                 .andRespond(withSuccess(
                         """
-                        {"id":1,"password":"encoded","role":"USER","suspended":false,"deleted":false}
+                        {"memberId":1,"passwordHash":"encoded","role":"USER","suspended":false,"deleted":false}
                         """,
                         MediaType.APPLICATION_JSON));
 
         Optional<MemberLoginInfoResponseDTO> result = memberClient.findByEmail("user@test.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().id()).isEqualTo(1L);
+        assertThat(result.get().memberId()).isEqualTo(1L);
         assertThat(result.get().role()).isEqualTo("USER");
         assertThat(result.get().suspended()).isFalse();
         assertThat(result.get().deleted()).isFalse();
