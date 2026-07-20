@@ -27,6 +27,13 @@ spring:
       settings:
         web-allow-others: true
 
+auth:
+  member-client:
+    mode: ${AUTH_SERVICE_MEMBER_CLIENT_MODE:rest} # rest(기본, REST 호출) | grpc(gRPC 호출)
+    grpc:
+      host: ${AUTH_SERVICE_MEMBER_CLIENT_GRPC_HOST:member-service}
+      port: ${AUTH_SERVICE_MEMBER_CLIENT_GRPC_PORT:9090}
+
 server:
   port: ${SERVER_PORT:8081}
 

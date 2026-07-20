@@ -15,12 +15,16 @@ JWT 기반 인증을 제공하는 마이크로서비스입니다. (기본 포트
 
 ## member-service 연동
 
-로그인 시 `CustomUserDetailsService` → `MemberClient`가 아래 요청으로 회원 정보를 조회합니다.
+로그인 시 `CustomUserDetailsService` → `MemberClient`가 회원 정보를 조회합니다. `MemberClient`는 인터페이스이며, `auth.member-client.mode` 설정(`AUTH_SERVICE_MEMBER_CLIENT_MODE` 환경변수, 기본값 `rest`)에 따라 구현체가 전환됩니다.
 
-- `POST http://member-service/members/email`
-- 요청 Body: `{ "email": "user@example.com" }`
-- 응답 Body: `{ "id": 1, "email": "user@example.com", "password": "<encoded>", "deleted": false, "role": "USER" }`
-- 404(회원 없음)는 빈 결과로, 5xx/커넥션 오류는 503으로 처리됩니다.
+- `rest` (기본값, `RestMemberClient`)
+  - `POST http://member-service/internal/members/by-email/info`
+  - 요청 Body: `{ "email": "user@example.com" }`
+  - 응답 Body: `{ "id": 1, "password": "<encoded>", "role": "USER", "suspended": false, "deleted": false }`
+- `grpc` (`GrpcMemberClient`)
+  - `member_login_info.proto`(`MemberLoginInfoService.GetMemberLoginInfo`)로 통신하며, 대상은 `auth.member-client.grpc.host`/`port`(`AUTH_SERVICE_MEMBER_CLIENT_GRPC_HOST`/`AUTH_SERVICE_MEMBER_CLIENT_GRPC_PORT`, 기본값 `member-service:9090`)로 설정합니다.
+
+공통적으로 회원을 찾지 못하면(REST 404 / gRPC `NOT_FOUND`) 빈 결과로, 그 외 통신 오류는 `MemberServiceUnavailableException`을 거쳐 503으로 처리됩니다.
 
 ## 개발 도구
 
