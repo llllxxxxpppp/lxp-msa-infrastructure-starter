@@ -115,7 +115,8 @@ services:
 
   gateway:
     build:
-      context: ./gateway
+      context: .
+      dockerfile: ./gateway/Dockerfile
     container_name: lxp-gateway
     environment:
       CONSUL_HOST: consul-1
@@ -142,7 +143,8 @@ services:
 
   config-server:
     build:
-      context: ./config-server
+      context: .
+      dockerfile: ./config-server/Dockerfile
     container_name: lxp-config-server
     environment:
       CONSUL_HOST: consul-1
@@ -168,7 +170,8 @@ services:
 
   auth-service:
     build:
-      context: ./auth-service
+      context: .
+      dockerfile: ./auth-service/Dockerfile
     container_name: lxp-auth-service
     environment:
       CONSUL_HOST: consul-1
@@ -195,7 +198,8 @@ services:
 
   member-service:
     build:
-      context: ./member-service
+      context: .
+      dockerfile: ./member-service/Dockerfile
     container_name: lxp-member-service
     environment:
       CONSUL_HOST: consul-1
@@ -222,7 +226,8 @@ services:
 
   course-service:
     build:
-      context: ./course-service
+      context: .
+      dockerfile: ./course-service/Dockerfile
     container_name: lxp-course-service
     environment:
       CONSUL_HOST: consul-1
@@ -249,7 +254,8 @@ services:
 
   subscription-service:
     build:
-      context: ./subscription-service
+      context: .
+      dockerfile: ./subscription-service/Dockerfile
     container_name: lxp-subscription-service
     environment:
       CONSUL_HOST: consul-1
@@ -269,33 +275,6 @@ services:
     networks: [lxp-net]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8084/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
-
-  payment-service:
-    build:
-      context: ./payment-service
-    container_name: lxp-payment-service
-    environment:
-      CONSUL_HOST: consul-1
-      CONSUL_PORT: 8500
-      LOG_DIR: /logs
-      CONFIG_SERVER_URL: http://config-server:8888
-      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
-    ports:
-      - "8085:8085"
-    volumes:
-      - ./infrastructure/logs:/logs
-    depends_on:
-      consul-1:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    networks: [lxp-net]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8085/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 20

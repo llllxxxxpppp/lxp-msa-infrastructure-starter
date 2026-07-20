@@ -2,3 +2,5 @@
 build/
 out/
 *.iml
+.idea
+.claude

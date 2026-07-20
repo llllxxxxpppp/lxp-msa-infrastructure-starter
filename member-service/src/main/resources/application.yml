@@ -1,6 +1,19 @@
 spring:
   application:
     name: member-service
+  datasource:
+    url: jdbc:h2:mem:memberdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  sql:
+    init:
+      mode: always
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
   cloud:
@@ -28,3 +41,10 @@ management:
 logging:
   file:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
+
+member:
+  notification:
+    subscription-service:
+      base-url: ${SUBSCRIPTION_SERVICE_URL:http://localhost:8084}
+    course-service:
+      base-url: ${COURSE_SERVICE_URL:http://localhost:8083}

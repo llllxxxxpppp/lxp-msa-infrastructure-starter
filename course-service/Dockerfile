@@ -1,13 +1,9 @@
-FROM gradle:8.14-jdk17 AS builder
-WORKDIR /workspace
-COPY settings.gradle build.gradle ./
-COPY src ./src
-RUN gradle clean bootJar --no-daemon
+FROM gradle:9.3.0-jdk17 AS builder
+WORKDIR /build
+COPY --parents course-service ./
+RUN cd course-service && gradle clean bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /workspace/build/libs/*.jar app.jar
+COPY --from=builder /build/course-service/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
