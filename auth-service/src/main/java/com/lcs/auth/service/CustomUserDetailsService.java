@@ -28,9 +28,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + member.role());
 
         return new CustomUserPrincipal(
-                member.id(),
+                member.memberId(),
                 username,
-                member.password(),
+                member.passwordHash(),
                 List.of(authority),
                 !member.deleted() && !member.suspended());
     }

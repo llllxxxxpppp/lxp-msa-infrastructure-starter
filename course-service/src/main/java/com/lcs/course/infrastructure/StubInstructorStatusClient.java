@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "course.instructor-status.rest-enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "course.instructor-status.mode", havingValue = "stub", matchIfMissing = true)
 public class StubInstructorStatusClient implements InstructorStatusClient {
 
     @Override

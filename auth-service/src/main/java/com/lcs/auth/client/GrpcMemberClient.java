@@ -27,7 +27,7 @@ public class GrpcMemberClient implements MemberClient {
             MemberInfoLoginResponse response = blockingStub.getMemberLoginInfo(
                     MemberInfoLoginRequest.newBuilder().setEmail(email).build());
             return Optional.of(new MemberLoginInfoResponseDTO(
-                    response.getId(),
+                    response.getMemberId(),
                     response.getPassword(),
                     response.getRole(),
                     response.getSuspended(),

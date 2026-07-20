@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
-@ConditionalOnProperty(name = "course.instructor-status.rest-enabled", havingValue = "true")
+@ConditionalOnProperty(name = "course.instructor-status.mode", havingValue = "rest")
 public class MemberRestClient implements InstructorStatusClient {
 
     private final RestClient restClient;

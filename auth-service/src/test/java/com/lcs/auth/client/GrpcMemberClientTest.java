@@ -55,7 +55,7 @@ class GrpcMemberClientTest {
                     StreamObserver<MemberInfoLoginResponse> responseObserver) {
                 assertThat(request.getEmail()).isEqualTo("user@test.com");
                 responseObserver.onNext(MemberInfoLoginResponse.newBuilder()
-                        .setId(1L)
+                        .setMemberId(1L)
                         .setPassword("encoded")
                         .setRole("USER")
                         .setSuspended(false)
@@ -68,7 +68,7 @@ class GrpcMemberClientTest {
         Optional<MemberLoginInfoResponseDTO> result = memberClient.findByEmail("user@test.com");
 
         assertThat(result).isPresent();
-        assertThat(result.get().id()).isEqualTo(1L);
+        assertThat(result.get().memberId()).isEqualTo(1L);
         assertThat(result.get().role()).isEqualTo("USER");
         assertThat(result.get().suspended()).isFalse();
         assertThat(result.get().deleted()).isFalse();

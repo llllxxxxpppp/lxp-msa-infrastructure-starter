@@ -4,6 +4,7 @@ import com.lcs.course.application.port.InstructorStatusClient;
 import com.lcs.course.application.dto.response.CourseDetailResponse;
 import com.lcs.course.application.dto.response.CoursePageResponse;
 import com.lcs.course.application.dto.response.CourseSummaryResponse;
+import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
 import com.lcs.course.domain.exception.CourseAccessDeniedException;
 import com.lcs.course.domain.exception.CourseException;
 import com.lcs.course.domain.model.entity.Course;
@@ -167,6 +168,15 @@ public class CourseService {
         for (Course course : publicCourses) {
             course.unpublish();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstructorCourseStatusResponse> getCoursesByInstructor(Long instructorId) {
+        return courseRepository.findAll().stream()
+                .filter(course -> course.getInstructorId().value().equals(instructorId))
+                .filter(course -> !course.isDeleted())
+                .map(InstructorCourseStatusResponse::from)
+                .toList();
     }
 
     private void rejectIfSuspended(Long requesterId) {
