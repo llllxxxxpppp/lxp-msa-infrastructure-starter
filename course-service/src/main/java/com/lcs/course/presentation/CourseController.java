@@ -106,8 +106,10 @@ public class CourseController {
     public ResponseEntity<Void> addLecture(
             @PathVariable Long courseId,
             @RequestBody @Valid AddLectureRequest request,
-            @RequestHeader("X-User-Id") Long userId) {
-        courseService.addLecture(courseId, userId, request.title(), request.contentUrl(), request.contentType());
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader(value = "X-Role", required = false) String role) {
+        courseService.addLecture(courseId, userId, isAdmin(role),
+                request.title(), request.contentUrl(), request.contentType());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -145,8 +147,9 @@ public class CourseController {
     public ResponseEntity<Void> addMission(
             @PathVariable Long courseId,
             @RequestBody @Valid AddMissionRequest request,
-            @RequestHeader("X-User-Id") Long userId) {
-        courseService.addMission(courseId, userId, request.title(), request.content());
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader(value = "X-Role", required = false) String role) {
+        courseService.addMission(courseId, userId, isAdmin(role), request.title(), request.content());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -183,14 +186,16 @@ public class CourseController {
     @PatchMapping("/{courseId}/reorder")
     public ResponseEntity<Void> reorderItems(
             @PathVariable Long courseId,
-            @RequestBody @Valid ReorderRequest request) {
+            @RequestBody @Valid ReorderRequest request,
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader(value = "X-Role", required = false) String role) {
         List<String> itemTypes = request.items().stream()
                 .map(item -> item.type().name())
                 .toList();
         List<Long> itemIds = request.items().stream()
                 .map(ReorderRequest.Item::id)
                 .toList();
-        courseService.reorderItems(courseId, itemTypes, itemIds);
+        courseService.reorderItems(courseId, userId, isAdmin(role), itemTypes, itemIds);
         return ResponseEntity.ok().build();
     }
 

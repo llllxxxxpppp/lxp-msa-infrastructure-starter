@@ -85,9 +85,12 @@ public class CourseService {
         course.unpublish();
     }
 
-    public void addLecture(Long courseId, Long requesterId, String title, String contentUrl, String contentType) {
+    public void addLecture(Long courseId, Long requesterId, boolean isAdmin,
+            String title, String contentUrl, String contentType) {
         rejectIfSuspended(requesterId);
-        getCourse(courseId).addLecture(new Title(title), contentUrl, contentType);
+        Course course = getCourse(courseId);
+        checkOwnership(course, requesterId, isAdmin);
+        course.addLecture(new Title(title), contentUrl, contentType);
     }
 
     public void publishLecture(Long courseId, Long lectureId, Long requesterId, boolean isAdmin) {
@@ -104,9 +107,11 @@ public class CourseService {
         course.unpublishLecture(new LectureId(lectureId));
     }
 
-    public void addMission(Long courseId, Long requesterId, String title, String content) {
+    public void addMission(Long courseId, Long requesterId, boolean isAdmin, String title, String content) {
         rejectIfSuspended(requesterId);
-        getCourse(courseId).addMission(new Title(title), content);
+        Course course = getCourse(courseId);
+        checkOwnership(course, requesterId, isAdmin);
+        course.addMission(new Title(title), content);
     }
 
     public void publishMission(Long courseId, Long missionId, Long requesterId, boolean isAdmin) {
@@ -141,7 +146,9 @@ public class CourseService {
         course.deleteMission(new MissionId(missionId));
     }
 
-    public void reorderItems(Long courseId, List<String> itemTypes, List<Long> itemIds) {
+    public void reorderItems(Long courseId, Long requesterId, boolean isAdmin,
+            List<String> itemTypes, List<Long> itemIds) {
+        rejectIfSuspended(requesterId);
         if (itemTypes == null || itemIds == null || itemTypes.size() != itemIds.size()) {
             throw new CourseException("순서 변경 대상 항목 목록이 올바르지 않습니다.");
         }
@@ -149,7 +156,9 @@ public class CourseService {
         for (int i = 0; i < itemTypes.size(); i++) {
             orderedItems.add(new ReorderItem(SortableType.valueOf(itemTypes.get(i)), itemIds.get(i)));
         }
-        getCourse(courseId).reorder(orderedItems);
+        Course course = getCourse(courseId);
+        checkOwnership(course, requesterId, isAdmin);
+        course.reorder(orderedItems);
     }
 
     public void unpublishAllByInstructor(Long instructorId) {
