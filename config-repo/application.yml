@@ -2,10 +2,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,circuitbreakers,circuitbreakerevents
   endpoint:
     health:
       show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
   tracing:
     sampling:
       probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
@@ -30,6 +33,22 @@ logging:
     root: INFO
   pattern:
     correlation: "[%X{traceId:-},%X{spanId:-}] "
+
+# 서킷 브레이커 공통 설정. member-service를 동기 호출하는 auth(fail-fast)/course(fail-open)가
+# 동일한 회로 파라미터를 공유한다. 실패 정책(fallback 유무)만 각 서비스 코드에서 분기한다.
+# resilience4j 미탑재 서비스(gateway 등)는 이 블록을 무시한다.
+resilience4j:
+  circuitbreaker:
+    instances:
+      member-service:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        register-health-indicator: true
 
 # JWT 서명/검증 공유 비밀키. gateway(검증)와 auth-service(서명)가 반드시 동일한 값을 써야 하므로
 # 공통 설정에 단일 출처로 둔다. 기본값을 두지 않아 JWT_SECRET 미설정 시 기동을 실패(fail-fast)시킨다.
