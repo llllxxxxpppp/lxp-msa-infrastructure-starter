@@ -45,4 +45,10 @@ logging:
 
 course:
   instructor-status:
-    rest-enabled: ${INSTRUCTOR_STATUS_REST_ENABLED:false}
+    # stub(기본, member 없이 단독) | rest(REST 호출) | grpc(gRPC 호출)
+    mode: ${INSTRUCTOR_STATUS_MODE:rest}
+
+member:
+  grpc:
+    host: ${MEMBER_GRPC_HOST:localhost}
+    port: ${MEMBER_GRPC_PORT:9090}
