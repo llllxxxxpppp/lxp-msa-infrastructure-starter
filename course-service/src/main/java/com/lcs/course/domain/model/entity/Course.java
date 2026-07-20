@@ -137,20 +137,22 @@ public class Course {
 
     public List<Lecture> getLectures() {
         return lectures.stream()
+                .filter(lecture -> !lecture.isDeleted())
                 .sorted(Comparator.comparingInt(Lecture::getSortOrder))
                 .toList();
     }
 
     public List<Mission> getMissions() {
         return missions.stream()
+                .filter(mission -> !mission.isDeleted())
                 .sorted(Comparator.comparingInt(Mission::getSortOrder))
                 .toList();
     }
 
     public List<Sortable> getSortableItems() {
         List<Sortable> items = new ArrayList<>();
-        items.addAll(lectures);
-        items.addAll(missions);
+        items.addAll(getLectures());
+        items.addAll(getMissions());
         return items.stream()
                 .sorted(Comparator.comparingInt(Sortable::getSortOrder))
                 .toList();
@@ -312,7 +314,7 @@ public class Course {
 
     public void publish() {
         checkNotDeleted();
-        if (lectures.isEmpty() || missions.isEmpty()) {
+        if (getLectures().isEmpty() || getMissions().isEmpty()) {
             throw new CourseException("강의와 미션을 1개 이상 포함해야 공개할 수 있습니다.");
         }
         this.status = ContentStatus.PUBLIC;

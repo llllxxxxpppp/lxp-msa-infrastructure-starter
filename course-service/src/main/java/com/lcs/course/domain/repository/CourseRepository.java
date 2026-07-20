@@ -11,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    Page<Course> findAllByStatus(ContentStatus status, Pageable pageable);
+    Page<Course> findAllByStatusAndDeletedAtIsNull(ContentStatus status, Pageable pageable);
 
-    @Query("SELECT c FROM Course c WHERE c.status = :status AND LOWER(c.title.value) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    @Query("SELECT c FROM Course c WHERE c.status = :status AND c.deletedAt IS NULL AND LOWER(c.title.value) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Course> findByStatusAndTitleKeyword(
             @Param("status") ContentStatus status,
             @Param("keyword") String keyword,

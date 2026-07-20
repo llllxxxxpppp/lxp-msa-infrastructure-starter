@@ -39,7 +39,7 @@ public class CourseService {
         PageRequest pageable = PageRequest.of(page, size);
         Page<Course> result;
         if (keyword == null || keyword.isBlank()) {
-            result = courseRepository.findAllByStatus(ContentStatus.PUBLIC, pageable);
+            result = courseRepository.findAllByStatusAndDeletedAtIsNull(ContentStatus.PUBLIC, pageable);
         } else {
             result = courseRepository.findByStatusAndTitleKeyword(ContentStatus.PUBLIC, keyword, pageable);
         }
@@ -186,6 +186,7 @@ public class CourseService {
 
     private Course getCourse(Long courseId) {
         return courseRepository.findById(courseId)
+                .filter(course -> !course.isDeleted())
                 .orElseThrow(() -> new CourseException("강좌를 찾을 수 없습니다."));
     }
 }
