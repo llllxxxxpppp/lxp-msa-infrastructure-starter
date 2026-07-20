@@ -13,9 +13,11 @@ public class GrpcServerConfig {
 
     @Bean(destroyMethod = "shutdown")
     public Server grpcServer(MemberSuspensionGrpcService memberSuspensionGrpcService,
+                              MemberLoginInfoGrpcService memberLoginInfoGrpcService,
                               @Value("${member.grpc.port:9090}") int port) throws IOException {
         Server server = ServerBuilder.forPort(port)
                 .addService(memberSuspensionGrpcService)
+                .addService(memberLoginInfoGrpcService)
                 .build();
         server.start();
         return server;

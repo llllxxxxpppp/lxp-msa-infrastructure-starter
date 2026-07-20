@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+// auth → member 로그인 조회 계약.
+// member-service(gRPC 서버 담당)는 이 proto를 그대로 사용해 서비스를 구현한다.
+option java_multiple_files = true;
+option java_package = "com.lcs.grpc.member";
+option java_outer_classname = "MemberLoginInfoProto";
+
+package member;
+
+// 로그인 시 회원 인증 정보(비밀번호 해시 포함) 조회 서비스
+service MemberLoginInfoService {
+  // 이메일로 로그인용 인증 정보를 조회한다. (REST의 POST /internal/members/by-email/info 와 동일 의미)
+  rpc GetMemberLoginInfo(MemberInfoLoginRequest) returns (MemberInfoLoginResponse) {}
+}
+
+message MemberInfoLoginRequest {
+  string email = 1;
+}
+
+message MemberInfoLoginResponse {
+  int64 memberId = 1;
+  string password = 2;
+  string role = 3;
+  bool suspended = 4;
+  bool deleted = 5;
+}
