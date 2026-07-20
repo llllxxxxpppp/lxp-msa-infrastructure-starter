@@ -46,7 +46,7 @@ logging:
 course:
   instructor-status:
     # stub(기본, member 없이 단독) | rest(REST 호출) | grpc(gRPC 호출)
-    mode: ${INSTRUCTOR_STATUS_MODE:stub}
+    mode: ${INSTRUCTOR_STATUS_MODE:rest}
 
 member:
   grpc:
