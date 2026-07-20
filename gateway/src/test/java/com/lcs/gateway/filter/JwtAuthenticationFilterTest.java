@@ -252,17 +252,19 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void members_경로는_ADMIN만_있고_MEMBER가_없으면_403이다() {
-        // 롤 계층 없음: ADMIN이라도 MEMBER 전용 경로는 통과하지 못한다.
-        String jwt = token(key, 1L, "ROLE_ADMIN", 60_000);
-        MockServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/api/members/ping").header("Authorization", "Bearer " + jwt));
-        CapturingChain chain = new CapturingChain();
+    void members_경로는_INSTRUCTOR나_ADMIN도_통과한다() {
+        // /api/members/** 하위는 현재 자기 자신(/me) 엔드포인트뿐이므로,
+        // 단일 role을 갖는 강사·관리자도 자기 계정에 접근할 수 있어야 한다.
+        for (String role : new String[] {"ROLE_INSTRUCTOR", "ROLE_ADMIN"}) {
+            String jwt = token(key, 1L, role, 60_000);
+            MockServerWebExchange exchange = MockServerWebExchange.from(
+                    MockServerHttpRequest.get("/api/members/ping").header("Authorization", "Bearer " + jwt));
+            CapturingChain chain = new CapturingChain();
 
-        filter.filter(exchange, chain).block();
+            filter.filter(exchange, chain).block();
 
-        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(chain.called).isFalse();
+            assertThat(chain.called).as("role=%s", role).isTrue();
+        }
     }
 
     @Test

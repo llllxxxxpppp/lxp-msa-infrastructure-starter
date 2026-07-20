@@ -45,6 +45,6 @@ logging:
 member:
   notification:
     subscription-service:
-      base-url: ${SUBSCRIPTION_SERVICE_URL:http://localhost:8084}
+      base-url: ${SUBSCRIPTION_SERVICE_URL:http://subscription-service:8084}
     course-service:
-      base-url: ${COURSE_SERVICE_URL:http://localhost:8083}
+      base-url: ${COURSE_SERVICE_URL:http://course-service:8083}

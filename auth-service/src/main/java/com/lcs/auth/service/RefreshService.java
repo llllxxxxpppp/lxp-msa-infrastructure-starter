@@ -53,6 +53,12 @@ public class RefreshService {
 
         UserDetails userDetails =
                 userDetailsService.loadUserByUsername(oldRefreshTokenEntity.getEmail());
+
+        if (!userDetails.isEnabled()) {
+            refreshTokenRepository.delete(oldRefreshTokenEntity);
+            throw new InvalidRefreshTokenException("탈퇴/정지된 회원은 토큰을 재발급할 수 없습니다.");
+        }
+
         Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
                 userDetails,
                 null,

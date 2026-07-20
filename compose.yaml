@@ -91,6 +91,27 @@ services:
       - "9411:9411"
     networks: [lxp-net]
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: lxp-rabbitmq
+    command: /bin/bash -c "rabbitmq-plugins enable --offline rabbitmq_prometheus && rabbitmq-server"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
 
   gateway:
     build:
@@ -103,6 +124,7 @@ services:
       LOG_DIR: /logs
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
     volumes:
@@ -158,6 +180,7 @@ services:
       LOG_DIR: /logs
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8081:8081"
     volumes:
@@ -269,3 +292,4 @@ volumes:
   grafana-data:
   loki-data:
   alloy-data:
+  rabbitmq-data:
