@@ -118,4 +118,26 @@ class RefreshServiceTest {
 
         verify(refreshTokenRepository).delete(entity);
     }
+
+    @Test
+    @DisplayName("탈퇴/정지된 회원이면 refresh token을 삭제하고 예외를 던진다")
+    void refreshAccessToken_disabledMember_deletesAndThrows() {
+        String token = "valid-jwt-but-disabled-member";
+        given(jwtTokenProvider.validateToken(token)).willReturn(true);
+
+        RefreshToken entity = new RefreshToken("user@test.com", token, Instant.now().plusSeconds(600));
+        given(refreshTokenRepository.findByToken(token)).willReturn(Optional.of(entity));
+
+        UserDetails disabledUserDetails = new CustomUserPrincipal(
+                1L, "user@test.com", "encoded-password",
+                List.of(new SimpleGrantedAuthority("ROLE_USER")), true);
+        given(userDetailsService.loadUserByUsername("user@test.com")).willReturn(disabledUserDetails);
+
+        assertThatThrownBy(() -> refreshService.refreshAccessToken(token))
+                .isInstanceOf(InvalidRefreshTokenException.class)
+                .hasMessageContaining("탈퇴/정지된 회원");
+
+        verify(refreshTokenRepository).delete(entity);
+        verify(jwtTokenProvider, never()).createAccessToken(any());
+    }
 }
