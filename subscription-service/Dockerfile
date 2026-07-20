@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7-labs
 FROM gradle:9.3.0-jdk17 AS builder
 WORKDIR /build
 COPY --parents subscription-service ./
