@@ -2,6 +2,7 @@ package com.lcs.member.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lcs.member.application.dto.request.CreateMemberRequest;
+import com.lcs.member.application.dto.request.EmailLookupRequest;
 import com.lcs.member.application.dto.response.CreateMemberResponse;
 import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
 import com.lcs.member.application.dto.response.MemberCredentialResponse;
@@ -81,18 +82,21 @@ class MemberInternalControllerTest {
         verify(memberService).createFromHash("dup@example.com", "$2a$10$alreadyHashedValue");
     }
 
-    // --- GET /internal/members/by-email/{email} (findByEmailForAuth) ---
+    // --- POST /internal/members/by-email/info (findByEmailForAuth) ---
 
     @Test
     @DisplayName("존재하는 이메일로 조회하면 200 OK와 memberId, passwordHash, role, suspended, deleted를 반환한다")
     void givenExistingEmail_whenFindByEmail_thenReturns200WithCredentialFields() throws Exception {
         String email = "user@example.com";
+        EmailLookupRequest request = new EmailLookupRequest(email);
         MemberCredentialResponse response =
                 new MemberCredentialResponse(1L, "$2a$10$storedHash", MemberRole.MEMBER, false, false);
 
         when(memberService.findByEmailForAuth(email)).thenReturn(response);
 
-        mockMvc.perform(get("/internal/members/by-email/{email}", email))
+        mockMvc.perform(post("/internal/members/by-email/info")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.memberId").value(1))
                 .andExpect(jsonPath("$.passwordHash").value("$2a$10$storedHash"))
@@ -108,11 +112,14 @@ class MemberInternalControllerTest {
     @DisplayName("존재하지 않는 이메일로 조회하면 400 Bad Request를 반환한다")
     void givenNonExistingEmail_whenFindByEmail_thenReturns400() throws Exception {
         String email = "missing@example.com";
+        EmailLookupRequest request = new EmailLookupRequest(email);
 
         when(memberService.findByEmailForAuth(email))
                 .thenThrow(new MemberException("존재하지 않는 회원입니다."));
 
-        mockMvc.perform(get("/internal/members/by-email/{email}", email))
+        mockMvc.perform(post("/internal/members/by-email/info")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
 

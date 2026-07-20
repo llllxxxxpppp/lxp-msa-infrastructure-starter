@@ -1,6 +1,7 @@
 package com.lcs.member.presentation;
 
 import com.lcs.member.application.dto.request.CreateMemberRequest;
+import com.lcs.member.application.dto.request.EmailLookupRequest;
 import com.lcs.member.application.dto.response.CreateMemberResponse;
 import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
 import com.lcs.member.application.dto.response.MemberCredentialResponse;
@@ -43,9 +44,11 @@ public class MemberInternalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @GetMapping("/by-email/{email}")
-    public ResponseEntity<MemberCredentialResponse> findByEmail(@PathVariable String email) {
-        MemberCredentialResponse responseDTO = memberService.findByEmailForAuth(email);
+    @PostMapping("/by-email/info")
+    public ResponseEntity<MemberCredentialResponse> findByEmail(
+            @RequestBody @Valid EmailLookupRequest requestDTO
+    ) {
+        MemberCredentialResponse responseDTO = memberService.findByEmailForAuth(requestDTO.email());
 
         return ResponseEntity.ok(responseDTO);
     }
