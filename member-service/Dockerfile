@@ -1,6 +1,6 @@
 FROM gradle:9.3.0-jdk17 AS builder
 WORKDIR /build
-COPY . .
+COPY --parents member-service ./
 RUN cd member-service && gradle clean bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre
