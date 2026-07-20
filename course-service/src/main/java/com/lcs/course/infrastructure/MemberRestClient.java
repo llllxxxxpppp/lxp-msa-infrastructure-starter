@@ -17,11 +17,12 @@ public class MemberRestClient implements InstructorStatusClient {
 
     @Override
     public boolean isSuspended(Long instructorId) {
-        // TODO(member): member-service 강사 정지 조회 API 계약 확정 후 경로/응답 형식 조정
-        Boolean suspended = restClient.get()
-                .uri("/api/members/{id}/suspended", instructorId)
+        SuspensionStatusResponse response = restClient.get()
+                .uri("/internal/members/{instructorId}/suspension-status", instructorId)
                 .retrieve()
-                .body(Boolean.class);
-        return Boolean.TRUE.equals(suspended);
+                .body(SuspensionStatusResponse.class);
+        return response != null && response.suspended();
     }
+
+    private record SuspensionStatusResponse(boolean suspended) {}
 }
