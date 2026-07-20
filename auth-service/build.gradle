@@ -34,6 +34,9 @@ dependencies {
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    // Resilience4j (Circuit Breaker) - annotation 기반, 버전은 Spring Cloud BOM이 관리
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
