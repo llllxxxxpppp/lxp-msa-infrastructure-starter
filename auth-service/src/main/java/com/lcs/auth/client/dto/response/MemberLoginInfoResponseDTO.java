@@ -1,7 +1,7 @@
 package com.lcs.auth.client.dto.response;
 
 public record MemberLoginInfoResponseDTO(
-        Long id,
+        Long memberId,
         String passwordHash,
         String role,
         boolean suspended,
