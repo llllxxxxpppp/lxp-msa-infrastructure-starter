@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new CustomUserPrincipal(
                 member.id(),
                 username,
-                member.password(),
+                member.passwordHash(),
                 List.of(authority),
                 !member.deleted() && !member.suspended());
     }
