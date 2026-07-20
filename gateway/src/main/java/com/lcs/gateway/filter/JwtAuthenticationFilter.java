@@ -80,7 +80,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
      */
     private static final List<RoleRule> ROLE_RULES = List.of(
             rule(null, "/api/admin/**", ROLE_ADMIN),
-            rule(null, "/api/members/**", ROLE_MEMBER),
+            // /api/members/** 하위는 현재 자기 자신 조회/수정(/api/members/me/**)뿐이므로
+            // 모든 로그인 role(강사·관리자 포함)이 자기 계정에 접근할 수 있어야 한다.
+            // (isAuthorized는 매칭되는 모든 규칙을 AND로 검사하므로, 별도 /me/** 규칙을
+            //  추가하는 대신 이 규칙 자체를 넓혀야 강사가 403으로 막히지 않는다.)
+            rule(null, "/api/members/**", ROLE_MEMBER, ROLE_INSTRUCTOR, ROLE_ADMIN),
 
             rule(POST, "/api/courses", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/publish", ROLE_INSTRUCTOR),
