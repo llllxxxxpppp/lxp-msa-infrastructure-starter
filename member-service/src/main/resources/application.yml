@@ -25,6 +25,11 @@ spring:
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
 
 server:
   port: ${SERVER_PORT:8082}
@@ -43,10 +48,7 @@ logging:
     name: ${LOG_DIR:../infrastructure/logs}/${spring.application.name}.log
 
 member:
-  notification:
-    subscription-service:
-      base-url: ${SUBSCRIPTION_SERVICE_URL:http://subscription-service:8084}
-    course-service:
-      base-url: ${COURSE_SERVICE_URL:http://course-service:8083}
+  messaging:
+    exchange: member.events
   grpc:
     port: ${MEMBER_GRPC_PORT:9090}

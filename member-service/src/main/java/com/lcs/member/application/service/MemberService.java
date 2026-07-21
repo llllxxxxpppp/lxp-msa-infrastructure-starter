@@ -5,12 +5,16 @@ import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
 import com.lcs.member.application.dto.response.MemberCredentialResponse;
 import com.lcs.member.application.dto.response.SuspensionStatusResponse;
 import com.lcs.member.application.dto.response.UserResponseDTO;
+import com.lcs.member.domain.event.InstructorSuspendedEvent;
+import com.lcs.member.domain.event.MemberRegisteredEvent;
+import com.lcs.member.domain.event.MemberSuspendedEvent;
+import com.lcs.member.domain.event.MemberWithdrawnEvent;
 import com.lcs.member.domain.exception.MemberException;
 import com.lcs.member.domain.model.entity.InstructorMember;
 import com.lcs.member.domain.model.entity.Member;
 import com.lcs.member.domain.model.entity.RegularMember;
-import com.lcs.member.domain.notification.MemberStateChangeNotifier;
 import com.lcs.member.domain.repository.MemberRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final MemberStateChangeNotifier notifier;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MemberService(
             PasswordEncoder passwordEncoder,
             MemberRepository memberRepository,
-            MemberStateChangeNotifier notifier
+            ApplicationEventPublisher eventPublisher
     ) {
         this.passwordEncoder = passwordEncoder;
         this.memberRepository = memberRepository;
-        this.notifier = notifier;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -39,7 +43,7 @@ public class MemberService {
 
         Member savedUser = memberRepository.save(member);
 
-        notifier.notifyMemberRegistered(savedUser.getId().value());
+        eventPublisher.publishEvent(new MemberRegisteredEvent(savedUser.getId().value()));
 
         return UserResponseDTO.from(savedUser);
     }
@@ -68,7 +72,7 @@ public class MemberService {
         regularMember.suspend();
         memberRepository.save(regularMember);
 
-        notifier.notifyMemberSuspended(memberId);
+        eventPublisher.publishEvent(new MemberSuspendedEvent(memberId));
     }
 
     @Transactional
@@ -77,7 +81,7 @@ public class MemberService {
         regularMember.withdraw();
         memberRepository.save(regularMember);
 
-        notifier.notifyMemberWithdrawn(memberId);
+        eventPublisher.publishEvent(new MemberWithdrawnEvent(memberId));
     }
 
     @Transactional
@@ -86,7 +90,7 @@ public class MemberService {
         instructorMember.suspend();
         memberRepository.save(instructorMember);
 
-        notifier.notifyInstructorSuspended(instructorId);
+        eventPublisher.publishEvent(new InstructorSuspendedEvent(instructorId));
     }
 
     @Transactional
