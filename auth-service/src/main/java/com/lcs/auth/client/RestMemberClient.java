@@ -33,7 +33,9 @@ public class RestMemberClient implements MemberClient {
                     .body(new MemberLoginInfoRequestDTO(email))
                     .retrieve()
                     .body(MemberLoginInfoResponseDTO.class));
-        } catch (HttpClientErrorException.NotFound e) {
+        } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
+            // member-service는 /by-email/info 조회 실패(회원 없음)를 400으로 응답한다
+            // (MemberLoginInfoGrpcService도 동일한 이유로 MemberException을 NOT_FOUND로 매핑함).
             return Optional.empty();
         } catch (HttpServerErrorException | ResourceAccessException e) {
             throw new MemberServiceUnavailableException(
