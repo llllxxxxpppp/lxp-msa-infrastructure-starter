@@ -239,6 +239,7 @@ services:
       LOG_DIR: /logs
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      RABBITMQ_HOST: rabbitmq
       MEMBER_GRPC_HOST: member-service
     ports:
       - "8083:8083"
@@ -248,6 +249,8 @@ services:
       consul-1:
         condition: service_healthy
       config-server:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks: [lxp-net]
     healthcheck:
