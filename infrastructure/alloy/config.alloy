@@ -7,8 +7,21 @@ local.file_match "lxp_file_logs" {
   ]
 }
 
+// 파일 경로(/var/log/lxp/{service}.log)에서 서비스명을 추출해
+// service_name 라벨로 부여한다. 이 라벨이 없으면 Loki가 job 값을
+// service_name으로 승격시켜 모든 로그가 하나로 묶인다(#36).
+discovery.relabel "lxp_file_logs" {
+  targets = local.file_match.lxp_file_logs.targets
+
+  rule {
+    source_labels = ["__path__"]
+    regex         = ".*/(.+)\\.log"
+    target_label  = "service_name"
+  }
+}
+
 loki.source.file "lxp_file_logs" {
-  targets    = local.file_match.lxp_file_logs.targets
+  targets    = discovery.relabel.lxp_file_logs.output
   forward_to = [loki.write.default.receiver]
 }
 
