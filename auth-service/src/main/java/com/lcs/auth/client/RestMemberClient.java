@@ -4,6 +4,7 @@ import com.lcs.auth.client.dto.request.MemberLoginInfoRequestDTO;
 import com.lcs.auth.client.dto.response.MemberLoginInfoResponseDTO;
 import com.lcs.auth.exception.MemberServiceUnavailableException;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 @Component
+@Qualifier("memberClientRaw")
 @ConditionalOnProperty(name = "auth.member-client.mode", havingValue = "rest",
         matchIfMissing = true)
 public class RestMemberClient implements MemberClient {
