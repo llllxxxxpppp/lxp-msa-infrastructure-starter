@@ -5,12 +5,15 @@ import com.lcs.member.application.dto.response.MemberAuthStatusResponse;
 import com.lcs.member.application.dto.response.MemberCredentialResponse;
 import com.lcs.member.application.dto.response.SuspensionStatusResponse;
 import com.lcs.member.application.dto.response.UserResponseDTO;
+import com.lcs.member.domain.event.InstructorSuspendedEvent;
+import com.lcs.member.domain.event.MemberRegisteredEvent;
+import com.lcs.member.domain.event.MemberSuspendedEvent;
+import com.lcs.member.domain.event.MemberWithdrawnEvent;
 import com.lcs.member.domain.exception.MemberException;
 import com.lcs.member.domain.model.MemberRole;
 import com.lcs.member.domain.model.entity.InstructorMember;
 import com.lcs.member.domain.model.entity.RegularMember;
 import com.lcs.member.domain.repository.MemberRepository;
-import com.lcs.member.domain.notification.MemberStateChangeNotifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -43,7 +47,7 @@ class MemberServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
-    private MemberStateChangeNotifier notifier;
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private MemberService memberService;
@@ -53,8 +57,8 @@ class MemberServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("이메일 중복이 없으면 회원가입 시 save와 notifyMemberRegistered 호출이 수행된다")
-    void givenNonDuplicateEmail_whenRegister_thenSaveAndNotifyMemberRegisteredAreInvoked() {
+    @DisplayName("이메일 중복이 없으면 회원가입 시 save와 MemberRegisteredEvent 발행이 수행된다")
+    void givenNonDuplicateEmail_whenRegister_thenSaveAndPublishMemberRegisteredEventAreInvoked() {
         String email = "user@example.com";
         String password = "password123";
         String encodedPassword = "encoded_password";
@@ -68,15 +72,17 @@ class MemberServiceTest {
 
         UserResponseDTO result = memberService.register(email, password);
 
+        ArgumentCaptor<MemberRegisteredEvent> eventCaptor = ArgumentCaptor.forClass(MemberRegisteredEvent.class);
         verify(memberRepository).save(any(RegularMember.class));
-        verify(notifier).notifyMemberRegistered(1L);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
 
         assertEquals(1L, result.id());
+        assertEquals(1L, eventCaptor.getValue().getMemberId());
     }
 
     @Test
-    @DisplayName("이미 존재하는 이메일로 회원가입하려 하면 MemberException이 발생하고 save와 notifier 호출이 수행되지 않는다")
-    void givenExistingEmail_whenRegister_thenThrowsMemberExceptionAndSaveAndNotifierAreNotInvoked() {
+    @DisplayName("이미 존재하는 이메일로 회원가입하려 하면 MemberException이 발생하고 save와 eventPublisher 호출이 수행되지 않는다")
+    void givenExistingEmail_whenRegister_thenThrowsMemberExceptionAndSaveAndEventPublisherAreNotInvoked() {
         String email = "user@example.com";
         String password = "password123";
 
@@ -85,7 +91,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.register(email, password));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     // -------------------------------------------------------------------------
@@ -93,8 +99,8 @@ class MemberServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("일반 회원을 정지시키면 save와 notifyMemberSuspended가 호출된다")
-    void givenExistingRegularMember_whenSuspendMember_thenSaveAndNotifyMemberSuspendedAreInvoked() {
+    @DisplayName("일반 회원을 정지시키면 save와 MemberSuspendedEvent 발행이 수행된다")
+    void givenExistingRegularMember_whenSuspendMember_thenSaveAndPublishMemberSuspendedEventAreInvoked() {
         Long memberId = 1L;
         RegularMember regularMember = RegularMember.create("user@example.com", "encoded_password");
 
@@ -102,8 +108,11 @@ class MemberServiceTest {
 
         memberService.suspendMember(memberId);
 
+        ArgumentCaptor<MemberSuspendedEvent> eventCaptor = ArgumentCaptor.forClass(MemberSuspendedEvent.class);
         verify(memberRepository).save(any(RegularMember.class));
-        verify(notifier).notifyMemberSuspended(memberId);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+
+        assertEquals(memberId, eventCaptor.getValue().getMemberId());
     }
 
     @Test
@@ -116,7 +125,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.suspendMember(memberId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -131,7 +140,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.suspendMember(instructorId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     // -------------------------------------------------------------------------
@@ -139,8 +148,8 @@ class MemberServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("일반 회원을 탈퇴시키면 save와 notifyMemberWithdrawn이 호출된다")
-    void givenExistingRegularMember_whenWithdrawMember_thenSaveAndNotifyMemberWithdrawnAreInvoked() {
+    @DisplayName("일반 회원을 탈퇴시키면 save와 MemberWithdrawnEvent 발행이 수행된다")
+    void givenExistingRegularMember_whenWithdrawMember_thenSaveAndPublishMemberWithdrawnEventAreInvoked() {
         Long memberId = 1L;
         RegularMember regularMember = RegularMember.create("user@example.com", "encoded_password");
 
@@ -148,8 +157,11 @@ class MemberServiceTest {
 
         memberService.withdrawMember(memberId);
 
+        ArgumentCaptor<MemberWithdrawnEvent> eventCaptor = ArgumentCaptor.forClass(MemberWithdrawnEvent.class);
         verify(memberRepository).save(any(RegularMember.class));
-        verify(notifier).notifyMemberWithdrawn(memberId);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+
+        assertEquals(memberId, eventCaptor.getValue().getMemberId());
     }
 
     @Test
@@ -162,7 +174,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.withdrawMember(memberId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -177,7 +189,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.withdrawMember(instructorId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     // -------------------------------------------------------------------------
@@ -185,8 +197,8 @@ class MemberServiceTest {
     // -------------------------------------------------------------------------
 
     @Test
-    @DisplayName("강사를 정지시키면 save와 notifyInstructorSuspended가 호출된다")
-    void givenExistingInstructor_whenSuspendInstructor_thenSaveAndNotifyInstructorSuspendedAreInvoked() {
+    @DisplayName("강사를 정지시키면 save와 InstructorSuspendedEvent 발행이 수행된다")
+    void givenExistingInstructor_whenSuspendInstructor_thenSaveAndPublishInstructorSuspendedEventAreInvoked() {
         Long instructorId = 1L;
         InstructorMember instructorMember = InstructorMember.create("instructor@example.com", "encoded_password",
                 "홍길동", null, null);
@@ -195,8 +207,11 @@ class MemberServiceTest {
 
         memberService.suspendInstructor(instructorId);
 
+        ArgumentCaptor<InstructorSuspendedEvent> eventCaptor = ArgumentCaptor.forClass(InstructorSuspendedEvent.class);
         verify(memberRepository).save(any(InstructorMember.class));
-        verify(notifier).notifyInstructorSuspended(instructorId);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+
+        assertEquals(instructorId, eventCaptor.getValue().getInstructorId());
     }
 
     @Test
@@ -209,7 +224,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.suspendInstructor(instructorId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -223,7 +238,7 @@ class MemberServiceTest {
         assertThrows(MemberException.class, () -> memberService.suspendInstructor(memberId));
 
         verify(memberRepository, never()).save(any());
-        verifyNoInteractions(notifier);
+        verifyNoInteractions(eventPublisher);
     }
 
     // -------------------------------------------------------------------------
