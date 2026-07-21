@@ -73,6 +73,25 @@ class RestMemberClientTest {
     }
 
     @Test
+    @DisplayName("member-service가 400(회원 없음)으로 응답하면 빈 Optional을 반환한다")
+    void findByEmail_memberNotFoundAsBadRequest_returnsEmptyOptional() {
+        mockServer.expect(requestTo("http://member-service/internal/members/by-email/info"))
+                .andExpect(method(POST))
+                .andExpect(content().json("""
+                        {"email":"missing@test.com"}
+                        """))
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                        .body("""
+                                {"message":"존재하지 않는 회원입니다."}
+                                """)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        Optional<MemberLoginInfoResponseDTO> result = memberClient.findByEmail("missing@test.com");
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     @DisplayName("member-service가 5xx로 응답하면 MemberServiceUnavailableException을 던진다")
     void findByEmail_memberServiceServerError_throwsMemberServiceUnavailableException() {
         mockServer.expect(requestTo("http://member-service/internal/members/by-email/info"))
