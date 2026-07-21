@@ -1,0 +1,14 @@
+apiVersion: 1
+
+providers:
+  - name: 'lxp-dashboards'
+    orgId: 1
+    folder: 'LXP'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      # JSON은 하위 폴더에만 두어 이 provider yml이 대시보드로 잘못 파싱되지 않게 한다.
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: false

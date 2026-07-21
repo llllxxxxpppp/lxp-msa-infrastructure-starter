@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+// course → member 강사 정지 상태 조회 계약.
+// member-service(gRPC 서버 담당)는 이 proto를 그대로 사용해 서비스를 구현한다.
+option java_multiple_files = true;
+option java_package = "com.lcs.grpc.member";
+option java_outer_classname = "MemberSuspensionProto";
+
+package member;
+
+// 강사 정지 여부 조회 서비스
+service MemberSuspensionService {
+  // 강사 ID로 정지 여부를 조회한다. (REST의 GET /internal/members/{id}/suspension-status 와 동일 의미)
+  rpc GetSuspensionStatus (SuspensionStatusRequest) returns (SuspensionStatusResponse);
+}
+
+message SuspensionStatusRequest {
+  int64 instructor_id = 1;
+}
+
+message SuspensionStatusResponse {
+  bool suspended = 1;
+}

@@ -27,17 +27,18 @@ spring:
       settings:
         web-allow-others: true
 
+auth:
+  member-client:
+    mode: ${AUTH_SERVICE_MEMBER_CLIENT_MODE:rest} # rest(기본, REST 호출) | grpc(gRPC 호출)
+    grpc:
+      host: ${AUTH_SERVICE_MEMBER_CLIENT_GRPC_HOST:member-service}
+      port: ${AUTH_SERVICE_MEMBER_CLIENT_GRPC_PORT:9090}
+
 server:
   port: ${SERVER_PORT:8081}
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  endpoint:
-    health:
-      show-details: always
+# management(actuator) 노출·health 설정은 config-repo/application.yml에서 중앙 관리한다.
+# 서킷 브레이커 엔드포인트(circuitbreakers 등)도 그곳에 정의되어 있다.
 
 logging:
   file:

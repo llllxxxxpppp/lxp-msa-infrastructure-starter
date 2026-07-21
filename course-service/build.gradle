@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.15'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'com.lcs'
@@ -19,6 +20,8 @@ repositories {
 
 ext {
     set('springCloudVersion', '2025.0.3')
+    set('grpcVersion', '1.68.1')
+    set('protobufVersion', '3.25.5')
 }
 
 dependencies {
@@ -31,6 +34,19 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // gRPC (course = 클라이언트)
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
+    // AOP (Resilience4j annotation 처리에 필요)
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Resilience4j (Circuit Breaker) - annotation 기반, 버전은 Spring Cloud BOM이 관리
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -39,6 +55,24 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                grpc {}
+            }
+        }
     }
 }
 

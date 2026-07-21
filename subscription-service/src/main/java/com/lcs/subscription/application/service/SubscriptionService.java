@@ -40,6 +40,13 @@ public class SubscriptionService {
         this.eventPublisher = eventPublisher;
     }
 
+    public void createFreeSubscriptionIfAbsent(Long memberId) {
+        if (subscriptionRepository.existsByMemberId(memberId)) {
+            return;
+        }
+        createSubscription(memberId, FREE_PRICE);
+    }
+
     public SubscriptionResponse createSubscription(Long memberId, Long price) {
         Subscription subscription = Subscription.create(memberId, price);
         Payment payment = Payment.create(RequestType.PAYMENT);

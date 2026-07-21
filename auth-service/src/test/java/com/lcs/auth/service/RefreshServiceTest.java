@@ -53,7 +53,7 @@ class RefreshServiceTest {
 
         UserDetails userDetails = new CustomUserPrincipal(
                 1L, "user@test.com", "encoded-password",
-                List.of(new SimpleGrantedAuthority("ROLE_USER")), false);
+                List.of(new SimpleGrantedAuthority("ROLE_USER")), true);
         given(userDetailsService.loadUserByUsername("user@test.com")).willReturn(userDetails);
         given(jwtTokenProvider.createAccessToken(any())).willReturn("new-access-token");
 
@@ -130,7 +130,7 @@ class RefreshServiceTest {
 
         UserDetails disabledUserDetails = new CustomUserPrincipal(
                 1L, "user@test.com", "encoded-password",
-                List.of(new SimpleGrantedAuthority("ROLE_USER")), true);
+                List.of(new SimpleGrantedAuthority("ROLE_USER")), false);
         given(userDetailsService.loadUserByUsername("user@test.com")).willReturn(disabledUserDetails);
 
         assertThatThrownBy(() -> refreshService.refreshAccessToken(token))
