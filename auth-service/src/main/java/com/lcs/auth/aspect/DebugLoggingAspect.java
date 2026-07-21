@@ -25,7 +25,8 @@ public class DebugLoggingAspect {
     @Before("controllerLayer() || serviceLayer()")
     public void before(JoinPoint joinPoint) {
         LOGGER.atInfo().log(
-                "{}() invoked with arguments: {}",
+                "{}.{}() invoked with arguments: {}",
+                joinPoint.getSignature().getDeclaringType().getSimpleName(),
                 joinPoint.getSignature().getName(),
                 joinPoint.getArgs());
     }
@@ -33,7 +34,8 @@ public class DebugLoggingAspect {
     @After("controllerLayer() || serviceLayer()")
     public void after(JoinPoint joinPoint) {
         LOGGER.atInfo().log(
-                "{}() executed with arguments: {}",
+                "{}.{}() executed with arguments: {}",
+                joinPoint.getSignature().getDeclaringType().getSimpleName(),
                 joinPoint.getSignature().getName(),
                 joinPoint.getArgs());
     }
