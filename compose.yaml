@@ -12,18 +12,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    volumes:
+      - consul-1-data:/consul/data
 
   consul-2:
     image: hashicorp/consul:1.18
     container_name: lxp-consul-2
     command: agent -server -node=consul-2 -bootstrap-expect=3 -client=0.0.0.0 -retry-join=consul-1 -retry-join=consul-3
     networks: [lxp-net]
+    volumes:
+      - consul-2-data:/consul/data
 
   consul-3:
     image: hashicorp/consul:1.18
     container_name: lxp-consul-3
     command: agent -server -node=consul-3 -bootstrap-expect=3 -client=0.0.0.0 -retry-join=consul-1 -retry-join=consul-2
     networks: [lxp-net]
+    volumes:
+      - consul-3-data:/consul/data
 
 
   prometheus:
@@ -33,6 +39,7 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
       - ./infrastructure/prometheus/prometheus-docker.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     extra_hosts:
@@ -301,6 +308,10 @@ networks:
     driver: bridge
 
 volumes:
+  consul-1-data:
+  consul-2-data:
+  consul-3-data:
+  prometheus-data:
   grafana-data:
   loki-data:
   alloy-data:
