@@ -19,6 +19,15 @@ spring:
       mode: always
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2.0
+          max-interval: 10000
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}

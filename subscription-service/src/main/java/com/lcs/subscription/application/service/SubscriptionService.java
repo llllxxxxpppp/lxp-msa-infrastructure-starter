@@ -201,6 +201,14 @@ public class SubscriptionService {
         return SubscriptionResponse.from(findSubscription(subscriptionId));
     }
 
+    /** 다른 서비스가 호출하는 내부 API용 조회. 구독권이 없는 회원은 빈 리스트를 반환한다. */
+    @Transactional(readOnly = true)
+    public List<SubscriptionResponse> getSubscriptionsByMemberId(Long memberId) {
+        return subscriptionRepository.findByMemberId(memberId).stream()
+                .map(SubscriptionResponse::from)
+                .toList();
+    }
+
     private Subscription findSubscription(Long subscriptionId) {
         return subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new SubscriptionException("구독권을 찾을 수 없습니다."));

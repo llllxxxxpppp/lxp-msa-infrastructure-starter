@@ -32,14 +32,21 @@ class MemberEventListenerTest {
     }
 
     @Test
-    void suspendedAndWithdrawnEventsSuspendSubscriptions() {
+    void suspendedEventSuspendsActiveSubscriptions() {
         MemberEventMessage event = event(1L);
 
         listener.handle(event, "member.suspended");
+
+        verify(subscriptionService).suspendActiveSubscriptions(1L);
+    }
+
+    @Test
+    void withdrawnEventProcessesMemberWithdrawal() {
+        MemberEventMessage event = event(1L);
+
         listener.handle(event, "member.withdrawn");
 
-        verify(subscriptionService, org.mockito.Mockito.times(2))
-                .suspendActiveSubscriptions(1L);
+        verify(subscriptionService).processMemberWithdrawal(1L);
     }
 
     @Test

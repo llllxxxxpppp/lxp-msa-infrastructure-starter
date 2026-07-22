@@ -29,8 +29,10 @@ public class MemberEventListener {
         switch (routingKey) {
             case "member.registered" ->
                     subscriptionService.createFreeSubscriptionIfAbsent(event.memberId());
-            case "member.suspended", "member.withdrawn" ->
+            case "member.suspended" ->
                     subscriptionService.suspendActiveSubscriptions(event.memberId());
+            case "member.withdrawn" ->
+                    subscriptionService.processMemberWithdrawal(event.memberId());
             default -> log.warn("Unsupported member event routing key: {}", routingKey);
         }
     }

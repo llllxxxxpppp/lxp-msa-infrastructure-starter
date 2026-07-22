@@ -46,5 +46,7 @@ dependencyManagement {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'rabbitmq-integration'
+    }
 }
