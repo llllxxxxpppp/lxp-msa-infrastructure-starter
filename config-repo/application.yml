@@ -27,6 +27,15 @@ spring:
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+        # critical(헬스체크 실패) 인스턴스를 로드밸런싱 후보에서 제외한다. 기본값(false)이면
+        # 재시작으로 죽은 옛 인스턴스가 카탈로그에 남아있는 동안 그쪽으로도 요청이 가서
+        # 간헐적 Connection refused를 유발한다.
+        query-passing: true
+        # critical 상태가 1분 넘게 유지되면 카탈로그에서 자동 제거한다.
+        # Consul이 강제하는 최소값이 1분이라 그보다 작은 값은 무시된다. 값이 무시되면
+        # consul agent 로그에 다음과 같은 경고만 남고 타이머는 등록되지 않는다:
+        # "check has deregister interval below minimum: minimum_interval=1m0s"
+        health-check-critical-timeout: 1m
 
 logging:
   level:
