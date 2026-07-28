@@ -15,6 +15,9 @@ dependencies {
     // Spring Boot
     implementation plugin(libs.findPlugin("springframework-boot").get())
     implementation plugin(libs.findPlugin("spring-dependency-management").get())
+
+    // gRPC
+    implementation plugin(libs.findPlugin("google-protobuf").get())
 }
 
 def plugin(Provider<PluginDependency> plugin) {

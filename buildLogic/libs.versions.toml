@@ -3,7 +3,9 @@
 [versions]
 springframework-boot = "3.5.15"
 spring-dependency-management = "1.1.7"
+google-protobuf = "0.10.0"
 
 [plugins]
 springframework-boot = { id = "org.springframework.boot", version.ref = "springframework-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+google-protobuf = { id = "com.google.protobuf", version.ref = "google-protobuf" }

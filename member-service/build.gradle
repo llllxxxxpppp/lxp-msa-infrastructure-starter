@@ -2,19 +2,14 @@ plugins {
     id 'buildlogic.java-spring-boot-conventions'
     id 'buildlogic.java-spring-boot-observability-conventions'
     id 'buildlogic.java-spring-cloud-config-client-conventions'
+    id 'buildlogic.java-spring-boot-grpc-conventions'
 
     id 'pmd'
     id 'jacoco'
-    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
-
-ext {
-    set('grpcVersion', '1.68.1')
-    set('protobufVersion', '3.25.5')
-}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -24,34 +19,10 @@ dependencies {
     implementation 'org.springframework.security:spring-security-crypto'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
-    // gRPC (member = 서버)
-    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
-    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
-    implementation "io.grpc:grpc-stub:${grpcVersion}"
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
-
     runtimeOnly 'com.h2database:h2'
 
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${protobufVersion}"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.plugins {
-                grpc {}
-            }
-        }
-    }
 }
 
 pmd {
