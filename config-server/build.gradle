@@ -1,19 +1,12 @@
 plugins {
     id 'buildlogic.java-spring-boot-conventions'
     id 'buildlogic.java-spring-boot-observability-conventions'
+    id 'buildlogic.java-spring-cloud-config-server-conventions'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
 
-ext { set('springCloudVersion', '2025.0.3') }
-
 dependencies {
-    implementation 'org.springframework.cloud:spring-cloud-config-server'
-    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-dependencyManagement {
-    imports { mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" }
 }
