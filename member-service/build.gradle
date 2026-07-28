@@ -3,6 +3,8 @@ plugins {
     id 'buildlogic.java-spring-boot-observability-conventions'
     id 'buildlogic.java-spring-cloud-config-client-conventions'
     id 'buildlogic.java-spring-boot-grpc-conventions'
+    id 'buildlogic.java-spring-boot-web-conventions'
+    id 'buildlogic.java-spring-boot-swagger-conventions'
 
     id 'pmd'
     id 'jacoco'
@@ -12,12 +14,9 @@ group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.security:spring-security-crypto'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     runtimeOnly 'com.h2database:h2'
 
