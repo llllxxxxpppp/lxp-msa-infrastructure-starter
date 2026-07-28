@@ -4,17 +4,12 @@ plugins {
     id 'buildlogic.java-spring-cloud-config-client-conventions'
     id 'buildlogic.java-spring-boot-web-conventions'
     id 'buildlogic.java-spring-boot-jpa-conventions'
+    id 'buildlogic.java-spring-boot-aop-conventions'
+    id 'buildlogic.java-spring-boot-amqp-conventions'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
-
-    // AOP
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-}
 
 tasks.named('test') {
     useJUnitPlatform {

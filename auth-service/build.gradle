@@ -6,26 +6,17 @@ plugins {
     id 'buildlogic.java-spring-boot-web-conventions'
     id 'buildlogic.java-spring-boot-swagger-conventions'
     id 'buildlogic.java-spring-boot-jpa-conventions'
+    id 'buildlogic.java-spring-boot-resilience-conventions'
+    id 'buildlogic.java-spring-boot-jwt-conventions'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    // AOP
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-
-    // Resilience4j (Circuit Breaker) - annotation 기반, 버전은 Spring Cloud BOM이 관리
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
-
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
-
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
     // gRPC (버전은 grpc 컨벤션의 grpc-bom이 관리)
     testImplementation 'io.grpc:grpc-inprocess'

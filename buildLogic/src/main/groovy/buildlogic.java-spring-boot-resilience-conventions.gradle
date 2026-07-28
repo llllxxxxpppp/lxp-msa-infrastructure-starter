@@ -1,0 +1,12 @@
+// Resilience4j 서킷 브레이커. 회로 파라미터는 config-repo/application.yml이 공통 관리한다.
+//
+// - aop: @CircuitBreaker 등 annotation 처리에 필요하다.
+// - spring-cloud: resilience4j-spring-boot3의 버전을 Spring Cloud BOM이 공급한다.
+plugins {
+    id 'buildlogic.java-spring-boot-aop-conventions'
+    id 'buildlogic.java-spring-cloud-conventions'
+}
+
+dependencies {
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+}
