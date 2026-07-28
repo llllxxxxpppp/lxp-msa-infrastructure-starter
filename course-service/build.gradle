@@ -4,13 +4,13 @@ plugins {
     id 'buildlogic.java-spring-cloud-config-client-conventions'
     id 'buildlogic.java-spring-boot-grpc-conventions'
     id 'buildlogic.java-spring-boot-web-conventions'
+    id 'buildlogic.java-spring-boot-jpa-conventions'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // AOP (Resilience4j annotation 처리에 필요)
@@ -18,8 +18,6 @@ dependencies {
 
     // Resilience4j (Circuit Breaker) - annotation 기반, 버전은 Spring Cloud BOM이 관리
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
-
-    runtimeOnly 'com.h2database:h2'
 
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'

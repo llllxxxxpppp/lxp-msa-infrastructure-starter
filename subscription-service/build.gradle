@@ -3,15 +3,14 @@ plugins {
     id 'buildlogic.java-spring-boot-observability-conventions'
     id 'buildlogic.java-spring-cloud-config-client-conventions'
     id 'buildlogic.java-spring-boot-web-conventions'
+    id 'buildlogic.java-spring-boot-jpa-conventions'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    runtimeOnly 'com.h2database:h2'
 
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'

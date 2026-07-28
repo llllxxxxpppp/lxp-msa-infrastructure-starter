@@ -1,0 +1,12 @@
+// JPA 기반 영속성 계층 공통 설정.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // 현재 4개 서비스가 모두 인메모리 H2를 쓴다.
+    // 서비스별로 실제 DB를 붙이게 되면 드라이버는 각 서비스로 되돌린다.
+    runtimeOnly 'com.h2database:h2'
+}
