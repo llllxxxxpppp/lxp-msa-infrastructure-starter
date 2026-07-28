@@ -1,0 +1,16 @@
+// 관측성(메트릭 + 분산 추적) 공통 의존성.
+// 실제 수집 설정(management.tracing, management.zipkin, logging.pattern.correlation)은
+// config-repo/application.yml이 단일 출처로 관리한다. 여기서는 의존성만 담당한다.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+dependencies {
+    // 메트릭: /actuator/prometheus 엔드포인트를 Prometheus가 scrape 한다.
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // 분산 추적: Micrometer Tracing -> Brave -> Zipkin.
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+}
