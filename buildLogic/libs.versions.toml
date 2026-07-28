@@ -1,0 +1,9 @@
+# https://docs.gradle.org/current/userguide/version_catalogs.html#sec::toml-dependencies-format
+
+[versions]
+springframework-boot = "3.5.15"
+spring-dependency-management = "1.1.7"
+
+[plugins]
+springframework-boot = { id = "org.springframework.boot", version.ref = "springframework-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

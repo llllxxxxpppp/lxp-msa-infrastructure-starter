@@ -1,0 +1,22 @@
+// https://docs.gradle.org/current/userguide/version_catalogs.html
+
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal()
+}
+
+def catalogs = project.extensions.getByType(VersionCatalogsExtension)
+def libs = catalogs.named("libs")
+
+dependencies {
+    // Spring Boot
+    implementation plugin(libs.findPlugin("springframework-boot").get())
+    implementation plugin(libs.findPlugin("spring-dependency-management").get())
+}
+
+def plugin(Provider<PluginDependency> plugin) {
+    return plugin.map { it.pluginId + ":" + it.pluginId + ".gradle.plugin:" + it.version }
+}

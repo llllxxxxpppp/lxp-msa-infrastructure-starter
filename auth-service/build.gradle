@@ -1,22 +1,11 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.5.15'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'buildlogic.java-spring-boot-conventions'
+
     id 'com.google.protobuf' version '0.10.0'
 }
 
 group = 'com.lcs'
 version = '0.0.1-SNAPSHOT'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-repositories {
-    mavenCentral()
-}
 
 ext {
     set('springCloudVersion', '2025.0.3')
@@ -89,7 +78,6 @@ protobuf {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
     // 컨텍스트 부팅 테스트용 더미 시크릿. 프로덕션은 JWT_SECRET 환경변수로 주입한다(기본값 없음).
     environment 'JWT_SECRET', '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 }

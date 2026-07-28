@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7-labs
 FROM gradle:9.3.0-jdk17 AS builder
 WORKDIR /build
+COPY --parents buildLogic ./
 COPY --parents course-service ./
 RUN cd course-service && gradle clean bootJar --no-daemon
 
