@@ -1,5 +1,4 @@
 plugins {
-    id 'buildlogic.java-spring-boot-conventions'
     id 'buildlogic.java-spring-boot-observability-conventions'
     id 'buildlogic.java-spring-cloud-config-client-conventions'
     id 'buildlogic.java-spring-boot-web-conventions'
