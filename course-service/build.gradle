@@ -33,7 +33,6 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
 
     runtimeOnly 'com.h2database:h2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'

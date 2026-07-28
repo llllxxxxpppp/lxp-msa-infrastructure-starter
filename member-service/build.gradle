@@ -31,7 +31,6 @@ dependencies {
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
     runtimeOnly 'com.h2database:h2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'

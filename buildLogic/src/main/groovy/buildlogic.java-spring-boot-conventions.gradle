@@ -4,3 +4,9 @@ plugins {
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
 }
+
+dependencies {
+    // JUnit 5 + Mockito + AssertJ + spring-boot-test.
+    // 실행 설정(useJUnitPlatform)은 java-common-conventions에 있다.
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
