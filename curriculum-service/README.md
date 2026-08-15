@@ -21,7 +21,7 @@
 1. 다음 명령어를 입력하여 FastAPI 서버를 실행합니다.
 
     ```bash
-    uv run uvicorn main:app --reload
+    uv run uvicorn app.main:app --reload
     ```
 
 ## 테스트
