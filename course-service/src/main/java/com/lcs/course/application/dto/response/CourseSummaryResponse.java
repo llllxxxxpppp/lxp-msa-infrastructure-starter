@@ -7,7 +7,10 @@ public record CourseSummaryResponse(
         Long instructorId,
         String title,
         String status,
-        String thumbnailUrl) {
+        String thumbnailUrl,
+        String category,
+        String difficulty,
+        int durationMinutes) {
 
     public static CourseSummaryResponse from(Course course) {
         return new CourseSummaryResponse(
@@ -15,6 +18,9 @@ public record CourseSummaryResponse(
                 course.getInstructorId().value(),
                 course.getTitle().getValue(),
                 course.getStatus().name(),
-                course.getThumbnailUrl());
+                course.getThumbnailUrl(),
+                course.getCategory().name(),
+                course.getDifficulty().name(),
+                course.getDurationMinutes());
     }
 }

@@ -1,8 +1,10 @@
 package com.lcs.course.domain.model.entity;
 
 import com.lcs.course.domain.exception.CourseException;
+import com.lcs.course.domain.model.vo.Category;
 import com.lcs.course.domain.model.vo.ContentStatus;
 import com.lcs.course.domain.model.vo.CourseId;
+import com.lcs.course.domain.model.vo.Difficulty;
 import com.lcs.course.domain.model.vo.InstructorId;
 import com.lcs.course.domain.model.vo.LectureId;
 import com.lcs.course.domain.model.vo.MissionId;
@@ -53,6 +55,17 @@ public class Course {
     @Column(nullable = false)
     private ContentStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Difficulty difficulty;
+
+    @Column(name = "duration_minutes", nullable = false)
+    private int durationMinutes;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lecture> lectures = new ArrayList<>();
 
@@ -69,10 +82,12 @@ public class Course {
     private OffsetDateTime deletedAt;
 
     private static final int MAX_DESCRIPTION_LENGTH = 4096;
+    private static final int MIN_DURATION_MINUTES = 1;
 
     protected Course() {}
 
-    public static Course create(InstructorId instructorId, Title title, String description, String thumbnailUrl) {
+    public static Course create(InstructorId instructorId, Title title, String description, String thumbnailUrl,
+            Category category, Difficulty difficulty, int durationMinutes) {
         if (instructorId == null) {
             throw new CourseException("강사 ID는 null일 수 없습니다.");
         }
@@ -85,12 +100,24 @@ public class Course {
         if (description.length() > MAX_DESCRIPTION_LENGTH) {
             throw new CourseException("설명은 4096자를 초과할 수 없습니다.");
         }
+        if (category == null) {
+            throw new CourseException("카테고리는 null일 수 없습니다.");
+        }
+        if (difficulty == null) {
+            throw new CourseException("난이도는 null일 수 없습니다.");
+        }
+        if (durationMinutes < MIN_DURATION_MINUTES) {
+            throw new CourseException("학습 시간은 1분 이상이어야 합니다.");
+        }
         Course course = new Course();
         course.instructorId = instructorId.value();
         course.title = title;
         course.description = description;
         course.thumbnailUrl = thumbnailUrl;
         course.status = ContentStatus.PRIVATE;
+        course.category = category;
+        course.difficulty = difficulty;
+        course.durationMinutes = durationMinutes;
         course.createdAt = OffsetDateTime.now();
         return course;
     }
@@ -117,6 +144,18 @@ public class Course {
 
     public String getThumbnailUrl() {
         return thumbnailUrl;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
     }
 
     public OffsetDateTime getCreatedAt() {
@@ -158,7 +197,8 @@ public class Course {
                 .toList();
     }
 
-    public void update(Title newTitle, String description, String thumbnailUrl) {
+    public void update(Title newTitle, String description, String thumbnailUrl,
+            Category category, Difficulty difficulty, int durationMinutes) {
         checkNotDeleted();
         if (status == ContentStatus.PUBLIC) {
             throw new CourseException("공개 상태에서는 강좌를 수정할 수 없습니다.");
@@ -172,9 +212,21 @@ public class Course {
         if (description.length() > MAX_DESCRIPTION_LENGTH) {
             throw new CourseException("설명은 4096자를 초과할 수 없습니다.");
         }
+        if (category == null) {
+            throw new CourseException("카테고리는 null일 수 없습니다.");
+        }
+        if (difficulty == null) {
+            throw new CourseException("난이도는 null일 수 없습니다.");
+        }
+        if (durationMinutes < MIN_DURATION_MINUTES) {
+            throw new CourseException("학습 시간은 1분 이상이어야 합니다.");
+        }
         this.title = newTitle;
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
+        this.category = category;
+        this.difficulty = difficulty;
+        this.durationMinutes = durationMinutes;
         this.updatedAt = OffsetDateTime.now();
     }
 
