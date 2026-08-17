@@ -3,6 +3,7 @@ package com.lcs.course.application.service;
 import com.lcs.course.application.port.InstructorStatusClient;
 import com.lcs.course.application.dto.response.CourseDetailResponse;
 import com.lcs.course.application.dto.response.CoursePageResponse;
+import com.lcs.course.application.dto.response.CourseRagResponse;
 import com.lcs.course.application.dto.response.CourseSummaryResponse;
 import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
 import com.lcs.course.domain.exception.CourseAccessDeniedException;
@@ -20,6 +21,7 @@ import com.lcs.course.domain.model.vo.Title;
 import com.lcs.course.domain.repository.CourseRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -173,6 +175,21 @@ public class CourseService {
         for (Course course : publicCourses) {
             course.unpublish();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseRagResponse> getCoursesForRag() {
+        return courseRepository.findAllByStatusAndDeletedAtIsNull(ContentStatus.PUBLIC).stream()
+                .map(CourseRagResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CourseRagResponse> findCourseForRag(Long courseId) {
+        return courseRepository.findById(courseId)
+                .filter(course -> !course.isDeleted())
+                .filter(course -> course.getStatus() == ContentStatus.PUBLIC)
+                .map(CourseRagResponse::from);
     }
 
     @Transactional(readOnly = true)

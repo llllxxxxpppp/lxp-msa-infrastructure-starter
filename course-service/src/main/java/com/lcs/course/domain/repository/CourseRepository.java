@@ -20,4 +20,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             Pageable pageable);
 
     List<Course> findAllByInstructorIdAndStatusAndDeletedAtIsNull(Long instructorId, ContentStatus status);
+
+    List<Course> findAllByStatusAndDeletedAtIsNull(ContentStatus status);
 }

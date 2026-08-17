@@ -1,5 +1,6 @@
 package com.lcs.course.presentation;
 
+import com.lcs.course.application.dto.response.CourseRagResponse;
 import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
 import com.lcs.course.application.service.CourseService;
 import java.util.List;
@@ -30,5 +31,17 @@ public class CourseInternalController {
     public ResponseEntity<List<InstructorCourseStatusResponse>> getCoursesByInstructor(
             @PathVariable Long instructorId) {
         return ResponseEntity.ok(courseService.getCoursesByInstructor(instructorId));
+    }
+
+    @GetMapping("/for-rag")
+    public ResponseEntity<List<CourseRagResponse>> getCoursesForRag() {
+        return ResponseEntity.ok(courseService.getCoursesForRag());
+    }
+
+    @GetMapping("/{courseId}/for-rag")
+    public ResponseEntity<CourseRagResponse> getCourseForRag(@PathVariable Long courseId) {
+        return courseService.findCourseForRag(courseId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
