@@ -1,3 +1,4 @@
+import os
 import json
 
 from fastapi import APIRouter
@@ -17,6 +18,7 @@ REFUSAL = "업로드된 강의 자료에서 해당 내용을 찾을 수 없습�
 # 로컬 답변 모델
 llm = ChatOllama(
     model="qwen3:8b",
+    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     temperature=0,
     reasoning=False,
 )
@@ -34,8 +36,12 @@ def create_event(event: str, data) -> str:
 
 
 @router.post("")
-def ask_question(course_id: int, request: ChatRequest) -> dict:
-    """해당 강좌 자료를 검색하여 질문에 답변한다."""
+def ask_question(
+    course_id: int,
+    request: ChatRequest,
+    # [변경] 반환 타입을 dict에서 StreamingResponse로 변경
+) -> StreamingResponse:
+    """해당 강좌 자료를 검색하고 답변을 스트리밍한다."""
 
     # course_id가 같은 자료 중 관련 청크 4개 검색
     results = vector_store.similarity_search_with_relevance_scores(
@@ -44,35 +50,20 @@ def ask_question(course_id: int, request: ChatRequest) -> dict:
         filter={"course_id": course_id},
     )
 
-    # 관련 자료가 없으면 답변 거절
-    if not results:
-        return {
-            "answer": REFUSAL,
-            "sources": [],
-        }
+    # [삭제됨]
+    # if not results:
+    #     return {"answer": REFUSAL, "sources": []}
+    #
+    # 여기서 반환하지 않고 generate()에서 SSE 거절 응답을 보낸다.
 
     # 검색된 청크를 답변 모델에 전달할 문맥으로 구성
     context = "\n\n".join(document.page_content for document, _ in results)
 
-    response = llm.invoke(f"""
-다음 강의 자료만 사용해서 질문에 답변해.
-자료에 답이 없으면 정확히 다음 문장만 출력해.
-{REFUSAL}
-
-강의 자료:
-{context}
-
-질문:
-{request.question}
-""")
-
-    answer = str(response.content).strip()
-
-    if answer == REFUSAL:
-        return {
-            "answer": REFUSAL,
-            "sources": [],
-        }
+    # [삭제됨]
+    # response = llm.invoke(...)
+    # answer = str(response.content).strip()
+    #
+    # 아래에서 llm.stream()을 사용하므로 기존 invoke 호출은 제거한다.
 
     # 중복된 파일명과 페이지 제거
     source_values = {
@@ -91,9 +82,8 @@ def ask_question(course_id: int, request: ChatRequest) -> dict:
         for filename, page_number in source_values
     ]
 
-    # [추가] SSE 응답을 생성하는 함수
     def generate():
-        # 검색 결과가 없으면 거절 메시지 전송
+        # [변경] 자료가 없는 경우도 JSON이 아닌 SSE로 반환
         if not results:
             yield create_event(
                 "token",
@@ -118,7 +108,7 @@ def ask_question(course_id: int, request: ChatRequest) -> dict:
 
         full_answer = ""
 
-        # [변경] llm.invoke() 대신 llm.stream() 사용
+        # [변경] invoke 대신 stream을 한 번만 호출
         for chunk in llm.stream(prompt):
             content = str(chunk.content)
 
@@ -127,20 +117,19 @@ def ask_question(course_id: int, request: ChatRequest) -> dict:
 
             full_answer += content
 
-            # [추가] 생성된 답변 조각을 즉시 전송
+            # 생성된 답변 조각을 즉시 SSE로 전송
             yield create_event(
                 "token",
                 {"content": content},
             )
 
-        # 모델이 답변을 거절했다면 출처를 비운다.
+        # 모델이 답변을 거절한 경우 출처를 표시하지 않는다.
         final_sources = [] if full_answer.strip() == REFUSAL else sources
 
-        # [추가] 답변 이후 출처와 완료 이벤트 전송
         yield create_event("sources", final_sources)
         yield create_event("done", {})
 
-    # [변경] 일반 JSON 대신 SSE 스트리밍 응답 반환
+    # [변경] 일반 dict가 아닌 SSE 스트리밍 응답 반환
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",

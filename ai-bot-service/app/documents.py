@@ -1,8 +1,14 @@
 import os
+
+# [추가]
+import json
+from urllib.error import URLError
+from urllib.request import urlopen
 from io import BytesIO
 from uuid import uuid4
 
-from fastapi import APIRouter, File, HTTPException, Response, UploadFile
+# 기존 FastAPI import에 Header 추가
+from fastapi import APIRouter, File, Header, HTTPException, Response, UploadFile
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -40,12 +46,43 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 
+# [추가] 현재 강사가 해당 강좌의 담당자인지 확인한다.
+def verify_course_owner(course_id: int, user_id: int) -> None:
+    course_service_url = os.getenv(
+        "COURSE_SERVICE_URL",
+        "http://localhost:8083",
+    ).rstrip("/")
+
+    url = f"{course_service_url}/internal/courses/by-instructor/{user_id}"
+
+    try:
+        with urlopen(url, timeout=5) as response:
+            courses = json.load(response)
+    except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="강좌 정보를 확인할 수 없습니다.",
+        ) from exc
+
+    is_owner = any(course.get("courseId") == course_id for course in courses)
+
+    if not is_owner:
+        raise HTTPException(
+            status_code=403,
+            detail="담당 강좌에만 PDF를 관리할 수 있습니다.",
+        )
+
+
 @router.post("", status_code=201)
-def upload_document(
+async def upload_document(
     course_id: int,
     file: UploadFile = File(...),
-) -> dict:
+    user_id: int = Header(alias="X-User-Id"),
+):
     """PDF를 처리하여 Chroma에 저장한다."""
+
+    # 담당 강좌인지 확인한 후 PDF를 처리한다.
+    verify_course_owner(course_id, user_id)
 
     filename = file.filename or ""
 
@@ -107,10 +144,7 @@ def upload_document(
     # 각 청크를 임베딩한 후 Chroma에 저장한다.
     vector_store.add_documents(
         documents=documents,
-        ids=[
-            f"{document_id}:{index}"
-            for index in range(len(documents))
-        ],
+        ids=[f"{document_id}:{index}" for index in range(len(documents))],
     )
 
     return {
@@ -121,10 +155,15 @@ def upload_document(
 
 
 @router.get("")
-def list_documents(course_id: int) -> list[dict]:
+def list_documents(
+    course_id: int,
+    user_id: int = Header(alias="X-User-Id"),
+):
     """강좌에 등록된 PDF 목록을 조회한다."""
 
-    # course_id가 같은 청크만 조회한다.
+    # 담당 강좌인지 확인한 후 목록을 조회한다.
+    verify_course_owner(course_id, user_id)
+
     result = vector_store.get(
         where={"course_id": course_id},
         include=["metadatas"],
@@ -148,10 +187,13 @@ def list_documents(course_id: int) -> list[dict]:
 def delete_document(
     course_id: int,
     document_id: str,
-) -> Response:
+    user_id: int = Header(alias="X-User-Id"),
+):
     """PDF에 해당하는 모든 청크를 삭제한다."""
 
-    # 지정된 강좌와 문서에 속한 청크 ID를 조회한다.
+    # 담당 강좌인지 확인한 후 문서를 삭제한다.
+    verify_course_owner(course_id, user_id)
+
     result = vector_store.get(
         where={
             "$and": [
@@ -169,7 +211,6 @@ def delete_document(
             detail="강의 자료를 찾을 수 없습니다.",
         )
 
-    # PDF에 속한 모든 청크를 Chroma에서 삭제한다.
     vector_store.delete(ids=chunk_ids)
 
     return Response(status_code=204)
