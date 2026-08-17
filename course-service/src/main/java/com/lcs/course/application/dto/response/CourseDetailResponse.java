@@ -13,6 +13,9 @@ public record CourseDetailResponse(
         String status,
         String description,
         String thumbnailUrl,
+        String category,
+        String difficulty,
+        int durationMinutes,
         List<LectureResponse> lectures,
         List<MissionResponse> missions,
         List<CourseItemResponse> items) {
@@ -34,6 +37,9 @@ public record CourseDetailResponse(
                 course.getStatus().name(),
                 course.getDescription(),
                 course.getThumbnailUrl(),
+                course.getCategory().name(),
+                course.getDifficulty().name(),
+                course.getDurationMinutes(),
                 lectures,
                 missions,
                 items);

@@ -8,7 +8,9 @@ import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
 import com.lcs.course.domain.exception.CourseAccessDeniedException;
 import com.lcs.course.domain.exception.CourseException;
 import com.lcs.course.domain.model.entity.Course;
+import com.lcs.course.domain.model.vo.Category;
 import com.lcs.course.domain.model.vo.ContentStatus;
+import com.lcs.course.domain.model.vo.Difficulty;
 import com.lcs.course.domain.model.vo.InstructorId;
 import com.lcs.course.domain.model.vo.LectureId;
 import com.lcs.course.domain.model.vo.MissionId;
@@ -57,19 +59,22 @@ public class CourseService {
         return CourseDetailResponse.from(getCourse(courseId));
     }
 
-    public void createCourse(Long instructorId, String title, String description, String thumbnailUrl) {
+    public void createCourse(Long instructorId, String title, String description, String thumbnailUrl,
+            Category category, Difficulty difficulty, int durationMinutes) {
         rejectIfSuspended(instructorId);
-        Course course = Course.create(new InstructorId(instructorId), new Title(title), description, thumbnailUrl);
+        Course course = Course.create(new InstructorId(instructorId), new Title(title), description, thumbnailUrl,
+                category, difficulty, durationMinutes);
         courseRepository.save(course);
     }
 
     public void updateCourse(
             Long courseId, String newTitle, String description, String thumbnailUrl,
+            Category category, Difficulty difficulty, int durationMinutes,
             Long requesterId, boolean isAdmin) {
         rejectIfSuspended(requesterId);
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
-        course.update(new Title(newTitle), description, thumbnailUrl);
+        course.update(new Title(newTitle), description, thumbnailUrl, category, difficulty, durationMinutes);
     }
 
     public void publishCourse(Long courseId, Long requesterId, boolean isAdmin) {

@@ -59,7 +59,8 @@ public class CourseController {
     public ResponseEntity<Void> createCourse(
             @RequestBody @Valid CreateCourseRequest request,
             @RequestHeader("X-User-Id") Long userId) {
-        courseService.createCourse(userId, request.title(), request.description(), request.thumbnailUrl());
+        courseService.createCourse(userId, request.title(), request.description(), request.thumbnailUrl(),
+                request.category(), request.difficulty(), request.durationMinutes());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -71,6 +72,7 @@ public class CourseController {
             @RequestHeader(value = "X-Role", required = false) String role) {
         courseService.updateCourse(
                 courseId, request.title(), request.description(), request.thumbnailUrl(),
+                request.category(), request.difficulty(), request.durationMinutes(),
                 userId, isAdmin(role));
         return ResponseEntity.ok().build();
     }
