@@ -21,3 +21,5 @@ infrastructure/logs/*
 **/*.py[cod]
 **/.pytest_cache/
 
+# Chroma가 생성하는 로컬 벡터 DB
+ai-bot-service/data/
