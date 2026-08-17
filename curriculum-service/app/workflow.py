@@ -6,7 +6,7 @@ from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemM
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 
-from app.courses import COURSES, COURSE_DOCUMENTS, retriever
+from app.courses import COURSES, COURSE_DOCUMENTS, search_courses
 from app.llm import (
     STRUCTURED_OUTPUT_EXCEPTIONS,
     feedback_llm,
@@ -121,13 +121,12 @@ async def retrieve_node(state: CurriculumState) -> dict:
     candidates: list[dict[str, str]] = []
     seen_ids: set[str] = set()
     for stage in ("입문", "실전", "심화"):
-        ranked = retriever.invoke(f"{query} {stage}")
-        stage_documents = [doc for doc in ranked if doc.metadata["difficulty"] == stage]
+        stage_documents = search_courses(query, difficulty=stage)
         if not stage_documents:
             stage_documents = [
                 doc for doc in COURSE_DOCUMENTS if doc.metadata["difficulty"] == stage
             ]
-        for document in stage_documents[:2]:
+        for document in stage_documents:
             course = dict(document.metadata)
             if course["id"] not in seen_ids:
                 candidates.append(course)

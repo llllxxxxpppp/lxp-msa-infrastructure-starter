@@ -12,11 +12,16 @@
     docker compose -f compose.cuda.yaml -d
     ```
 
-1. 다음 명령어를 실행하여 필요한 모델을 다운받습니다. 이 과정은 첫 실행에만 필요합니다.
+1. 다음 명령어를 실행하여 채팅 및 임베딩 모델을 다운받습니다. 이 과정은 첫 실행에만 필요합니다.
 
     ```bash
     docker exec curriculum-service-ollama-1 ollama pull qwen3.5:4b
+    docker exec curriculum-service-ollama-1 ollama pull qwen3-embedding:0.6b
     ```
+
+    기본 임베딩 모델은 `OLLAMA_EMBEDDING_MODEL` 환경 변수로 변경할 수 있습니다.
+    서버를 시작할 때 강좌 데이터를 임베딩하여 인메모리 Chroma 컬렉션을 새로
+    구성하므로 Ollama가 먼저 실행 중이어야 합니다.
 
 1. 다음 명령어를 입력하여 FastAPI 서버를 실행합니다.
 

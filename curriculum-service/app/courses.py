@@ -1,7 +1,10 @@
-"""강좌 데이터와 검색기."""
+"""강좌 데이터와 인메모리 벡터 저장소."""
 
-from langchain_community.retrievers import BM25Retriever
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
+from langchain_ollama import OllamaEmbeddings
+
+from app.config import OLLAMA_BASE_URL, OLLAMA_EMBEDDING_MODEL
 
 COURSES = [
     {
@@ -112,8 +115,21 @@ def _course_document(course: dict[str, str]) -> Document:
 
 
 COURSE_DOCUMENTS = [_course_document(course) for course in COURSES]
-retriever = BM25Retriever.from_documents(
-    COURSE_DOCUMENTS,
-    preprocess_func=lambda text: text.lower().split(),
+embeddings = OllamaEmbeddings(
+    model=OLLAMA_EMBEDDING_MODEL,
+    base_url=OLLAMA_BASE_URL,
 )
-retriever.k = 8
+vector_store = Chroma.from_documents(
+    documents=COURSE_DOCUMENTS,
+    embedding=embeddings,
+    ids=[course["id"] for course in COURSES],
+    collection_name="courses",
+)
+
+
+def search_courses(query: str, difficulty: str, k: int = 2) -> list[Document]:
+    return vector_store.similarity_search(
+        query=query,
+        k=k,
+        filter={"difficulty": difficulty},
+    )
