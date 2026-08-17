@@ -15,6 +15,11 @@ router = APIRouter(
 
 REFUSAL = "업로드된 강의 자료에서 해당 내용을 찾을 수 없습니다."
 
+# [추가] 이 점수보다 관련도가 낮은 검색 결과는 답변 근거에서 제외한다.
+MIN_RELEVANCE_SCORE = float(
+    os.getenv("RAG_MIN_RELEVANCE_SCORE", "0.5")
+)
+
 # 로컬 답변 모델
 llm = ChatOllama(
     model="qwen3:8b",
@@ -50,20 +55,15 @@ def ask_question(
         filter={"course_id": course_id},
     )
 
-    # [삭제됨]
-    # if not results:
-    #     return {"answer": REFUSAL, "sources": []}
-    #
-    # 여기서 반환하지 않고 generate()에서 SSE 거절 응답을 보낸다.
+    # [추가] 관련도 임계값 이상인 청크만 답변 근거로 사용한다.
+    results = [
+        (document, score)
+        for document, score in results
+        if score >= MIN_RELEVANCE_SCORE
+    ]
 
     # 검색된 청크를 답변 모델에 전달할 문맥으로 구성
     context = "\n\n".join(document.page_content for document, _ in results)
-
-    # [삭제됨]
-    # response = llm.invoke(...)
-    # answer = str(response.content).strip()
-    #
-    # 아래에서 llm.stream()을 사용하므로 기존 invoke 호출은 제거한다.
 
     # 중복된 파일명과 페이지 제거
     source_values = {
