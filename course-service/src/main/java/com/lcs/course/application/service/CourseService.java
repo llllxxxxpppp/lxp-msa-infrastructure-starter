@@ -6,6 +6,9 @@ import com.lcs.course.application.dto.response.CoursePageResponse;
 import com.lcs.course.application.dto.response.CourseRagResponse;
 import com.lcs.course.application.dto.response.CourseSummaryResponse;
 import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
+import com.lcs.course.domain.event.CourseDeletedEvent;
+import com.lcs.course.domain.event.CoursePublishedEvent;
+import com.lcs.course.domain.event.CourseUnpublishedEvent;
 import com.lcs.course.domain.exception.CourseAccessDeniedException;
 import com.lcs.course.domain.exception.CourseException;
 import com.lcs.course.domain.model.entity.Course;
@@ -22,6 +25,7 @@ import com.lcs.course.domain.repository.CourseRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -33,10 +37,13 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final InstructorStatusClient instructorStatusClient;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CourseService(CourseRepository courseRepository, InstructorStatusClient instructorStatusClient) {
+    public CourseService(CourseRepository courseRepository, InstructorStatusClient instructorStatusClient,
+            ApplicationEventPublisher eventPublisher) {
         this.courseRepository = courseRepository;
         this.instructorStatusClient = instructorStatusClient;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -84,6 +91,7 @@ public class CourseService {
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.publish();
+        eventPublisher.publishEvent(new CoursePublishedEvent(courseId));
     }
 
     public void unpublishCourse(Long courseId, Long requesterId, boolean isAdmin) {
@@ -91,6 +99,7 @@ public class CourseService {
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.unpublish();
+        eventPublisher.publishEvent(new CourseUnpublishedEvent(courseId));
     }
 
     public void addLecture(Long courseId, Long requesterId, boolean isAdmin,
@@ -140,6 +149,7 @@ public class CourseService {
         Course course = getCourse(courseId);
         checkOwnership(course, requesterId, isAdmin);
         course.delete();
+        eventPublisher.publishEvent(new CourseDeletedEvent(courseId));
     }
 
     public void deleteLecture(Long courseId, Long lectureId, Long requesterId, boolean isAdmin) {
@@ -174,6 +184,7 @@ public class CourseService {
                 courseRepository.findAllByInstructorIdAndStatusAndDeletedAtIsNull(instructorId, ContentStatus.PUBLIC);
         for (Course course : publicCourses) {
             course.unpublish();
+            eventPublisher.publishEvent(new CourseUnpublishedEvent(course.getId().value()));
         }
     }
 
