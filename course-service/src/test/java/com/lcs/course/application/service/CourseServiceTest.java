@@ -2,6 +2,9 @@ package com.lcs.course.application.service;
 
 import com.lcs.course.application.dto.response.CourseRagResponse;
 import com.lcs.course.application.port.InstructorStatusClient;
+import com.lcs.course.domain.event.CourseDeletedEvent;
+import com.lcs.course.domain.event.CoursePublishedEvent;
+import com.lcs.course.domain.event.CourseUnpublishedEvent;
 import com.lcs.course.domain.model.entity.Course;
 import com.lcs.course.domain.model.vo.Category;
 import com.lcs.course.domain.model.vo.ContentStatus;
@@ -12,6 +15,7 @@ import com.lcs.course.domain.repository.CourseRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,8 +26,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
@@ -118,5 +124,56 @@ class CourseServiceTest {
         assertEquals(1, result.size());
         assertEquals(COURSE_ID, result.get(0).courseId());
         assertEquals("데이터 분석", result.get(0).categoryLabel());
+    }
+
+    @Test
+    @DisplayName("강좌를 공개하면 CoursePublishedEvent를 발행한다")
+    void publishCourse_publishesPublishedEvent() {
+        given(courseRepository.findById(COURSE_ID)).willReturn(Optional.of(privateCourse()));
+
+        courseService.publishCourse(COURSE_ID, 12L, false);
+
+        CoursePublishedEvent event = captureEvent(CoursePublishedEvent.class);
+        assertEquals(COURSE_ID, event.getCourseId());
+    }
+
+    @Test
+    @DisplayName("강좌를 비공개하면 CourseUnpublishedEvent를 발행한다")
+    void unpublishCourse_publishesUnpublishedEvent() {
+        given(courseRepository.findById(COURSE_ID)).willReturn(Optional.of(publicCourse()));
+
+        courseService.unpublishCourse(COURSE_ID, 12L, false);
+
+        CourseUnpublishedEvent event = captureEvent(CourseUnpublishedEvent.class);
+        assertEquals(COURSE_ID, event.getCourseId());
+    }
+
+    @Test
+    @DisplayName("강좌를 삭제하면 CourseDeletedEvent를 발행한다")
+    void deleteCourse_publishesDeletedEvent() {
+        given(courseRepository.findById(COURSE_ID)).willReturn(Optional.of(publicCourse()));
+
+        courseService.deleteCourse(COURSE_ID, 12L, false);
+
+        CourseDeletedEvent event = captureEvent(CourseDeletedEvent.class);
+        assertEquals(COURSE_ID, event.getCourseId());
+    }
+
+    @Test
+    @DisplayName("강사 정지로 강좌가 일괄 비공개되면 강좌마다 CourseUnpublishedEvent를 발행한다")
+    void unpublishAllByInstructor_publishesUnpublishedEventPerCourse() {
+        given(courseRepository.findAllByInstructorIdAndStatusAndDeletedAtIsNull(12L, ContentStatus.PUBLIC))
+                .willReturn(List.of(publicCourse()));
+
+        courseService.unpublishAllByInstructor(12L);
+
+        CourseUnpublishedEvent event = captureEvent(CourseUnpublishedEvent.class);
+        assertEquals(COURSE_ID, event.getCourseId());
+    }
+
+    private <T> T captureEvent(Class<T> eventType) {
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        return assertInstanceOf(eventType, captor.getValue());
     }
 }
