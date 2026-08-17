@@ -23,3 +23,11 @@ infrastructure/logs/*
 
 # Chroma가 생성하는 로컬 벡터 DB
 ai-bot-service/data/
+
+# React
+frontend/node_modules/
+frontend/dist/
+
+# 로그
+infrastructure/logs/*
+!infrastructure/logs/.gitkeep
