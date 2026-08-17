@@ -7,3 +7,17 @@
 infrastructure/logs/*
 !infrastructure/logs/.gitkeep
 .env
+
+# VS Code
+.vscode/
+
+# Java build output
+**/bin/
+*.class
+
+# Python
+**/.venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+
