@@ -26,7 +26,7 @@ class CurriculumState(TypedDict, total=False):
     user_profile: dict[str, str | None]
     target_goal: str | None
     missing_info: list[str]
-    retrieved_courses: list[dict[str, str]]
+    retrieved_courses: list[dict[str, str | int]]
     draft_curriculum: dict
     feedback: str
     feedback_action: Literal["approve", "replan", "retrieve"]
@@ -137,43 +137,47 @@ class CurriculumWorkflow:
             if value
         )
 
-        candidates: list[dict[str, str]] = []
-        seen_ids: set[str] = set()
+        candidates: list[dict[str, str | int]] = []
+        seen_ids: set[int] = set()
         for stage in ("입문", "실전", "심화"):
-            stage_documents = self._course_service.search(query, difficulty=stage)
+            stage_documents = self._course_service.search(
+                query,
+                difficulty_label=stage,
+            )
             if not stage_documents:
-                stage_documents = self._course_service.get_documents_by_difficulty(
-                    stage
+                stage_documents = (
+                    self._course_service.get_documents_by_difficulty_label(stage)
                 )
             for document in stage_documents:
                 course = dict(document.metadata)
-                if course["id"] not in seen_ids:
+                course_id = int(course["courseId"])
+                if course_id not in seen_ids:
                     candidates.append(course)
-                    seen_ids.add(course["id"])
+                    seen_ids.add(course_id)
         return {"retrieved_courses": candidates}
 
     @staticmethod
     def _normalize_plan(
         plan: CurriculumPlan,
-        candidates: list[dict[str, str]],
+        candidates: list[dict[str, str | int]],
     ) -> dict:
-        candidate_by_id = {course["id"]: course for course in candidates}
+        candidate_by_id = {course["courseId"]: course for course in candidates}
         generated_by_stage = {step.stage: step for step in plan.steps}
         normalized_steps = []
 
         for stage in ("입문", "실전", "심화"):
             generated = generated_by_stage.get(stage)
             course = candidate_by_id.get(generated.course_id) if generated else None
-            if not course or course["difficulty"] != stage:
+            if not course or course["difficultyLabel"] != stage:
                 course = next(
-                    item for item in candidates if item["difficulty"] == stage
+                    item for item in candidates if item["difficultyLabel"] == stage
                 )
             normalized_steps.append(
                 {
                     "stage": stage,
-                    "course_id": course["id"],
+                    "course_id": course["courseId"],
                     "title": course["title"],
-                    "duration": course["duration"],
+                    "duration_minutes": course["durationMinutes"],
                     "reason": (
                         generated.reason
                         if generated
@@ -190,7 +194,8 @@ class CurriculumWorkflow:
         lines = [curriculum["summary"], ""]
         for step in curriculum["steps"]:
             lines.append(
-                f"- {step['stage']}: {step['title']} ({step['duration']})\n"
+                f"- {step['stage']}: {step['title']} "
+                f"({step['duration_minutes']}분)\n"
                 f"  추천 이유: {step['reason']}"
             )
         lines.append(
@@ -208,15 +213,15 @@ class CurriculumWorkflow:
         steps = []
         for stage in ("입문", "실전", "심화"):
             course = next(
-                (item for item in candidates if item["difficulty"] == stage),
-                self._course_service.get_first_course_by_difficulty(stage),
+                (item for item in candidates if item["difficultyLabel"] == stage),
+                self._course_service.get_first_course_by_difficulty_label(stage),
             )
             steps.append(
                 {
                     "stage": stage,
-                    "course_id": course["id"],
+                    "course_id": course["courseId"],
                     "title": course["title"],
-                    "duration": course["duration"],
+                    "duration_minutes": course["durationMinutes"],
                     "reason": fallback_reasons[stage],
                 }
             )

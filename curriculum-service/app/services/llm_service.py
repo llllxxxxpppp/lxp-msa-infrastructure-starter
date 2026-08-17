@@ -37,7 +37,7 @@ class FeedbackResult(BaseModel):
 
 class CurriculumStep(BaseModel):
     stage: Literal["입문", "실전", "심화"]
-    course_id: str
+    course_id: int
     reason: str = Field(description="사용자에게 이 강의를 추천하는 이유")
 
 

@@ -2,16 +2,21 @@
 
 from abc import ABC, abstractmethod
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Course(BaseModel):
-    id: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    course_id: int = Field(alias="courseId", ge=1)
+    instructor_id: int = Field(alias="instructorId", ge=1)
     title: str
-    category: str
-    difficulty: str
-    duration: str
     description: str
+    category: str
+    category_label: str = Field(alias="categoryLabel")
+    difficulty: str
+    difficulty_label: str = Field(alias="difficultyLabel")
+    duration_minutes: int = Field(alias="durationMinutes", ge=1)
 
 
 class CourseProvider(ABC):

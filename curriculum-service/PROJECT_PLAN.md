@@ -45,3 +45,52 @@ LangGraph가 대화 내내 기억하고 업데이트해야 할 데이터 구조�
 4. **피드백 노드 (Feedback Node)**
     - **역할:** 생성된 커리큘럼을 사용자에게 보여주고 피드백을 받습니다.
     - **분기(Conditional Edge):** 사용자가 "좋아"라고 하면 종료, "실전 단계 강의가 너무 긴데 다른 거 없어?"라고 하면 `chat_history`에 반영 후 다시 **검색 노드**나 **기획자 노드**로 돌아가 수정안을 제시합니다.
+
+### Course Service 계약
+
+1. 강좌 데이터는 다음 구조의 JSON으로 응답된다.
+
+    - 구조
+        - `courseId`: int, 1 이상
+        - `instructorId`: int, 1 이상
+        - `title`: String
+        - `description`: String
+        - `category`: String,
+        - `categoryLabel`: String, `category` 의 한글 표기명
+        - `difficulty`: String,
+        - `difficultyLabel`: String, `difficulty` 의 한글 표기명
+        - `durationMinutes`: int, 1 이상
+
+    - 예시
+
+        ```json
+        {
+            "courseId": 30017,
+            "instructorId": 12,
+            "title": "실무 SQL과 대시보드 만들기",
+            "description": "SQL로 데이터를 추출하고 핵심 지표를 보여주는 대시보드를 설계합니다.",
+            "category": "DATA_ANALYSIS",
+            "categoryLabel": "데이터 분석",
+            "difficulty": "PRACTICAL",
+            "difficultyLabel": "실전",
+            "durationMinutes": 420
+        }
+        ```
+
+    - category - categoryLabel 매핑
+
+        - BACKEND - 백엔드 개발
+        - FRONTEND - 프론트엔드 개발
+        - MOBILE - 모바일 개발
+        - DEVOPS - 데브옵스·인프라
+        - SECURITY - 보안
+        - DATA_ANALYSIS - 데이터 분석
+        - DATA_ENGINEERING - 데이터 엔지니어링
+        - AI_ML - AI·머신러닝
+        - PRODUCT - 프로덕트
+        - DESIGN - 디자인·UX
+
+    - difficulty - difficultyLabel 매핑
+        - BEGINNER - 입문
+        - PRACTICAL - 실전
+        - ADVANCED - 심화
