@@ -27,3 +27,9 @@ class CourseProvider(ABC):
         """사용 가능한 전체 강좌를 반환합니다."""
 
         raise NotImplementedError
+
+    @abstractmethod
+    def get_course(self, course_id: int) -> Course:
+        """지정한 강좌를 반환합니다."""
+
+        raise NotImplementedError

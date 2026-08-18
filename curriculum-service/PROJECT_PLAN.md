@@ -94,3 +94,17 @@ LangGraph가 대화 내내 기억하고 업데이트해야 할 데이터 구조�
         - BEGINNER - 입문
         - PRACTICAL - 실전
         - ADVANCED - 심화
+
+2. 강좌 데이터는 다음 엔드포인트로 조회할 수 있다.
+
+    - GET `http://course-service/internal/courses/for-rag`
+
+        - 모든 강좌 데이터 조회 엔드포인트
+        - 1번 데이터 구조를 원소로 갖는 리스트 JSON 응답
+        - 봇 실행 시 요청하여 모든 강좌 데이터를 임베딩
+
+    - GET `GET http://course-service/internal/courses/{courseId}/for-rag`
+
+        - 강좌 세부 조회 엔드포인트
+        - 1번 데이터 구조의 JSON 응답
+        - 강좌 데이터 이벤트 수신 시 해당 강좌 데이터만 선택적으로 임베딩 업데이트

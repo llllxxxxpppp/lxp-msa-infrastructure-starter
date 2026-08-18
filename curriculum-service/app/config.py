@@ -11,3 +11,8 @@ OLLAMA_EMBEDDING_MODEL = os.getenv(
     "OLLAMA_EMBEDDING_MODEL",
     "qwen3-embedding:0.6b",
 )
+COURSE_SERVICE_BASE_URL = os.getenv(
+    "COURSE_SERVICE_BASE_URL",
+    "http://course-service",
+)
+PROVIDER = os.getenv("PROVIDER", "http").lower()

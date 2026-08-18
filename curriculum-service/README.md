@@ -20,8 +20,11 @@
     ```
 
     기본 임베딩 모델은 `OLLAMA_EMBEDDING_MODEL` 환경 변수로 변경할 수 있습니다.
-    서버를 시작할 때 강좌 데이터를 임베딩하여 인메모리 Chroma 컬렉션을 새로
-    구성하므로 Ollama가 먼저 실행 중이어야 합니다.
+    서버를 시작할 때 `COURSE_SERVICE_BASE_URL`(기본값 `http://course-service`)의
+    Course Service에서 강좌를 조회하고 임베딩하여 인메모리 Chroma 컬렉션을 새로
+    구성하므로 Course Service와 Ollama가 먼저 실행 중이어야 합니다.
+
+    로컬 테스트에서 fixture 강좌 데이터를 사용하려면 `PROVIDER=json`을 설정합니다.
 
 1. 다음 명령어를 입력하여 FastAPI 서버를 실행합니다.
 
@@ -30,6 +33,27 @@
     ```
 
 ## 테스트
+
+### 데이터 프로바이더
+
+기본적으로 Course Service의 강좌 데이터를 사용합니다. 개발 및 테스트 목적으로
+`curriculum-service/tests/fixtures/courses.json`을 사용하려면 `PROVIDER=json`을
+설정한 뒤 실행합니다.
+
+**macOS / Linux**
+
+```bash
+PROVIDER=json docker compose up --build curriculum-service
+```
+
+**Windows (PowerShell)**
+
+```powershell
+$env:PROVIDER = "json"
+docker compose up --build curriculum-service
+```
+
+### 엔드포인트 및 요청 스니펫
 
 - API 문서 주소: `http://localhost:8000/docs`
 
@@ -41,7 +65,7 @@
     curl -X POST http://localhost:8000/chat \
         -H 'Content-Type: application/json' \
         -d '{
-            "thread_id": "user-1",
-            "message": "마케터이고 캠페인 성과를 개선하고 싶어요."
+            "thread_id": "1",
+            "message": "데이터 분석가이고 고급 분석 기법을 공부하고 싶어요."
         }'
     ```
