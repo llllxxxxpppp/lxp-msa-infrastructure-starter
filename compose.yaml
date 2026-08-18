@@ -56,7 +56,8 @@ services:
       - grafana-data:/var/lib/grafana
       - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
-      - "3000:3000"
+      # 3000은 프론트엔드(frontend/) 개발 서버용으로 남겨둔다 (gateway CORS가 localhost:3000을 전제).
+      - "3001:3000"
     depends_on:
       - prometheus
       - loki
