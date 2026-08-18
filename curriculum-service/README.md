@@ -45,6 +45,30 @@
     uv run uvicorn app.main:app --reload
     ```
 
+## 대화 세션 운영
+
+채팅 요청은 Gateway가 인증 결과로 전달하는 `X-User-Id` 헤더를 사용합니다.
+`X-User-Id`는 공백을 제거한 뒤 1 이상의 정수여야 하며, 누락되거나 잘못된
+값이면 `401 Unauthorized`를 반환합니다. 요청 본문은 `message`만 사용하고
+사용자나 대화를 식별하는 값은 본문에서 받지 않습니다.
+
+사용자마다 하나의 대화 상태를 인메모리로 유지합니다. 마지막 채팅 처리가 끝난
+시점부터 `SESSION_TIMEOUT_SECONDS` 이상 활동이 없으면 다음 요청 진입 시 또는
+주기 정리 작업에서 세션과 LangGraph 체크포인트를 제거합니다. 채팅 처리 중인
+세션은 만료시키지 않습니다.
+
+| 환경 변수 | 기본값 | 설명 |
+| --- | --- | --- |
+| `SESSION_TIMEOUT_SECONDS` | `1800` | 마지막 채팅 처리 완료 후 세션을 유지할 시간(초) |
+| `SESSION_CLEANUP_INTERVAL_SECONDS` | `60` | 비활성 세션을 주기적으로 검사할 간격(초) |
+
+두 환경 변수는 모두 양의 정수여야 합니다.
+
+세션과 체크포인트는 프로세스 메모리에만 저장되므로 서비스가 재시작되면 모든
+대화가 소실됩니다. 이 구현은 단일 인스턴스 운영을 전제로 합니다. 다중
+인스턴스로 전환하려면 `X-User-Id` 기반 고정 라우팅을 적용하거나 Redis 계열의
+공유 체크포인터를 별도로 구성해야 합니다.
+
 ## 강좌 변경 이벤트 수신
 
 Course Service가 강좌를 공개·비공개·삭제할 때 발행하는 이벤트를 받아 임베딩
@@ -92,6 +116,13 @@ docker compose up --build curriculum-service
 ### 엔드포인트 및 요청 스니펫
 
 - API 문서 주소: `http://localhost:8000/docs`
+- `GET /health`: 인증 없이 서비스 상태 조회
+
+- 채팅 API
+
+    - `POST /chat`: 현재 사용자의 대화를 이어서 처리
+    - `DELETE /chat/session`: 현재 사용자의 대화를 초기화하며, 세션 존재 여부와
+      관계없이 `204 No Content` 반환
 
 - 임베딩 강좌 관리 API
 
@@ -99,15 +130,35 @@ docker compose up --build curriculum-service
     - `PUT /api/courses`: 전체 강좌 조회 및 임베딩 재구성
     - `PUT /api/courses/{courseId}`: 특정 강좌 조회 및 임베딩 갱신
 
+    모든 임베딩 강좌 관리 API는 유효한 `X-User-Id`와 대소문자를 구분하여
+    정확히 일치하는 `X-Role: ROLE_ADMIN` 헤더가 필요합니다. 사용자 인증이
+    잘못되면 `401 Unauthorized`, 관리자 역할이 없거나 다르면
+    `403 Forbidden`을 반환합니다.
+
 - 테스트 요청
 
-    여러 대화에 동일한 `thread_id` 를 사용하면 대화를 이어나갈 수 있습니다.
+    같은 `X-User-Id`를 사용하면 이전 대화 상태를 이어갑니다.
 
     ```bash
     curl -X POST http://localhost:8000/chat \
         -H 'Content-Type: application/json' \
+        -H 'X-User-Id: 1' \
         -d '{
-            "thread_id": "1",
             "message": "데이터 분석가이고 고급 분석 기법을 공부하고 싶어요."
         }'
+    ```
+
+    현재 사용자의 대화를 초기화합니다.
+
+    ```bash
+    curl -X DELETE http://localhost:8000/chat/session \
+        -H 'X-User-Id: 1'
+    ```
+
+    관리자 권한으로 현재 임베딩된 강좌를 조회합니다.
+
+    ```bash
+    curl http://localhost:8000/api/courses \
+        -H 'X-User-Id: 1' \
+        -H 'X-Role: ROLE_ADMIN'
     ```
