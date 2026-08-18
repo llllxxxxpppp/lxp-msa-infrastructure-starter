@@ -75,6 +75,7 @@
 | 9 | 모델 라벨을 실제 모델에서 파생 | 원본은 상수여서 모델을 바꾸면 응답 라벨이 거짓이 됐다 |
 | 10 | `langchain_community.vectorstores.Chroma` → `langchain_chroma` | 폐기 예정. 같은 리포의 ai-bot-service와 라이브러리를 통일 |
 | 11 | 의존성 분리 | `vllm`·`bitsandbytes`를 optional로. **`vllm`은 linux/arm64 휠이 없어 필수 의존성으로 두면 이미지 빌드가 실패한다.** `.venv` 9.1GB → 360MB |
+| 12 | `AnalyzeResponse`에 `conflicts`(구조화된 `conflict_report`) 추가, `page`(PDF 페이지 번호) 메타데이터를 `search_results`/`conflict_report`까지 전달 | 백오피스 AI Assistance 모달이 "해당 파일 및 위치"/"변경 제안 상세"를 `markdown_report` 문자열 파싱 없이 렌더링하려면 구조화된 위치 정보가 필요했다. `page`는 `PyPDFLoader`가 이미 채집하던 값을 응답까지 흘려보낸 것뿐이라 파이프라인 로직 변경은 없다 |
 
 ---
 

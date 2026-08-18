@@ -15,7 +15,7 @@ PoC 리포(policy-explorer-service)의 `lxp-ollama-qwen-fileupload.py` 중
 
 import logging
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
@@ -54,6 +54,15 @@ class ResetResponse(BaseModel):
     message: str
 
 
+class ConflictItem(BaseModel):
+    source: str
+    # PyPDFLoader가 채운 0-index 페이지 번호. DOCX 등 페이지 개념이 없으면 None.
+    page: Optional[int] = None
+    old_content: str
+    new_fact: str
+    action_suggested: str
+
+
 class AnalyzeResponse(BaseModel):
     status: str
     engine: str
@@ -62,6 +71,10 @@ class AnalyzeResponse(BaseModel):
     documents_in_store: int
     extracted_rules: List[Dict]
     conflict_count: int
+    # 🆕 파일업로드 버전 전용 additive 확장(예: documents_in_store와 동일한 취지).
+    #    "해당 파일 및 위치"/"변경 제안 상세" UI가 markdown_report를 파싱하지 않고도
+    #    구조화된 데이터로 바로 렌더링할 수 있도록 conflict_report를 그대로 노출한다.
+    conflicts: List[ConflictItem] = []
     markdown_report: str
 
 
@@ -145,6 +158,8 @@ async def analyze_policy(request: Request, body: PolicyRequest):
         "%s ✅ [API 서빙 완료] 총 전체 처리 소요 시간: %.2f초", _label(), total_serving_time
     )
 
+    conflict_report = final_state.get("conflict_report", [])
+
     return AnalyzeResponse(
         status="success",
         engine=config.CURRENT_ENGINE,
@@ -152,6 +167,7 @@ async def analyze_policy(request: Request, body: PolicyRequest):
         total_time_seconds=round(total_serving_time, 2),
         documents_in_store=store.chunk_count,
         extracted_rules=final_state.get("extracted_rules", []),
-        conflict_count=len(final_state.get("conflict_report", [])),
+        conflict_count=len(conflict_report),
+        conflicts=[ConflictItem(**item) for item in conflict_report],
         markdown_report=final_state.get("final_markdown_report", ""),
     )

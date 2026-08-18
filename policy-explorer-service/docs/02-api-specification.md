@@ -60,10 +60,23 @@ PoC 리포 `lxp-ollama-qwen-fileupload.py`):
     { "keyword": "반차", "fact": "반차 사용 기준 시간을 4.5시간으로 변경" }
   ],
   "conflict_count": 1,
+  "conflicts": [
+    {
+      "source": "취업규칙_2024.pdf",
+      "page": 11,
+      "old_content": "제4조(수습기간) 신규 채용된 자의 수습기간은 채용일로부터 3개월로 한다.",
+      "new_fact": "반차 사용 기준 시간을 4.5시간으로 변경",
+      "action_suggested": "3개월을 2개월로 변경 권장"
+    }
+  ],
   "markdown_report": "## 🚨 사내 콘텐츠 규정 충돌 검출 리포트\n..."
 }
 ```
 > `documents_in_store`는 `lxp-ollama-qwen.py` 등 벤치마크 4종에는 없습니다.
+> `conflicts`는 이 모노레포 이식 과정에서 추가된 **파일업로드 버전 전용 additive 필드**입니다.
+> `page`는 PDF에서만 채워지는 0-index 페이지 번호이며(사람이 읽는 페이지는 `page + 1`), DOCX 등
+> 페이지 개념이 없는 포맷은 `null`입니다. 프론트엔드 "해당 파일 및 위치"/"변경 제안 상세" UI가
+> `markdown_report` 문자열 파싱 없이 바로 쓸 수 있도록 `conflict_report`를 구조화된 형태로 노출합니다.
 
 **Response `500`**: LLM 호출 실패, 파싱 오류 등 — `{"detail": "<에러 메시지>"}`
 
