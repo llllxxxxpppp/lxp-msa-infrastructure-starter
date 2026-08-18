@@ -3,17 +3,46 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
-
-// MOCK: policy-explorer-service가 아직 빈 폴더라(백엔드 없음) 파일 목록/변경 제안 모두 하드코딩이다.
-const MOCK_FILES = ["취업규칙_2024.pdf (p.12 제4조)", "인사관리규정.pdf (p.5 제2항)"];
+import { ApiError } from "@/types/api";
+import { analyzePolicy } from "@/features/policy/api";
+import type { ConflictItem } from "@/features/policy/types";
 
 interface PolicyAiAssistModalProps {
   onClose: () => void;
 }
 
+/** 리스트/상세에 쓰는 "파일명 (p.N)" 라벨. 페이지 정보가 없으면 파일명만 보여준다. */
+function locationLabel(conflict: ConflictItem): string {
+  return conflict.page != null ? `${conflict.source} (p.${conflict.page + 1})` : conflict.source;
+}
+
 export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
   const [request, setRequest] = useState("");
-  const [selectedFile, setSelectedFile] = useState(MOCK_FILES[0]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [conflicts, setConflicts] = useState<ConflictItem[] | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const selected = selectedIndex != null ? conflicts?.[selectedIndex] : undefined;
+
+  async function handleGenerate() {
+    if (!request.trim() || isLoading) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await analyzePolicy({ new_policy_text: request });
+      setConflicts(result.conflicts);
+      setSelectedIndex(result.conflicts.length > 0 ? 0 : null);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "변경 제안을 생성하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      );
+      setConflicts(null);
+      setSelectedIndex(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="bg-primary/40 p-margin-mobile fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
@@ -44,38 +73,61 @@ export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
               className="border-outline-variant bg-surface p-stack-md text-body-md text-on-surface focus:border-secondary focus:ring-secondary h-32 w-full rounded-lg border focus:ring-1 focus:outline-none"
               placeholder="예: 신규 입사자의 수습 기간 규정을 3개월에서 2개월로 단축하고 싶습니다."
             />
+            <div className="flex items-center justify-between">
+              {error ? <p className="text-body-sm text-error-red">{error}</p> : <span />}
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={!request.trim() || isLoading}
+                onClick={handleGenerate}
+              >
+                {isLoading ? "분석 중..." : "제안 생성"}
+              </Button>
+            </div>
           </div>
 
           <div className="gap-stack-md grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <h3 className="text-label-md text-on-surface-variant">해당 파일 및 위치</h3>
               <div className="border-outline-variant bg-surface flex-1 overflow-hidden rounded-lg border">
-                <ul className="divide-outline-variant divide-y">
-                  {MOCK_FILES.map((file) => (
-                    <li
-                      key={file}
-                      onClick={() => setSelectedFile(file)}
-                      className={`p-stack-sm hover:bg-surface-container-low flex cursor-pointer items-center gap-2 ${
-                        selectedFile === file ? "bg-secondary-fixed/30" : ""
-                      }`}
-                    >
-                      <MaterialIcon name="description" className="text-primary text-[18px]" />
-                      <span className="text-body-sm">{file}</span>
-                    </li>
-                  ))}
-                </ul>
+                {conflicts == null ? (
+                  <p className="text-body-sm text-slate-text p-stack-md">
+                    먼저 규정을 작성하고 &quot;제안 생성&quot;을 눌러 주세요.
+                  </p>
+                ) : conflicts.length === 0 ? (
+                  <p className="text-body-sm text-slate-text p-stack-md">
+                    충돌하는 기존 규정을 찾지 못했습니다.
+                  </p>
+                ) : (
+                  <ul className="divide-outline-variant divide-y">
+                    {conflicts.map((conflict, index) => (
+                      <li
+                        key={`${conflict.source}-${conflict.page ?? "na"}-${index}`}
+                        onClick={() => setSelectedIndex(index)}
+                        className={`p-stack-sm hover:bg-surface-container-low flex cursor-pointer items-center gap-2 ${
+                          selectedIndex === index ? "bg-secondary-fixed/30" : ""
+                        }`}
+                      >
+                        <MaterialIcon name="description" className="text-primary text-[18px]" />
+                        <span className="text-body-sm">{locationLabel(conflict)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <h3 className="text-label-md text-on-surface-variant">변경 제안 상세</h3>
               <div className="border-outline-variant bg-surface-container-low p-stack-md text-body-sm flex-1 rounded-lg border">
-                <p className="text-outline line-through">
-                  제4조(수습기간) 신규 채용된 자의 수습기간은 채용일로부터 3개월로 한다.
-                </p>
-                <p className="text-secondary mt-2 font-semibold">
-                  제4조(수습기간) 신규 채용된 자의 수습기간은 채용일로부터 2개월로 한다.
-                </p>
+                {selected ? (
+                  <>
+                    <p className="text-outline line-through">{selected.old_content}</p>
+                    <p className="text-secondary mt-2 font-semibold">{selected.action_suggested}</p>
+                  </>
+                ) : (
+                  <p className="text-body-sm text-slate-text">좌측 목록에서 항목을 선택해 주세요.</p>
+                )}
               </div>
             </div>
           </div>
@@ -89,7 +141,7 @@ export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
           >
             취소
           </button>
-          {/* MOCK: 실제 적용 로직 없음. 백엔드 준비되면 이 버튼에서 API 호출 후 onClose(). */}
+          {/* MOCK: 실제 적용 로직 없음. 백엔드에 변경 반영 API가 준비되면 이 버튼에서 호출 후 onClose(). */}
           <Button onClick={onClose}>변경 사항 적용</Button>
         </div>
       </div>

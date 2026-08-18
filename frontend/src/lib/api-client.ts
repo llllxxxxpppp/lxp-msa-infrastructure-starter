@@ -88,7 +88,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   if (!res.ok) {
     const errorBody = await parseErrorBody(res);
-    throw new ApiError(res.status, errorBody?.message ?? res.statusText, errorBody);
+    // message: Java 서비스(course/member/subscription/auth), detail: FastAPI(policy-explorer-service).
+    throw new ApiError(res.status, errorBody?.message ?? errorBody?.detail ?? res.statusText, errorBody);
   }
 
   if (res.status === 204) {
