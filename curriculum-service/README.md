@@ -24,7 +24,18 @@
     기본 임베딩 모델은 `OLLAMA_EMBEDDING_MODEL` 환경 변수로 변경할 수 있습니다.
     서버를 시작할 때 `COURSE_SERVICE_BASE_URL`(기본값 `http://course-service`)의
     Course Service에서 강좌를 조회하고 임베딩하여 인메모리 Chroma 컬렉션을 새로
-    구성하므로 Course Service와 Ollama가 먼저 실행 중이어야 합니다.
+    구성합니다. 이어서 강좌 변경 이벤트를 받기 위해 RabbitMQ에 연결하므로,
+    Course Service와 Ollama, RabbitMQ가 먼저 실행 중이어야 합니다.
+
+    브로커 접속 정보는 아래 환경 변수로 지정합니다. 기본값은 로컬 실행 기준이며,
+    컨테이너로 띄울 때는 `compose.yaml`이 값을 덮어씁니다.
+
+    | 환경 변수 | 기본값 |
+    | --- | --- |
+    | `RABBITMQ_HOST` | `localhost` |
+    | `RABBITMQ_PORT` | `5672` |
+    | `RABBITMQ_USERNAME` | `admin` |
+    | `RABBITMQ_PASSWORD` | `admin` |
 
     로컬 테스트에서 fixture 강좌 데이터를 사용하려면 `PROVIDER=json`을 설정합니다.
 
@@ -33,6 +44,29 @@
     ```bash
     uv run uvicorn app.main:app --reload
     ```
+
+## 강좌 변경 이벤트 수신
+
+Course Service가 강좌를 공개·비공개·삭제할 때 발행하는 이벤트를 받아 임베딩
+인덱스를 갱신합니다. 검색할 때마다 Course Service를 조회하지 않기 때문에,
+이 연동이 없으면 인덱스가 기동 시점에 멈춰 있게 됩니다.
+
+| 이벤트 | 처리 |
+| --- | --- |
+| `course.published` | 해당 강좌를 조회해 인덱스에 추가·갱신 |
+| `course.unpublished` | 인덱스에서 제거 |
+| `course.deleted` | 인덱스에서 제거 |
+
+- 익스체인지 `course.events`(topic)는 Course Service가, 큐
+  `curriculum.course-sync`와 DLQ는 본 서비스가 선언합니다.
+- 기동은 `큐 선언 → 초기 적재 → 소비 시작` 순서로 진행합니다. 적재하는 동안
+  발생한 이벤트가 큐에 쌓였다가 처리되어 유실 구간이 생기지 않습니다.
+- 처리에 실패한 메시지는 `curriculum.course-sync.dlq`로 보냅니다. 재처리를
+  요청하지 않으므로 브로커와 본 서비스 사이에서 메시지가 맴돌지 않습니다.
+- 브로커 장애 등으로 이벤트를 놓쳤다면 `PUT /api/courses`로 전체를 다시
+  적재할 수 있습니다.
+- 초기 적재에 실패하면 경고를 남기고 빈 인덱스로 기동합니다. Course Service가
+  늦게 뜨는 경우를 위해서이며, 이후 이벤트나 `PUT /api/courses`로 채워집니다.
 
 ## 테스트
 
