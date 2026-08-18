@@ -1,0 +1,14 @@
+// JWT 서명/검증. auth-service(서명)와 gateway(검증)가 반드시 동일한 버전을 써야 하므로
+// 버전을 단일 출처로 둔다. 서명 키는 config-repo/application.yml의 jwt.secret이 담당한다.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+// jjwt는 Spring Boot BOM 관리 대상이 아니라 버전을 직접 지정한다.
+def jjwtVersion = '0.13.0'
+
+dependencies {
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+}

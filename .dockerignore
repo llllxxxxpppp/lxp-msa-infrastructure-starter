@@ -4,3 +4,11 @@
 **/.idea
 **/build
 **/out
+
+# Python 서비스(policy-explorer-service) 런타임 산출물.
+# 빌드 컨텍스트가 루트이므로 제외하지 않으면 .venv(360MB)까지 전송된다.
+**/.venv
+**/__pycache__
+**/*.pyc
+**/chroma_db*
+**/uploaded_documents

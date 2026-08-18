@@ -133,6 +133,8 @@ services:
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
+      POLICY_EXPLORER_HOST: policy-explorer-service
+      POLICY_EXPLORER_PORT: "8086"
     ports:
       - "8080:8080"
     volumes:
@@ -306,6 +308,34 @@ services:
       start_period: 30s
 
 
+  policy-explorer-service:
+    build:
+      context: .
+      dockerfile: ./policy-explorer-service/Dockerfile
+    container_name: lxp-policy-explorer-service
+    environment:
+      SERVICE_PORT: "8086"
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      CHROMA_PERSIST_DIR: /data/state/chroma
+      UPLOAD_DIR: /data/uploads
+    ports:
+      - "8086:8086"
+    volumes:
+      - policy-explorer-state:/data/state
+      - policy-explorer-uploads:/data/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8086/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+
 networks:
   lxp-net:
     name: lxp-net
@@ -320,3 +350,5 @@ volumes:
   loki-data:
   alloy-data:
   rabbitmq-data:
+  policy-explorer-state:
+  policy-explorer-uploads:

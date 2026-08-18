@@ -1,1 +1,3 @@
 rootProject.name = 'member-service'
+
+includeBuild('../buildLogic')
