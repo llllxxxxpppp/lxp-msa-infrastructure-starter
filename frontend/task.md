@@ -4,17 +4,19 @@
 
 ## 화면별 백엔드 상태 (구현 범위를 정하는 기준)
 
-| 화면                                        | 백엔드 상태                                                                                      |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 로그인/회원가입                             | 완전히 존재 (`auth-service`, `member-service`)                                                   |
-| 강좌 목록/강좌 상세                         | 완전히 존재 (`course-service` `GET /api/courses`, `GET /api/courses/{id}/detail`)                |
-| 마이페이지                                  | 일부만 존재 (비번변경/강사프로필수정/탈퇴는 O, "내 프로필 조회"·학습이력·뱃지는 API 자체가 없음) |
-| 구독                                        | 일부만 존재 (ID로 단건 조회/취소는 O, "내 구독" 조회·업그레이드·결제수단·청구내역은 API 없음)    |
-| AI 챗봇, 커리큘럼 추천, 정책 탐색기(어드민) | **백엔드 전무** — AI/챗봇 서비스가 리포에 없고, `policy-explorer-service`는 완전히 빈 폴더       |
+| 화면                         | 백엔드 상태                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 로그인/회원가입              | 완전히 존재 (`auth-service`, `member-service`)                                                                  |
+| 강좌 목록/강좌 상세          | 완전히 존재 (`course-service` `GET /api/courses`, `GET /api/courses/{id}/detail`)                               |
+| 마이페이지                   | 일부만 존재 (비번변경/강사프로필수정/탈퇴는 O, "내 프로필 조회"·학습이력·뱃지는 API 자체가 없음)                |
+| 구독                         | 일부만 존재 (ID로 단건 조회/취소는 O, "내 구독" 조회·업그레이드·결제수단·청구내역은 API 없음)                   |
+| AI 챗봇, 정책 탐색기(어드민) | **백엔드 전무** — AI/챗봇 서비스가 리포에 없고, `policy-explorer-service`는 완전히 빈 폴더                      |
+| 커리큘럼 추천                | 봇은 있으나 미연결 — `curriculum-service`가 `feature/curriculum-service` 브랜치에 있고 게이트웨이 라우트가 없음 |
 
 결정 사항:
 
-- 백엔드가 아예 없는 3개 화면(AI 챗봇/커리큘럼 추천/정책 탐색기)도 **정적 목업으로 미리 배치**한다 (버튼/토글 등 로컬 상호작용만, 실제 API 호출 없음).
+- 백엔드가 아예 없는 2개 화면(AI 챗봇/정책 탐색기)은 **정적 목업으로 미리 배치**한다 (버튼/토글 등 로컬 상호작용만, 실제 API 호출 없음).
+- 커리큘럼 추천은 봇 계약에 맞춘 **목 클라이언트로 실제 대화가 도는 화면**으로 만든다. 봇 라우트가 생기면 클라이언트만 교체한다.
 - 마이페이지·구독 중 대응 API가 없는 섹션(학습이력, 뱃지, 결제수단, 청구내역)은 **목업 데이터로 채워서** 디자인대로 보이게 하되, 코드에 `// MOCK` 주석으로 명시한다.
 
 ---
@@ -43,7 +45,7 @@
 - 카테고리/난이도 필터 칩: `CourseService.getCourses`가 `keyword`만 지원하고 카테고리 파라미터가 없으므로, 가져온 페이지 목록에 대한 **클라이언트 필터링**으로 구현(디자인의 체크박스 필터 UI는 그대로, 동작만 클라이언트 사이드). `size`를 늘려(예: 50) 필터 체감이 되게 하고, 이 한계는 코드 주석으로도 남긴다.
 - 정렬 드롭다운: `rating` 필드가 백엔드에 없으므로 옵션을 "추천순(서버 기본)"/"제목순"/"학습시간순" 정도로 축소해 클라이언트 정렬.
 - 카드: `title`/`category`/`difficulty`/`durationMinutes`/`status` 표시. `thumbnailUrl`은 시드 데이터가 존재하지 않는 더미 CDN URL이라 `<img onError>`로 로컬 placeholder 폴백.
-- 우측 하단 FAB "커리큘럼 추천" 추가 → 8번(정적) 페이지로 이동.
+- 우측 하단 FAB "커리큘럼 추천" 추가 → 8번 페이지로 이동.
 - 카드 클릭 시 4번(신규) 상세 페이지로 이동.
 
 ## 4. 강좌 상세 (신규 라우트) — `design/course/course-detail/code.html`
@@ -74,10 +76,10 @@
 - Cancel Plan 버튼: 실제 `POST /api/subscriptions/{id}/cancel` 연결.
 - Upgrade Plan / Payment Method / Plan Usage / Billing History(인보이스 테이블): 대응 API가 전혀 없으므로 **목업 데이터**로 채우고 각 섹션에 `// MOCK` 주석.
 
-## 7~9. 정적 목업 화면 (백엔드 전무, 로컬 상호작용만)
+## 7~9. 백엔드 미연결 화면
 
 - **CourseChatWidget** (`src/components/chat/CourseChatWidget.tsx`) — `design/course-chatbot/{chatbot-buttoon,chatbot-chat-screen}`. 열림/닫힘은 실제 로컬 상태로 토글되지만, 대화 내용은 하드코딩된 스크립트(실 API 호출 없음). 4번 강좌 상세 페이지에 마운트.
-- **커리큘럼 추천** (`app/(main)/curriculum-recommendation/page.tsx`) — `design/curriculum-recommand`. 하드코딩된 다단계 챗 시나리오(버튼 클릭으로 다음 단계 진행), 실제 API 호출 없음.
+- **커리큘럼 추천** (`app/(main)/curriculum-recommendation/page.tsx`) — `design/curriculum-recommand`. 사용자가 자유롭게 입력하는 실제 대화형 화면. 봇의 `POST /chat` 계약에 맞춘 목 클라이언트(`features/curriculum/mockClient.ts`)가 인터뷰 → 커리큘럼 제시 → 재제안 → 확정을 처리한다. 봇 실연동은 게이트웨이 라우트가 없어 별도 작업이다.
 - **정책 탐색기 어드민** (`app/(admin)/policy-explorer/page.tsx` + `PolicyAiAssistModal` 컴포넌트) — `design/policy-explorer/{main,modal}`. `ROLE_ADMIN` 전용이므로 `AuthGuard`를 역할 옵션을 받는 `RoleGuard`로 확장해 게이팅(역할 판정은 `lib/jwt.ts`로 디코드한 role 사용). 파일 목록/AI 모달 전부 정적 목업 데이터.
 
 ## 구현 순서
