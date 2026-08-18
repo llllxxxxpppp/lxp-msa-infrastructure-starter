@@ -34,8 +34,6 @@ ROUTING_KEYS = (
 
 
 class CourseEvent(BaseModel):
-    """강좌 변경 이벤트 페이로드."""
-
     model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     event_id: UUID = Field(alias="eventId")
@@ -69,10 +67,7 @@ class CourseEventConsumer:
         self._queue: aio_pika.abc.AbstractQueue | None = None
 
     async def declare(self) -> None:
-        """익스체인지·큐·바인딩·DLQ를 선언합니다.
-
-        이 시점부터 발행된 이벤트가 큐에 쌓이므로 초기 적재보다 먼저 호출해야 합니다.
-        """
+        """익스체인지·큐·바인딩·DLQ를 선언합니다. 초기 적재보다 먼저 호출해야 합니다."""
 
         self._connection = await aio_pika.connect_robust(
             host=self._host,
@@ -91,7 +86,6 @@ class CourseEventConsumer:
         dead_letter_queue = await channel.declare_queue(DLQ, durable=True)
         await dead_letter_queue.bind(dead_letter_exchange, routing_key=QUEUE)
 
-        # 발행 측 TopicExchange(name, durable=true, autoDelete=false)와 인자가 같아야 한다.
         course_exchange = await channel.declare_exchange(
             EXCHANGE,
             ExchangeType.TOPIC,
@@ -138,8 +132,6 @@ class CourseEventConsumer:
             return
 
         try:
-            # CourseService는 동기이고 내부에서 HTTP·임베딩을 호출한다.
-            # 이벤트 루프에서 직접 돌리면 그동안 /chat이 멈춘다.
             await asyncio.to_thread(self._apply_with_retry, message.routing_key, event)
         except Exception:
             logger.exception(
@@ -155,13 +147,6 @@ class CourseEventConsumer:
         await message.ack()
 
     def _apply_with_retry(self, routing_key: str, event: CourseEvent) -> None:
-        """일시 장애를 흡수하기 위해 짧게 재시도합니다.
-
-        간격은 course-service의 listener.simple.retry 설정과 같게 맞췄습니다.
-        requeue 대신 재시도하는 것은 실패한 메시지가 브로커와 봇 사이를
-        무한히 오가는 것을 막기 위해서입니다.
-        """
-
         for attempt in range(1, self._attempts + 1):
             try:
                 self._apply(routing_key, event)
@@ -182,7 +167,6 @@ class CourseEventConsumer:
     def _apply(self, routing_key: str, event: CourseEvent) -> None:
         if routing_key == PUBLISHED_ROUTING_KEY:
             if self._course_service.update_course(event.course_id) is None:
-                # 조회 시점에 이미 내려간 강좌다. 계약상 건너뛰기가 맞다.
                 logger.info(
                     "공개된 강좌를 찾지 못해 건너뜁니다. courseId=%d",
                     event.course_id,

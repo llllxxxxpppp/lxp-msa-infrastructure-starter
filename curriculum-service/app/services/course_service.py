@@ -88,11 +88,7 @@ class CourseService:
         attempts: int = 3,
         delay_seconds: float = 2.0,
     ) -> list[Course]:
-        """전체 강좌를 적재합니다. 끝내 실패하면 빈 인덱스를 유지합니다.
-
-        적재 실패의 원인이 무엇이든 기동을 막지 않는 것이 목적이므로
-        예외를 넓게 잡되, 원인은 로그로 남깁니다.
-        """
+        """전체 강좌를 적재합니다. 끝내 실패하면 빈 인덱스를 유지합니다."""
 
         for attempt in range(1, attempts + 1):
             try:
@@ -113,10 +109,7 @@ class CourseService:
         return self.get_embedded_courses()
 
     def update_course(self, course_id: int) -> Course | None:
-        """지정한 강좌를 다시 조회하여 벡터 저장소에 추가하거나 갱신합니다.
-
-        강좌가 없으면 인덱스를 건드리지 않고 None을 반환합니다.
-        """
+        """지정한 강좌를 갱신합니다. 없으면 인덱스를 건드리지 않고 None을 반환합니다."""
 
         course = self._provider.get_course(course_id)
         if course is None:
@@ -148,10 +141,7 @@ class CourseService:
         return course
 
     def remove_course(self, course_id: int) -> bool:
-        """지정한 강좌를 벡터 저장소에서 제거합니다.
-
-        인덱스에 없던 강좌면 아무것도 하지 않고 False를 반환합니다.
-        """
+        """지정한 강좌를 제거합니다. 인덱스에 없던 강좌면 False를 반환합니다."""
 
         with self._lock:
             existing_index = next(

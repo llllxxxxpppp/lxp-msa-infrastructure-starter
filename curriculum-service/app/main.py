@@ -37,17 +37,12 @@ def build_lifespan(
     course_service: CourseService,
     consumer: CourseEventConsumer,
 ) -> Callable[[FastAPI], AsyncIterator[None]]:
-    """기동·종료 순서를 정의합니다.
-
-    순서가 중요합니다. 큐를 먼저 선언해야 적재하는 동안 발생한 이벤트가 큐에
-    쌓이고, 소비를 마지막에 시작해야 적재 결과가 이벤트를 덮어쓰지 않습니다.
-    """
+    """기동·종료 순서를 정의합니다."""
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         try:
             await consumer.declare()
-            # 동기 함수이고 재시도에 sleep을 쓴다. 이벤트 루프를 막지 않게 넘긴다.
             await asyncio.to_thread(course_service.load_all_courses)
             await consumer.start()
             yield
