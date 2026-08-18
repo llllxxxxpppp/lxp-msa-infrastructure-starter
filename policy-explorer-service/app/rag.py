@@ -8,6 +8,9 @@ PoC 리포(policy-explorer-service)의 `lxp-ollama-qwen-fileupload.py` 중
      Ollama가 서빙하는 `bge-m3`(1024차원)로 교체했다.
   2) 원본은 모듈을 import하는 순간 Chroma에 연결하고 기존 청크를 복원했다. 그 부작용을
      없애기 위해 상태를 RagStore 클래스로 감싸고, 연결/복원 시점을 호출자가 정하게 했다.
+  3) Chroma를 폐기 예정인 `langchain_community.vectorstores`에서 전용 독립 패키지
+     `langchain_chroma`로 교체했다(같은 리포의 ai-bot 선례와도 일치). 다만 아래 로더와
+     BM25Retriever는 독립 패키지가 없어 langchain-community 의존이 남는다.
 검색 전략(Chroma 벡터 + BM25 키워드 50:50 앙상블)과 청킹 파라미터는 원본 그대로다.
 근거: PoC 리포 `select_reason.md` 4~5절.
 """
@@ -18,9 +21,9 @@ import shutil
 from typing import Dict, List, Optional
 
 from langchain_classic.retrievers import EnsembleRetriever
+from langchain_chroma import Chroma
 from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader
 from langchain_community.retrievers import BM25Retriever
-from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -190,5 +193,9 @@ class RagStore:
         return len(self.all_chunks)
 
     def ping(self) -> int:
-        """Chroma 컬렉션에 실제로 접근되는지 확인한다(헬스체크용)."""
-        return self.vector_db._collection.count()
+        """Chroma 컬렉션에 실제로 접근되는지 확인한다(헬스체크용).
+
+        라이브러리 내부 구현(`_collection`)에 기대지 않도록 공개 API만 사용한다.
+        컬렉션 전체 id를 훑으므로 O(n)이지만, 사내 문서 규모에서는 문제되지 않는다.
+        """
+        return len(self.vector_db.get(include=[])["ids"])
