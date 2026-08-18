@@ -83,6 +83,11 @@ class CourseServiceUpdatesTest(TestCase):
         self.assertEqual(service.get_embedded_courses(), [])
         self.assertEqual(provider.get_courses.call_count, 2)
 
+    def test_get_first_course_returns_none_for_empty_difficulty(self) -> None:
+        service, _, _ = _service([_course(1, "기존 강좌")])
+
+        self.assertIsNone(service.get_first_course_by_difficulty_label("없는 난이도"))
+
     def test_remove_course_deletes_document(self) -> None:
         service, _, vector_store = _service([_course(1, "기존 강좌"), _course(2, "남을 강좌")])
 

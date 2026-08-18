@@ -183,11 +183,16 @@ class CourseService:
     def get_first_course_by_difficulty_label(
         self,
         difficulty_label: str,
-    ) -> dict[str, str | int]:
+    ) -> dict[str, str | int] | None:
+        """해당 난이도의 첫 강좌를 반환합니다. 없으면 None을 반환합니다."""
+
         with self._lock:
             course = next(
-                course
-                for course in self._courses
-                if course.difficulty_label == difficulty_label
+                (
+                    course
+                    for course in self._courses
+                    if course.difficulty_label == difficulty_label
+                ),
+                None,
             )
-            return course.model_dump(by_alias=True)
+            return course.model_dump(by_alias=True) if course else None
