@@ -2,55 +2,49 @@
 
 """LangGraph를 이용한 맞춤형 커리큘럼 설계 API."""
 
-import logging
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
-from langchain_core.messages import HumanMessage
+from fastapi import FastAPI
 
-from app.config import OLLAMA_BASE_URL, OLLAMA_MODEL
-from app.models import ChatRequest, ChatResponse
-from app.workflow import graph
+from app.api.chat_controller import ChatController
+from app.config import OLLAMA_BASE_URL, OLLAMA_EMBEDDING_MODEL, OLLAMA_MODEL
+from app.providers.json_course_provider import JsonCourseProvider
+from app.services.course_service import CourseService
+from app.services.llm_service import LlmService
+from app.workflows.curriculum_workflow import CurriculumWorkflow
 
-logger = logging.getLogger(__name__)
-
-app = FastAPI(title="맞춤형 커리큘럼 설계 봇", version="0.1.0")
-
-
-@app.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok", "ollama_model": OLLAMA_MODEL}
+COURSES_FIXTURE_PATH = (
+    Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "courses.json"
+)
 
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
-    try:
-        result = await graph.ainvoke(
-            {"messages": [HumanMessage(content=request.message)]},
-            config={"configurable": {"thread_id": request.thread_id}},
-        )
-    except Exception as exc:
-        logger.exception("커리큘럼 그래프 실행 중 오류가 발생했습니다.")
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                f"Ollama 모델 호출에 실패했습니다. `{OLLAMA_MODEL}` 모델과 "
-                f"`{OLLAMA_BASE_URL}` 연결을 확인해 주세요."
-            ),
-        ) from exc
+def create_app() -> FastAPI:
+    """애플리케이션 의존성을 구성하고 FastAPI 인스턴스를 생성합니다."""
 
-    last_message = result["messages"][-1]
-    return ChatResponse(
-        thread_id=request.thread_id,
-        status=result.get("status", "interviewing"),
-        message=str(last_message.content),
-        user_profile=result.get("user_profile", {}),
-        target_goal=result.get("target_goal"),
-        missing_info=result.get("missing_info", []),
-        curriculum=result.get("draft_curriculum"),
+    course_provider = JsonCourseProvider(COURSES_FIXTURE_PATH)
+    course_service = CourseService(
+        provider=course_provider,
+        ollama_base_url=OLLAMA_BASE_URL,
+        embedding_model=OLLAMA_EMBEDDING_MODEL,
+    )
+    llm_service = LlmService(
+        model=OLLAMA_MODEL,
+        base_url=OLLAMA_BASE_URL,
+    )
+    workflow = CurriculumWorkflow(
+        course_service=course_service,
+        llm_service=llm_service,
+    )
+    controller = ChatController(
+        graph=workflow.build(),
+        ollama_model=OLLAMA_MODEL,
+        ollama_base_url=OLLAMA_BASE_URL,
     )
 
+    application = FastAPI(title="맞춤형 커리큘럼 설계 봇", version="0.1.0")
+    application.include_router(controller.router)
 
-if __name__ == "__main__":
-    import uvicorn
+    return application
 
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+app = create_app()
