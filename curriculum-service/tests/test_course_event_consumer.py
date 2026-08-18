@@ -81,8 +81,10 @@ class CourseEventDispatchTest(IsolatedAsyncioTestCase):
         self.course_service.update_course.return_value = None
         message = _message(PUBLISHED_ROUTING_KEY)
 
-        await self.consumer._on_message(message)
+        with self.assertLogs("app.messaging.course_event_consumer", level="INFO") as logs:
+            await self.consumer._on_message(message)
 
+        self.assertIn("건너뜁니다", logs.output[-1])
         message.ack.assert_awaited_once()
         message.reject.assert_not_awaited()
 
