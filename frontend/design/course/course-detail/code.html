@@ -1,0 +1,385 @@
+<!doctype html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>EduSphere LXP - Course Detail</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001848",
+              "surface-dim": "#d7dadc",
+              "tertiary-fixed": "#feddb5",
+              "on-primary-fixed-variant": "#38485a",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#e1c29b",
+              "on-tertiary": "#ffffff",
+              "warning-amber": "#F59E0B",
+              "tertiary-container": "#38260b",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#181c1e",
+              "surface-tint": "#4f6073",
+              "surface-bright": "#f7fafc",
+              "on-secondary": "#ffffff",
+              secondary: "#0453cd",
+              "on-surface": "#181c1e",
+              surface: "#f7fafc",
+              "surface-container-highest": "#e0e3e5",
+              "slate-text": "#4A5568",
+              tertiary: "#211200",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#b2c5ff",
+              "on-tertiary-container": "#a88c69",
+              "inverse-surface": "#2d3133",
+              "surface-container-low": "#f1f4f6",
+              "inverse-on-surface": "#eef1f3",
+              "outline-variant": "#c4c6cd",
+              "secondary-container": "#356ee7",
+              "on-secondary-fixed-variant": "#0040a2",
+              "success-green": "#22C55E",
+              "surface-container-high": "#e5e9eb",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d2e4fb",
+              background: "#f7fafc",
+              "on-primary-fixed": "#0b1d2d",
+              "on-secondary-container": "#fefcff",
+              "surface-container": "#ebeef0",
+              "on-primary": "#ffffff",
+              primary: "#041627",
+              "on-tertiary-fixed-variant": "#584326",
+              "inverse-primary": "#b7c8de",
+              "surface-variant": "#e0e3e5",
+              "primary-fixed-dim": "#b7c8de",
+              "secondary-fixed": "#dae2ff",
+              "primary-container": "#1a2b3c",
+              outline: "#74777d",
+              "error-red": "#EF4444",
+              error: "#ba1a1a",
+              "on-tertiary-fixed": "#281802",
+              "on-primary-container": "#8192a7",
+              "on-surface-variant": "#44474c",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "stack-lg": "32px",
+              base: "4px",
+              "margin-desktop": "32px",
+              "stack-sm": "8px",
+              "margin-mobile": "16px",
+              "container-max": "1280px",
+              gutter: "24px",
+              "stack-md": "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "label-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-sm": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+              "label-sm": [
+                "12px",
+                { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" },
+              ],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "label-md": [
+                "14px",
+                { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" },
+              ],
+              "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .material-symbols-outlined[data-weight="fill"] {
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-background font-body-md selection:bg-secondary-fixed selection:text-on-secondary-fixed antialiased"
+  >
+    <!-- Top Navigation Bar -->
+    <header class="bg-surface border-outline-variant sticky top-0 z-50 w-full border-b">
+      <div
+        class="px-margin-desktop max-w-container-max mx-auto flex h-16 w-full items-center justify-between"
+      >
+        <div class="gap-stack-lg flex items-center">
+          <a class="font-headline-md text-headline-md text-primary font-bold" href="#"
+            >EduSphere LXP</a
+          >
+          <div class="gap-stack-md hidden md:flex">
+            <a
+              class="text-on-surface-variant hover:text-secondary font-body-md text-body-md cursor-pointer transition-all transition-colors active:opacity-80"
+              href="#"
+              >Course Categories</a
+            >
+            <a
+              class="text-on-surface-variant hover:text-secondary font-body-md text-body-md cursor-pointer transition-all transition-colors active:opacity-80"
+              href="#"
+              >My Learning</a
+            >
+          </div>
+        </div>
+        <div class="gap-stack-md flex items-center">
+          <div class="relative hidden sm:block">
+            <span
+              class="material-symbols-outlined text-outline absolute top-1/2 left-3 -translate-y-1/2"
+              data-icon="search"
+              >search</span
+            >
+            <input
+              class="bg-surface-container-lowest border-outline-variant font-body-sm text-body-sm focus:border-secondary focus:ring-secondary/20 w-64 rounded-lg border py-2 pr-4 pl-10 transition-all outline-none focus:ring-2"
+              placeholder="Search courses..."
+              type="text"
+            />
+          </div>
+          <button class="text-on-surface-variant hover:text-secondary p-2 transition-colors">
+            <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+          </button>
+          <button
+            class="hover:bg-surface-container-low flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all transition-colors active:opacity-80"
+          >
+            <img
+              alt="User profile"
+              class="h-8 w-8 rounded-full object-cover"
+              data-alt="A professional headshot of a corporate employee smiling subtly in a modern office environment. High-key lighting, corporate minimal style, muted blues and crisp whites."
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAskNCHu9jEskwz8J7nnGExZEa0PlUnNGX98I0r1qmttjwENo5jL0YY3RkGpokl6KMNMknFwkYnFvUFHY2ZGEhmECSFwPii8ASsG6lKxc-OVgg5t_Y9Hcm9NL3LLuCvJUxaRQfCQzw8DI3pkGwW5TMX2q8kblUopSmK-VT-rPnWzIifpj07sz1f1uiMBWNoL20wJAix14it3pBYTiHfIhqebKX5IBO10vdNWp6-LjtzZPCwKD92se9JCQ"
+            />
+            <span class="font-label-md text-label-md text-secondary hidden md:block">Profile</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main
+      class="max-w-container-max px-margin-mobile md:px-margin-desktop py-stack-lg mx-auto min-h-screen"
+    >
+      <!-- Breadcrumbs -->
+      <nav
+        class="text-on-surface-variant font-body-sm text-body-sm mb-stack-md flex items-center gap-2"
+      >
+        <a class="hover:text-secondary transition-colors" href="#">My Learning</a>
+        <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right"
+          >chevron_right</span
+        >
+        <a class="hover:text-secondary transition-colors" href="#">Data Science</a>
+        <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right"
+          >chevron_right</span
+        >
+        <span class="text-on-surface font-medium">Advanced Machine Learning Architecture</span>
+      </nav>
+      <!-- Course Header & Video Area -->
+      <div class="gap-gutter mb-stack-lg grid grid-cols-1 lg:grid-cols-12">
+        <!-- Video Player (Left Col) -->
+        <div
+          class="relative aspect-video overflow-hidden rounded-xl bg-black shadow-[0_2px_4px_rgba(0,0,0,0.04)] lg:col-span-8"
+        >
+          <img
+            alt="Course video thumbnail"
+            class="h-full w-full object-cover opacity-80"
+            data-alt="A cinematic still of a sleek, modern presentation slide depicting machine learning neural networks on a dark background. Glowing nodes in Trust Blue and crisp white lines indicating data flow. Corporate tech aesthetic."
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpend5JCmQXRGutQqhn3ovyg0d3aaeQjkBQHZPKYZdWtSCtSv_7tE6_MM-oJROxDx97F9SB5R1chnLTJjL-V53t9z5EnRHa_BwPm9LOKJRYl0g_tCNJSC1x30QJErAVxFtwEEyVvxMlR0L-p4-GOUiBq_OGA9QfykH9s_It4LIWvOpO1z9DZjCtfZjTMi-3vvpLm7WSkPNXg8WhpefuRd4avF53ZNJ0j0CDlBDrYTjlpkh2i-OBT9Wrg"
+          />
+          <!-- Play Button Overlay -->
+          <button class="group absolute inset-0 flex items-center justify-center">
+            <div
+              class="bg-secondary/90 text-on-secondary group-hover:bg-secondary flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110"
+            >
+              <span
+                class="material-symbols-outlined text-4xl"
+                data-icon="play_arrow"
+                data-weight="fill"
+                >play_arrow</span
+              >
+            </div>
+          </button>
+          <!-- Video Controls (Mock) -->
+          <div
+            class="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent p-4 text-white"
+          >
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined hover:text-secondary-fixed cursor-pointer transition-colors"
+                data-icon="pause"
+                >pause</span
+              >
+              <span class="font-label-sm text-label-sm">12:45 / 45:00</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span
+                class="material-symbols-outlined hover:text-secondary-fixed cursor-pointer transition-colors"
+                data-icon="closed_caption"
+                >closed_caption</span
+              >
+              <span
+                class="material-symbols-outlined hover:text-secondary-fixed cursor-pointer transition-colors"
+                data-icon="settings"
+                >settings</span
+              >
+              <span
+                class="material-symbols-outlined hover:text-secondary-fixed cursor-pointer transition-colors"
+                data-icon="fullscreen"
+                >fullscreen</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Course Meta & Enrollment (Right Col) -->
+        <div
+          class="bg-surface-container-lowest border-outline-variant p-stack-md flex flex-col justify-between rounded-xl border shadow-[0_2px_4px_rgba(0,0,0,0.04)] lg:col-span-4"
+        >
+          <div>
+            <h1
+              class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-stack-sm"
+            >
+              Advanced Machine Learning Architecture
+            </h1>
+            <p class="font-body-md text-body-md text-slate-text mb-stack-md">
+              Master the design and deployment of scalable ML models in enterprise environments.
+            </p>
+            <div class="mb-stack-md flex flex-wrap gap-2">
+              <span
+                class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm rounded-DEFAULT px-2 py-1"
+                >Advanced</span
+              >
+              <span
+                class="bg-surface-container text-on-surface font-label-sm text-label-sm rounded-DEFAULT flex items-center gap-1 px-2 py-1"
+                ><span class="material-symbols-outlined text-[14px]" data-icon="schedule"
+                  >schedule</span
+                >
+                8 Weeks</span
+              >
+              <span
+                class="bg-surface-container text-on-surface font-label-sm text-label-sm rounded-DEFAULT flex items-center gap-1 px-2 py-1"
+                ><span
+                  class="material-symbols-outlined text-[14px]"
+                  data-icon="star"
+                  data-weight="fill"
+                  >star</span
+                >
+                4.8 (1.2k)</span
+              >
+            </div>
+            <div class="mb-stack-md">
+              <div class="mb-2 flex items-end justify-between">
+                <span class="font-label-md text-label-md text-on-surface">Your Progress</span>
+                <span class="font-label-sm text-label-sm text-secondary">32% Completed</span>
+              </div>
+              <div class="bg-primary/10 h-2 w-full overflow-hidden rounded-full">
+                <div class="bg-secondary h-full w-[32%] rounded-full"></div>
+              </div>
+            </div>
+          </div>
+          <div class="gap-stack-sm flex flex-col">
+            <button
+              class="bg-secondary text-on-secondary font-label-md text-label-md hover:bg-secondary/90 w-full rounded-lg py-3 shadow-[0_2px_4px_rgba(0,0,0,0.04)] transition-colors"
+            >
+              Continue Learning
+            </button>
+            <a
+              class="bg-primary-fixed text-on-primary-fixed font-label-md text-label-md hover:bg-primary-fixed/80 border-primary-fixed-dim flex w-full items-center justify-center gap-2 rounded-lg border py-3 text-center transition-colors"
+              href="#"
+            >
+              View Recommended Curriculum Path
+              <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward"
+                >arrow_forward</span
+              >
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="bg-surface-container-low py-stack-lg border-outline-variant mt-stack-lg w-full border-t"
+    >
+      <div
+        class="gap-gutter px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3"
+      >
+        <div>
+          <span class="font-label-md text-label-md text-primary font-bold">EduSphere LXP</span>
+          <p class="text-on-surface font-body-sm text-body-sm mt-2">
+            Empowering enterprise talent development.
+          </p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a
+            class="text-slate-text hover:text-secondary font-body-sm text-body-sm underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Privacy Policy</a
+          >
+          <a
+            class="text-slate-text hover:text-secondary font-body-sm text-body-sm underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Terms of Service</a
+          >
+        </div>
+        <div class="flex flex-col gap-2">
+          <a
+            class="text-slate-text hover:text-secondary font-body-sm text-body-sm underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Support</a
+          >
+          <a
+            class="text-slate-text hover:text-secondary font-body-sm text-body-sm underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Contact Us</a
+          >
+        </div>
+      </div>
+      <div
+        class="mt-stack-lg text-slate-text font-body-sm text-body-sm px-margin-desktop max-w-container-max mx-auto text-center"
+      >
+        © 2024 EduSphere Enterprise. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

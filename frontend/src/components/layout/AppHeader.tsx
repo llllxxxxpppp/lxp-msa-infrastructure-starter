@@ -1,0 +1,105 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useLogout } from "@/features/auth/hooks";
+import { getAccessToken } from "@/lib/token-storage";
+import { decodeAccessToken } from "@/lib/jwt";
+import { Avatar } from "@/components/ui/Avatar";
+import { MaterialIcon } from "@/components/ui/MaterialIcon";
+
+/** design/course/course-list, design/mypage 등에 공통으로 나오는 상단 내비게이션. */
+export function AppHeader() {
+  const router = useRouter();
+  const logout = useLogout();
+  // 지연 초기화로 마운트 시 1회만 평가한다 — effect 안에서 setState하지 않는다.
+  const [email] = useState<string | null>(() => {
+    const token = getAccessToken();
+    return token ? (decodeAccessToken(token)?.sub ?? null) : null;
+  });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  async function handleLogout() {
+    await logout();
+    router.push("/login");
+  }
+
+  return (
+    <nav className="border-outline-variant bg-surface sticky top-0 z-50 w-full border-b">
+      <div className="max-w-container-max px-margin-mobile md:px-margin-desktop mx-auto flex h-16 w-full items-center justify-between">
+        <div className="gap-stack-lg flex items-center">
+          <Link href="/courses" className="text-headline-md text-primary font-bold">
+            EduSphere LXP
+          </Link>
+        </div>
+
+        <div className="gap-stack-lg hidden items-center md:flex">
+          <Link
+            href="/courses"
+            className="border-secondary text-body-md text-secondary border-b-2 pb-1 font-bold"
+          >
+            Course Categories
+          </Link>
+          <Link
+            href="/members"
+            className="text-body-md text-on-surface-variant hover:text-secondary transition-colors"
+          >
+            My Learning
+          </Link>
+        </div>
+
+        <div className="gap-stack-md flex items-center">
+          <button
+            type="button"
+            aria-label="Notifications"
+            className="text-on-surface-variant hover:bg-surface-container hover:text-secondary rounded-full p-2 transition-colors"
+          >
+            <MaterialIcon name="notifications" />
+          </button>
+
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((open) => !open)}
+              className="text-on-surface-variant hover:text-secondary flex items-center gap-2 transition-colors"
+            >
+              <Avatar label={email ?? "?"} className="h-8 w-8" />
+              <span className="text-label-md hidden md:block">{email ?? "Profile"}</span>
+            </button>
+
+            {isMenuOpen && (
+              <div className="border-outline-variant bg-surface-container-lowest absolute right-0 mt-2 w-48 rounded-lg border py-1 shadow-[0_12px_24px_rgba(0,0,0,0.12)]">
+                <Link
+                  href="/members"
+                  className="text-body-sm text-on-surface hover:bg-surface-container block px-4 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  마이페이지
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-body-sm text-on-surface hover:bg-surface-container block w-full px-4 py-2 text-left"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}

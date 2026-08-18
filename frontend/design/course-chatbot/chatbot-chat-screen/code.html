@@ -1,0 +1,416 @@
+<!doctype html>
+
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>EduSphere LXP - AI Chatbot</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#feddb5",
+              "tertiary-container": "#38260b",
+              "primary-fixed-dim": "#b7c8de",
+              primary: "#041627",
+              error: "#ba1a1a",
+              "surface-container-highest": "#e0e3e5",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#8192a7",
+              "on-surface": "#181c1e",
+              "on-secondary-fixed-variant": "#0040a2",
+              "inverse-on-surface": "#eef1f3",
+              "surface-container-low": "#f1f4f6",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#0b1d2d",
+              "on-background": "#181c1e",
+              "surface-variant": "#e0e3e5",
+              "on-secondary-fixed": "#001848",
+              "primary-fixed": "#d2e4fb",
+              "success-green": "#22C55E",
+              secondary: "#0453cd",
+              "surface-bright": "#f7fafc",
+              "primary-container": "#1a2b3c",
+              "tertiary-fixed-dim": "#e1c29b",
+              "on-primary-fixed-variant": "#38485a",
+              "warning-amber": "#F59E0B",
+              "on-secondary": "#ffffff",
+              "secondary-container": "#356ee7",
+              "surface-tint": "#4f6073",
+              "on-secondary-container": "#fefcff",
+              "secondary-fixed": "#dae2ff",
+              "surface-container-high": "#e5e9eb",
+              "on-tertiary-fixed-variant": "#584326",
+              "on-surface-variant": "#44474c",
+              surface: "#f7fafc",
+              "outline-variant": "#c4c6cd",
+              tertiary: "#211200",
+              "surface-dim": "#d7dadc",
+              "error-red": "#EF4444",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#2d3133",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed": "#281802",
+              "secondary-fixed-dim": "#b2c5ff",
+              "slate-text": "#4A5568",
+              "on-error": "#ffffff",
+              background: "#f7fafc",
+              "on-tertiary-container": "#a88c69",
+              "inverse-primary": "#b7c8de",
+              outline: "#74777d",
+              "surface-container": "#ebeef0",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "stack-lg": "32px",
+              base: "4px",
+              "stack-sm": "8px",
+              "margin-desktop": "32px",
+              "container-max": "1280px",
+              gutter: "24px",
+              "margin-mobile": "16px",
+              "stack-md": "16px",
+            },
+            fontFamily: {
+              "label-md": ["Inter"],
+              "body-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-sm": ["Inter"],
+              "headline-lg": ["Inter"],
+              "label-sm": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Inter"],
+            },
+            fontSize: {
+              "label-md": [
+                "14px",
+                { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" },
+              ],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              "headline-lg": [
+                "32px",
+                { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "label-sm": [
+                "12px",
+                { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" },
+              ],
+              "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+              "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+              "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .material-symbols-outlined.fill {
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-background font-body-md flex min-h-screen flex-col antialiased"
+  >
+    <!-- TopNavBar -->
+    <header
+      class="bg-surface dark:bg-primary border-outline-variant dark:border-primary-container sticky top-0 z-40 w-full border-b"
+    >
+      <div
+        class="px-margin-desktop max-w-container-max mx-auto flex h-16 w-full items-center justify-between"
+      >
+        <div class="gap-gutter flex items-center">
+          <span
+            class="font-headline-md text-headline-md text-primary dark:text-inverse-primary cursor-pointer font-bold transition-all active:opacity-80"
+            >EduSphere LXP</span
+          >
+          <nav class="gap-gutter ml-stack-lg hidden md:flex">
+            <a
+              class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed font-body-md text-body-md cursor-pointer transition-all transition-colors active:opacity-80"
+              href="#"
+              >Course Categories</a
+            >
+            <a
+              class="text-secondary border-secondary hover:text-secondary dark:hover:text-secondary-fixed font-body-md text-body-md cursor-pointer border-b-2 pb-1 font-bold transition-all transition-colors active:opacity-80"
+              href="#"
+              >My Learning</a
+            >
+          </nav>
+        </div>
+        <div class="gap-stack-md flex items-center">
+          <div class="relative hidden sm:block">
+            <span
+              class="material-symbols-outlined text-outline absolute top-1/2 left-3 -translate-y-1/2 text-xl"
+              >search</span
+            >
+            <input
+              class="bg-surface-container-low border-outline-variant text-body-sm focus:border-secondary focus:ring-secondary w-64 rounded-full border py-2 pr-4 pl-10 transition-all focus:ring-1 focus:outline-none"
+              placeholder="Search courses..."
+              type="text"
+            />
+          </div>
+          <button
+            class="text-on-surface-variant hover:text-secondary cursor-pointer p-2 transition-all transition-colors active:opacity-80"
+          >
+            <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+          </button>
+          <div
+            class="pl-stack-sm border-outline-variant flex cursor-pointer items-center gap-2 border-l transition-all active:opacity-80"
+          >
+            <div
+              class="bg-primary-fixed-dim border-outline-variant flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border"
+            >
+              <span class="material-symbols-outlined text-primary text-sm">person</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface hidden md:block">Profile</span>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content Canvas (Background Context) -->
+    <main class="max-w-container-max px-margin-desktop py-stack-lg relative mx-auto w-full flex-1">
+      <!-- Placeholder content to simulate a dashboard or course list -->
+      <div class="mb-stack-lg">
+        <h1 class="font-headline-lg text-headline-lg text-on-surface mb-stack-sm">
+          강의 자료 관리
+        </h1>
+        <p class="text-on-surface-variant font-body-md">담당 강좌가 없습니다.</p>
+        <p class="text-secondary font-body-sm mt-stack-sm cursor-pointer hover:underline">
+          담당 강좌를 불러오지 못했습니다.
+        </p>
+      </div>
+      <div
+        class="gap-gutter pointer-events-none grid grid-cols-1 opacity-40 md:grid-cols-2 lg:grid-cols-3"
+      >
+        <!-- Simulated Background Cards -->
+        <div
+          class="bg-surface border-outline-variant p-stack-md flex h-48 flex-col rounded-lg border"
+        >
+          <div class="bg-surface-container-high mb-stack-md h-24 w-full rounded-md"></div>
+          <div class="bg-surface-container-high mb-2 h-4 w-3/4 rounded"></div>
+          <div class="bg-surface-container-high h-4 w-1/2 rounded"></div>
+        </div>
+        <div
+          class="bg-surface border-outline-variant p-stack-md flex hidden h-48 flex-col rounded-lg border md:flex"
+        >
+          <div class="bg-surface-container-high mb-stack-md h-24 w-full rounded-md"></div>
+          <div class="bg-surface-container-high mb-2 h-4 w-3/4 rounded"></div>
+          <div class="bg-surface-container-high h-4 w-1/2 rounded"></div>
+        </div>
+        <div
+          class="bg-surface border-outline-variant p-stack-md flex hidden h-48 flex-col rounded-lg border lg:flex"
+        >
+          <div class="bg-surface-container-high mb-stack-md h-24 w-full rounded-md"></div>
+          <div class="bg-surface-container-high mb-2 h-4 w-3/4 rounded"></div>
+          <div class="bg-surface-container-high h-4 w-1/2 rounded"></div>
+        </div>
+      </div>
+      <!-- Subtle Overlay for focus on chatbot -->
+      <div class="bg-surface-dim/20 pointer-events-none fixed inset-0 z-10"></div>
+      <!-- Floating Chatbot Window -->
+      <div
+        class="bottom-margin-desktop right-margin-desktop bg-surface border-outline-variant fixed z-50 flex h-[600px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl border shadow-lg"
+        style="
+          box-shadow:
+            0 12px 24px -8px rgba(0, 0, 0, 0.12),
+            0 4px 8px -4px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <!-- Chat Header -->
+        <div
+          class="bg-primary-fixed py-stack-md px-stack-md border-primary-fixed-dim flex items-start justify-between border-b"
+        >
+          <div>
+            <h2
+              class="font-headline-sm text-headline-sm text-on-primary-fixed flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-secondary fill">smart_toy</span>
+              AI 학습 도우미
+            </h2>
+            <p class="font-body-sm text-body-sm text-on-primary-fixed-variant mt-1">
+              강의 자료에 대해 질문해 보세요.
+            </p>
+          </div>
+          <button
+            class="text-on-primary-fixed-variant hover:text-primary hover:bg-surface/50 cursor-pointer rounded-full p-1 transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="close">close</span>
+          </button>
+        </div>
+        <!-- Context Selector -->
+        <div class="p-stack-md border-outline-variant bg-surface border-b">
+          <div class="relative">
+            <select
+              class="bg-surface border-outline-variant font-body-sm text-on-surface focus:border-secondary focus:ring-secondary w-full cursor-pointer appearance-none rounded-lg border py-2 pr-10 pl-3 focus:ring-1 focus:outline-none"
+            >
+              <option>웹과 REST API 기초</option>
+              <option>React 상태 관리 패턴</option>
+              <option>Node.js 비동기 프로그래밍</option>
+            </select>
+            <span
+              class="material-symbols-outlined text-outline pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+              >expand_more</span
+            >
+          </div>
+        </div>
+        <!-- Chat Area (Scrollable) -->
+        <div
+          class="p-stack-md gap-stack-md bg-surface-container-lowest flex flex-1 flex-col overflow-y-auto"
+        >
+          <!-- Initial state helper text (hidden when chatting) -->
+          <!-- <div class="text-center py-stack-lg text-outline font-body-sm">
+                    궁금한 내용을 입력해 주세요.
+                </div> -->
+          <!-- AI Message -->
+          <div class="gap-stack-sm flex max-w-[85%]">
+            <div
+              class="bg-secondary-container flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+            >
+              <span class="material-symbols-outlined text-on-secondary-container fill text-sm"
+                >smart_toy</span
+              >
+            </div>
+            <div
+              class="bg-surface-container-low border-outline-variant/50 rounded-2xl rounded-tl-none border p-3"
+            >
+              <p class="font-body-sm text-on-surface">
+                안녕하세요! 선택하신 "웹과 REST API 기초" 강의에 대해 궁금한 점이 있으신가요?
+              </p>
+            </div>
+          </div>
+          <!-- User Message -->
+          <div class="gap-stack-sm flex max-w-[85%] flex-row-reverse self-end">
+            <div class="bg-secondary rounded-2xl rounded-tr-none p-3 shadow-sm">
+              <p class="font-body-sm text-on-secondary">REST API의 주요 특징 3가지만 요약해줘.</p>
+            </div>
+          </div>
+          <!-- AI Message -->
+          <div class="gap-stack-sm flex max-w-[90%]">
+            <div
+              class="bg-secondary-container flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+            >
+              <span class="material-symbols-outlined text-on-secondary-container fill text-sm"
+                >smart_toy</span
+              >
+            </div>
+            <div
+              class="bg-surface-container-low border-outline-variant/50 rounded-2xl rounded-tl-none border p-3"
+            >
+              <p class="font-body-sm text-on-surface mb-2">
+                REST API의 주요 특징은 다음과 같습니다:
+              </p>
+              <ol class="font-body-sm text-on-surface list-inside list-decimal space-y-1 pl-1">
+                <li>
+                  <strong>무상태성(Stateless):</strong> 각 요청은 독립적이며 서버는 클라이언트의
+                  상태를 저장하지 않습니다.
+                </li>
+                <li>
+                  <strong>캐시 가능성(Cacheable):</strong> 응답 데이터는 캐시되어 네트워크 비용을
+                  줄일 수 있어야 합니다.
+                </li>
+                <li>
+                  <strong>계층화 구조(Layered System):</strong> 클라이언트는 서버의 중간
+                  계층(프록시, 게이트웨이 등)을 알 필요 없이 통신할 수 있습니다.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <!-- Input Area -->
+        <div class="p-stack-md border-outline-variant bg-surface border-t">
+          <div class="relative flex gap-2">
+            <input
+              class="bg-surface border-outline-variant font-body-sm text-on-surface focus:border-secondary focus:ring-secondary flex-1 rounded-lg border px-4 py-2.5 pr-12 transition-all focus:ring-1 focus:outline-none"
+              placeholder="질문을 입력하세요."
+              type="text"
+            />
+            <button
+              class="bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-md absolute top-1 right-1 bottom-1 flex items-center justify-center rounded-md px-4 transition-colors"
+            >
+              전송
+            </button>
+          </div>
+          <div class="mt-2 text-center">
+            <span class="font-label-sm text-label-sm text-outline"
+              >AI 응답은 부정확할 수 있으니 교차 검증을 권장합니다.</span
+            >
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="bg-surface-container-low dark:bg-surface-container-highest py-stack-lg border-outline-variant relative z-40 mt-auto w-full border-t"
+    >
+      <div
+        class="gap-gutter px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3"
+      >
+        <div class="gap-stack-sm flex flex-col">
+          <span class="font-label-md text-label-md text-primary font-bold">EduSphere LXP</span>
+          <p class="font-body-sm text-body-sm text-on-surface dark:text-on-surface-variant">
+            © 2024 EduSphere Enterprise. All rights reserved.
+          </p>
+        </div>
+        <div class="gap-stack-sm flex flex-col md:col-span-2 md:items-end">
+          <div class="gap-gutter flex flex-wrap">
+            <a
+              class="text-slate-text font-body-sm text-body-sm hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Privacy Policy</a
+            >
+            <a
+              class="text-slate-text font-body-sm text-body-sm hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Terms of Service</a
+            >
+            <a
+              class="text-slate-text font-body-sm text-body-sm hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Support</a
+            >
+            <a
+              class="text-slate-text font-body-sm text-body-sm hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Contact Us</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
