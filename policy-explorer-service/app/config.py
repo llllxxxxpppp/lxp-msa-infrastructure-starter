@@ -53,6 +53,15 @@ CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "policy_docs_b
 
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploaded_documents")
 
+# 문서 단위 메타데이터(docs/09-data-architecture.md 제안 스키마)를 담는 SQLite 파일.
+# Chroma와 마찬가지로 상태 볼륨(policy-explorer-state)에 둬야 재기동 시 유실되지 않는다.
+METADATA_DB_PATH = os.environ.get("METADATA_DB_PATH", "./documents.db")
+
+# 컨테이너 기동 시 자동으로 색인할 샘플 문서 디렉터리. Dockerfile이 이 경로를 이미지에
+# 구워 넣는다(빌드 컨텍스트 기준 policy-explorer-service/seed-documents). 디렉터리가 없으면
+# 그냥 건너뛴다 — 로컬 개발에서 샘플 문서 없이 띄워도 기동에 지장이 없다.
+SEED_DOCUMENTS_DIR = os.environ.get("SEED_DOCUMENTS_DIR", "./seed-documents")
+
 # ---------------------------------------------------------
 # RAG 파라미터 (PoC 리포의 원본 값을 기본값으로 유지)
 # ---------------------------------------------------------

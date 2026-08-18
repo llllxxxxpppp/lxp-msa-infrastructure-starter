@@ -36,17 +36,20 @@
       예정. `langchain-chroma`로 옮겨 같은 리포의 `ai-bot-service`와 라이브러리를 통일했다.
 - [x] **컨테이너화 + compose 통합** — [`Dockerfile`](../Dockerfile), 리포 루트 `compose.yaml`.
       볼륨 2개로 상태·원본 파일 분리 영속화. ([04](04-deployment-guide.md))
+- [x] **경로 순회 취약점 수정** — [`app/rag.py`](../app/rag.py) `add_document()`가 이제
+      `os.path.basename()`으로 경로 조각을 제거하고 `{document_id}/{원본파일명}` UUID 하위
+      디렉터리에 저장한다. 동일 파일명 재업로드도 서로 다른 `document_id`로 분리 저장돼 덮어쓰기
+      문제가 함께 해소됐다. ([06](06-data-and-security.md))
+- [x] **문서 메타데이터 DB(SQLite) 도입** — [`app/metadata_db.py`](../app/metadata_db.py),
+      [09](09-data-architecture.md) 제안 스키마 그대로 적용. `GET /api/policies/documents`가
+      메타데이터 DB 기준으로 응답하며, 체크섬(SHA-256) 기반 중복 감지로 동일 내용 재업로드/컨테이너
+      재기동 시 재임베딩을 건너뛴다. 컨테이너 기동 시 `SEED_DOCUMENTS_DIR`을 자동 스캔해 색인하는
+      기능도 함께 추가됐다.
 
 ---
 
 ## 🔴 필수 — 아직 남음
 
-- [ ] **경로 순회 취약점 수정** — [`app/rag.py`](../app/rag.py) `add_document()`의
-      `os.path.join(config.UPLOAD_DIR, filename)`이 업로드 파일명을 그대로 쓴다.
-      `os.path.basename()` + 화이트리스트 검증, 또는 서버 생성 UUID 파일명으로 교체.
-      **코드에 `🚨 TODO` 주석으로 표시되어 있다.** ([06](06-data-and-security.md))
-      > 원본 동작을 그대로 이식한 상태다. 아래 "메타데이터 DB" 항목과 함께 처리하면
-      > 저장 키를 `{document_id}/{original_filename}`으로 바꿔 두 문제를 동시에 해소할 수 있다.
 - [ ] **인증/인가 추가** — 현재 8086 포트가 직접 노출되어 있고 어떤 엔드포인트에도 인증이 없다.
       Gateway 라우팅(아래)이 붙으면 JWT 검증이 앞단에 생기지만, 업로드/초기화
       (`DELETE /api/policies/documents`)의 인가 정책은 별도로 설계해야 한다. ([06](06-data-and-security.md))

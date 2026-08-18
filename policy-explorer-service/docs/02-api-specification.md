@@ -101,6 +101,7 @@ curl -X POST http://localhost:8086/api/policies/documents/upload -F "file=@규�
 ```json
 {
   "status": "success",
+  "document_id": "b703b657e2f346de94d65348c06d4e41",
   "filename": "규정문서.pdf",
   "num_source_documents": 85,
   "num_chunks": 149,
@@ -108,31 +109,43 @@ curl -X POST http://localhost:8086/api/policies/documents/upload -F "file=@규�
   "elapsed_seconds": 8.59
 }
 ```
+> 🔄 **이식 반영**: `document_id`가 추가됐습니다(문서 메타데이터 DB 도입, [09](09-data-architecture.md)
+> 참고). 동일 내용(SHA-256 체크섬 일치)의 문서가 이미 색인돼 있으면 재임베딩하지 않고
+> `"status": "duplicate"`를 반환합니다(이 경우 `document_id`는 기존 문서의 id, `num_source_documents`는
+> `0`).
 
 **Response `400`**: 지원하지 않는 확장자, 또는 텍스트 추출 실패
 ```json
 { "detail": "지원하지 않는 파일 형식입니다 (.xlsx). 업로드 가능한 확장자: .docx, .pdf" }
 ```
 
-> ⚠️ 업로드된 `file.filename`이 저장 경로 생성에 그대로 쓰이며 별도 검증이 없습니다. 경로 순회
-> 취약점에 대한 상세 내용은 [06-data-and-security.md](06-data-and-security.md)를 참고하세요.
+> 🔄 **이식 반영 — 경로 순회 취약점 해소됨**: 업로드 파일명은 더 이상 저장 경로에 그대로 쓰이지
+> 않습니다. `os.path.basename()`으로 경로 조각을 제거하고, `{document_id}/{원본파일명}` 형태의
+> UUID 하위 디렉터리에 저장합니다. 동일 파일명을 재업로드해도 서로 다른 `document_id` 아래 각각
+> 보관되어 덮어써지지 않습니다. 상세 내용은 [06-data-and-security.md](06-data-and-security.md)를
+> 참고하세요.
 
 ### `GET /api/policies/documents`
-현재 적재된 문서(출처)별 청크 개수를 조회합니다.
-(PoC 리포 `lxp-ollama-qwen-fileupload.py`)
+현재 적재된 문서 목록을 문서 메타데이터 DB(SQLite) 기준으로 조회합니다.
+(PoC 리포 `lxp-ollama-qwen-fileupload.py`에서 이식 후 [09](09-data-architecture.md) 제안대로 확장)
 
 **Response `200`**
 ```json
 [
-  { "source": "규정문서.pdf", "chunk_count": 149 },
-  { "source": "sample.docx", "chunk_count": 1 }
+  {
+    "id": "b703b657e2f346de94d65348c06d4e41",
+    "original_filename": "규정문서.pdf",
+    "status": "ready",
+    "chunk_count": 149,
+    "size_bytes": 2456123,
+    "uploaded_at": "2026-08-18T09:00:00+00:00",
+    "error_message": null
+  }
 ]
 ```
-
-> 💡 **향후 변경 예정 (아직 미구현)**: 문서 메타데이터 DB(SQLite) 도입 후에는 이 응답에
-> `id`, `status`, `size_bytes`, `uploaded_at` 등이 추가될 수 있습니다. 위 스키마는 **현재
-> 코드 기준 계약**이며, 실제 변경 시점까지는 그대로 유효합니다. 자세한 제안 설계는
-> [09-data-architecture.md](09-data-architecture.md)를 참고하세요.
+> 🔄 **이식 반영**: 예전에는 `{source, chunk_count}`만 반환하고 `all_chunks`를 매번 순회해
+> 집계했습니다. 이제 문서 단위 메타데이터 DB(SQLite)에서 바로 조회하며, `status`가
+> `uploading`/`ready`/`failed`일 수 있습니다(`failed`인 경우 `error_message`에 사유가 담깁니다).
 
 ### `DELETE /api/policies/documents`
 업로드된 문서를 모두 초기화합니다 (ChromaDB + BM25 인메모리 캐시).

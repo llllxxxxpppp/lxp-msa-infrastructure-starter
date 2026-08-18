@@ -105,6 +105,15 @@ async def lifespan(app: FastAPI):
     store = RagStore()
     store.restore_from_persisted()
 
+    seed_result = store.seed_from_directory(config.SEED_DOCUMENTS_DIR)
+    if seed_result["ingested"] or seed_result["duplicate"] or seed_result["failed"]:
+        logger.info(
+            "[Startup] 시드 문서 색인 결과: ingested=%d duplicate=%d failed=%d",
+            seed_result["ingested"],
+            seed_result["duplicate"],
+            seed_result["failed"],
+        )
+
     app.state.store = store
     app.state.graph = build_graph(store)
     logger.info("[Startup] 준비 완료 (port=%s)", config.SERVICE_PORT)

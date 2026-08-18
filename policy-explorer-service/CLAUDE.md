@@ -76,6 +76,7 @@
 | 10 | `langchain_community.vectorstores.Chroma` → `langchain_chroma` | 폐기 예정. 같은 리포의 ai-bot-service와 라이브러리를 통일 |
 | 11 | 의존성 분리 | `vllm`·`bitsandbytes`를 optional로. **`vllm`은 linux/arm64 휠이 없어 필수 의존성으로 두면 이미지 빌드가 실패한다.** `.venv` 9.1GB → 360MB |
 | 12 | `AnalyzeResponse`에 `conflicts`(구조화된 `conflict_report`) 추가, `page`(PDF 페이지 번호) 메타데이터를 `search_results`/`conflict_report`까지 전달 | 백오피스 AI Assistance 모달이 "해당 파일 및 위치"/"변경 제안 상세"를 `markdown_report` 문자열 파싱 없이 렌더링하려면 구조화된 위치 정보가 필요했다. `page`는 `PyPDFLoader`가 이미 채집하던 값을 응답까지 흘려보낸 것뿐이라 파이프라인 로직 변경은 없다 |
+| 13 | **문서 메타데이터 DB(SQLite) 도입** ([`app/metadata_db.py`](app/metadata_db.py)) + **경로 순회 취약점 수정**(`{document_id}/{원본파일명}` UUID 하위 디렉터리 저장) + **체크섬(SHA-256) 기반 중복 감지** + **컨테이너 기동 시 `SEED_DOCUMENTS_DIR` 자동 색인**, `GET /api/policies/documents`·`UploadResponse` 스키마 확장 | PoC `docs/09`가 제안만 해두고 미구현이던 항목([08](docs/08-migration-checklist.md) 🔴). 백오피스 파일 업로드 UI를 실제로 연동하려니 "문서가 하나도 없어 테스트 불가" 문제가 드러나 이번에 구현. 체크섬 중복 감지 덕분에 API 재업로드와 컨테이너 재기동 시 시드 문서 재처리가 같은 로직으로 방지된다 |
 
 ---
 
@@ -84,18 +85,21 @@
 ```text
 policy-explorer-service/
 ├─ app/
-│  ├─ config.py   환경변수만 읽는다. 외부 연결 없음
-│  ├─ rag.py      RagStore — Chroma + BM25 앙상블, 업로드/조회/초기화
-│  ├─ graph.py    LangGraph 4노드 + LLM 구조화 출력 스키마
-│  ├─ api.py      /api/policies/* 라우터 4개
-│  └─ main.py     앱 조립 + lifespan + /health
-├─ docs/          PoC 리포 docs 01~09 이식본 (+ openapi 실측 스펙)
-├─ Dockerfile     uv 베이스. 빌드 컨텍스트는 리포 루트
+│  ├─ config.py       환경변수만 읽는다. 외부 연결 없음
+│  ├─ metadata_db.py  DocumentMetadataStore — 문서 단위 SQLite 메타데이터 (docs/09)
+│  ├─ rag.py          RagStore — Chroma + BM25 앙상블, 업로드/조회/초기화, 자동 시드
+│  ├─ graph.py        LangGraph 4노드 + LLM 구조화 출력 스키마
+│  ├─ api.py          /api/policies/* 라우터 4개
+│  └─ main.py         앱 조립 + lifespan(자동 시드 포함) + /health
+├─ seed-documents/    컨테이너 기동 시 자동 색인되는 샘플 문서 (git 추적, 민감 문서 금지)
+├─ docs/              PoC 리포 docs 01~09 이식본 (+ openapi 실측 스펙)
+├─ Dockerfile         uv 베이스. 빌드 컨텍스트는 리포 루트. seed-documents/도 이미지에 포함
 └─ pyproject.toml
 ```
 
 상태(Chroma 연결, BM25 인덱스)는 `RagStore` 인스턴스가 들고 있고, `app.state.store` /
-`app.state.graph`로 꺼내 씁니다. 전역 변수를 쓰지 않습니다.
+`app.state.graph`로 꺼내 씁니다. 전역 변수를 쓰지 않습니다. 문서 단위 메타데이터(SQLite)는
+`RagStore.metadata_store`(`DocumentMetadataStore`)가 들고 있습니다.
 
 > **BM25는 프로세스 메모리에만 존재합니다.** 기동 시 `restore_from_persisted()`가 Chroma에서
 > 청크를 읽어 다시 세웁니다. 그래서 이 서비스는 **단일 인스턴스 전제**입니다

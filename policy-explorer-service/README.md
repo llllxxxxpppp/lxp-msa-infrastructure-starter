@@ -104,7 +104,7 @@ Gateway는 JWT를 검증한 뒤 `X-User-Id`·`X-Role` 헤더를 주입해 전달
 |---|---|---|
 | `GET` | `/health` | 프로세스 · Ollama 도달 · 모델 보유 · Chroma 접근 확인 |
 | `POST` | `/api/policies/documents/upload` | PDF/DOCX 업로드 → 청킹 → Chroma(+BM25) 적재 |
-| `GET` | `/api/policies/documents` | 적재된 문서(출처)별 청크 개수 조회 |
+| `GET` | `/api/policies/documents` | 적재된 문서 목록 조회 (id/상태/청크수/크기/업로드일 — SQLite 메타데이터 DB 기준) |
 | `DELETE` | `/api/policies/documents` | 업로드 문서 전체 초기화 |
 | `POST` | `/api/policies/analyze` | 규정 충돌 분석 + 마크다운 리포트 |
 
@@ -154,6 +154,8 @@ curl -X DELETE localhost:8086/api/policies/documents
 | `OLLAMA_EMBEDDING_MODEL` | `bge-m3` | 임베딩 모델 |
 | `CHROMA_PERSIST_DIR` | `./chroma_db_fileupload` | 벡터 데이터 경로 (compose는 `/data/state/chroma`) |
 | `CHROMA_COLLECTION_NAME` | `policy_docs_bge_m3` | Chroma 컬렉션명 |
+| `METADATA_DB_PATH` | `./documents.db` | 문서 메타데이터 SQLite 경로 (compose는 `/data/state/documents.db`) |
+| `SEED_DOCUMENTS_DIR` | `./seed-documents` | 기동 시 자동 색인할 샘플 문서 디렉터리(Dockerfile이 이미지에 포함) |
 | `UPLOAD_DIR` | `./uploaded_documents` | 업로드 원본 경로 (compose는 `/data/uploads`) |
 | `LOG_DIR` | (미설정) | 설정하면 `performance.log`도 남긴다. 미설정 시 stdout만 |
 | `RAG_CHUNK_SIZE` / `RAG_CHUNK_OVERLAP` / `RAG_TOP_K` | `500` / `50` / `2` | 청킹·검색 파라미터 |

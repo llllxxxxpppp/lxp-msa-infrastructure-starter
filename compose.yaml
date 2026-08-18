@@ -319,6 +319,7 @@ services:
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
       CHROMA_PERSIST_DIR: /data/state/chroma
+      METADATA_DB_PATH: /data/state/documents.db
       UPLOAD_DIR: /data/uploads
     ports:
       - "8086:8086"

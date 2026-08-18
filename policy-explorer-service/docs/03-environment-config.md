@@ -7,7 +7,8 @@
 > 아래 표는 "원본에서 무엇이 하드코딩되어 있었는가"의 기록으로 읽으세요.
 > 달라진 점: `EMBEDDING_MODEL_NAME` → `OLLAMA_EMBEDDING_MODEL`(bge-m3),
 > `VLLM_*`는 이식 대상 아님, `CHROMA_COLLECTION_NAME`·`HEALTH_TIMEOUT_SECONDS` 추가,
-> `METADATA_DB_PATH`는 SQLite 미도입이라 아직 없음.
+> `METADATA_DB_PATH`는 SQLite 메타데이터 DB 도입([09](09-data-architecture.md))과 함께 실제
+> 적용됐고, 컨테이너 기동 시 자동 색인 대상 디렉터리인 `SEED_DOCUMENTS_DIR`도 신규 추가됐다.
 
 
 ## 현재 상태: 환경변수 기반 설정이 전혀 없음
@@ -54,14 +55,16 @@
 | `VLLM_MODEL_NAME` | vLLM에 서빙 중인 모델 식별자 | `Qwen/Qwen2.5-7B-Instruct` |
 | `EMBEDDING_MODEL_NAME` | HuggingFace 임베딩 모델 | `jhgan/ko-sroberta-multitask` |
 | `CHROMA_PERSIST_DIR` | ChromaDB 데이터 저장 경로 (인스턴스 로컬 볼륨 — 아래 참고) | `/data/state/chroma_db_fileupload` |
-| `METADATA_DB_PATH` | 문서 메타데이터 SQLite 파일 경로 (인스턴스 로컬 볼륨, 파일업로드 버전 전용, 신규 제안) | `/data/state/documents.db` |
-| `UPLOAD_DIR` | 업로드 원본 파일 저장 경로 (공유 네트워크 볼륨(NFS) — 아래 참고, 파일업로드 버전 전용) | `/data/uploads` |
+| `METADATA_DB_PATH` | 문서 메타데이터 SQLite 파일 경로 (인스턴스 로컬 볼륨, 파일업로드 버전 전용) — **실제 적용됨** | `/data/state/documents.db` |
+| `UPLOAD_DIR` | 업로드 원본 파일 저장 경로 (현재는 로컬 named volume — NFS 전환은 아직 안 함, 파일업로드 버전 전용) | `/data/uploads` |
+| `SEED_DOCUMENTS_DIR` | 컨테이너 기동 시 자동 색인할 샘플 문서 디렉터리(`Dockerfile`이 이미지에 포함, 신규) | `./seed-documents` |
 | `LOG_DIR` | 성능 로그 저장 경로 (또는 stdout 전환) | `/data/state/logs` |
 | `CURRENT_ENGINE` / `CURRENT_MODEL` | API 응답/로그 라벨 | `Ollama` / `qwen2.5:7b` |
 
-> 💡 `CHROMA_PERSIST_DIR`/`METADATA_DB_PATH`/`LOG_DIR`는 **인스턴스 로컬 볼륨**에,
-> `UPLOAD_DIR`만 **NFS 공유 볼륨**에 두는 이유(SQLite의 네트워크 파일시스템 동시쓰기 잠금
-> 이슈 등)는 [09-data-architecture.md](09-data-architecture.md)에 정리했습니다.
+> 💡 `CHROMA_PERSIST_DIR`/`METADATA_DB_PATH`/`LOG_DIR`는 **인스턴스 로컬 볼륨**에 둔다(SQLite를
+> 네트워크 파일시스템에 두면 동시쓰기 잠금 문제가 생기기 때문). `UPLOAD_DIR`은 [09](09-data-architecture.md)가
+> 원래 NFS 공유 볼륨을 제안했지만 **현재는 로컬 named volume**(`policy-explorer-uploads`)을 그대로
+> 쓴다 — NFS 전환은 아직 별도 과제로 남아 있다.
 
 ## 다음 문서
 - 위 환경변수들을 실제 docker-compose 서비스 정의에 어떻게 주입하는지 →

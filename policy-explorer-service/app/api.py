@@ -36,12 +36,19 @@ class PolicyRequest(BaseModel):
 
 
 class DocumentInfo(BaseModel):
-    source: str
+    id: str
+    original_filename: str
+    status: str
     chunk_count: int
+    size_bytes: int
+    uploaded_at: str
+    error_message: Optional[str] = None
 
 
 class UploadResponse(BaseModel):
+    # "success" | "duplicate"(동일 내용 문서가 이미 색인돼 있어 재임베딩을 건너뛴 경우)
     status: str
+    document_id: str
     filename: str
     num_source_documents: int
     num_chunks: int
@@ -105,15 +112,17 @@ async def upload_document(request: Request, file: UploadFile = File(...)):
 
     elapsed = time.time() - started
     logger.info(
-        "%s 📄 [문서 업로드 완료] %s (원본 Document %d개 → 청크 %d개, 소요 시간: %.2f초)",
+        "%s 📄 [문서 업로드 %s] %s (원본 Document %d개 → 청크 %d개, 소요 시간: %.2f초)",
         _label(),
+        result["status"],
         result["filename"],
         result["num_source_documents"],
         result["num_chunks"],
         elapsed,
     )
 
-    return UploadResponse(status="success", elapsed_seconds=round(elapsed, 2), **result)
+    # result에 이미 status/document_id/filename 등이 들어있다(app/rag.py RagStore.add_document).
+    return UploadResponse(elapsed_seconds=round(elapsed, 2), **result)
 
 
 @router.get("/documents", response_model=List[DocumentInfo])
