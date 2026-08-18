@@ -32,3 +32,30 @@ export interface AnalyzeResponse {
   conflicts: ConflictItem[];
   markdown_report: string;
 }
+
+/**
+ * GET /api/policies/documents 응답 항목. 백엔드 `app/api.py`의 `DocumentInfo`와 1:1 대응
+ * (문서 메타데이터 SQLite DB 기준 — app/metadata_db.py).
+ */
+export interface DocumentInfo {
+  id: string;
+  original_filename: string;
+  /** "uploading" | "ready" | "failed" */
+  status: string;
+  chunk_count: number;
+  size_bytes: number;
+  uploaded_at: string;
+  error_message: string | null;
+}
+
+/** POST /api/policies/documents/upload 응답. 백엔드 `UploadResponse`와 1:1 대응. */
+export interface UploadResponse {
+  /** "success" | "duplicate"(동일 내용 문서가 이미 색인돼 있어 재임베딩을 건너뛴 경우) */
+  status: string;
+  document_id: string;
+  filename: string;
+  num_source_documents: number;
+  num_chunks: number;
+  total_chunks_in_store: number;
+  elapsed_seconds: number;
+}

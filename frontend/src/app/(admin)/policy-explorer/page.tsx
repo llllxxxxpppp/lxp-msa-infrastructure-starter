@@ -1,29 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { PolicyAiAssistModal } from "@/components/policy/PolicyAiAssistModal";
+import { ApiError } from "@/types/api";
+import { listDocuments, uploadDocument } from "@/features/policy/api";
+import type { DocumentInfo } from "@/features/policy/types";
 
-// MOCK: policy-explorer-service가 빈 폴더라(백엔드 없음) 파일 목록/메타정보 모두 하드코딩이다.
-const MOCK_FILES = [
-  { name: "취업규칙_2024.pdf", icon: "description" },
-  { name: "보안가이드라인.pdf", icon: "description" },
-  { name: "신규입사자_교육.mp4", icon: "movie" },
-];
+const ACCEPTED_EXTENSIONS = [".pdf", ".docx"];
 
-const MOCK_META: Record<string, { type: string; size: string; uploadedAt: string }> = {
-  "취업규칙_2024.pdf": { type: "PDF 문서", size: "3.2 MB", uploadedAt: "2024. 05. 20" },
-  "보안가이드라인.pdf": { type: "PDF 문서", size: "1.1 MB", uploadedAt: "2024. 03. 02" },
-  "신규입사자_교육.mp4": { type: "동영상", size: "128 MB", uploadedAt: "2024. 01. 15" },
-};
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value.toFixed(1)} ${units[unitIndex]}`;
+}
+
+function fileTypeLabel(filename: string): string {
+  const ext = filename.slice(filename.lastIndexOf(".")).toLowerCase();
+  if (ext === ".pdf") return "PDF 문서";
+  if (ext === ".docx") return "DOCX 문서";
+  return "문서";
+}
+
+function statusChip(doc: DocumentInfo) {
+  if (doc.status === "ready") return { tone: "success" as const, label: "Vector화 완료" };
+  if (doc.status === "failed") return { tone: "error" as const, label: "처리 실패" };
+  return { tone: "warning" as const, label: "처리 중" };
+}
+
+function isAcceptedFile(file: File): boolean {
+  const name = file.name.toLowerCase();
+  return ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
+}
 
 export default function PolicyExplorerPage() {
-  const [selectedFile, setSelectedFile] = useState(MOCK_FILES[0].name);
+  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const meta = MOCK_META[selectedFile];
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function loadDocuments() {
+    // 업로드 완료 후 이벤트 핸들러에서 목록을 새로고침할 때 쓰는 함수다. 마운트 시 초기
+    // 로드는 아래 useEffect가 직접 처리한다(set-state-in-effect 린트 때문에 분리).
+    setIsLoading(true);
+    setError(null);
+    try {
+      const docs = await listDocuments();
+      setDocuments(docs);
+      setSelectedId((prev) => prev ?? docs[0]?.id ?? null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "문서 목록을 불러오지 못했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // 마운트 시 최초 목록 조회 — 데이터 패칭 effect의 표준 패턴이라 set-state-in-effect
+    // 규칙은 이 두 줄에 한해 비활성화한다(courses 페이지와 동일한 컨벤션).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
+    setError(null);
+    listDocuments()
+      .then((docs) => {
+        setDocuments(docs);
+        setSelectedId((prev) => prev ?? docs[0]?.id ?? null);
+      })
+      .catch((err) =>
+        setError(err instanceof ApiError ? err.message : "문서 목록을 불러오지 못했습니다.")
+      )
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  async function handleUpload(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
+    const rejected = fileList.filter((f) => !isAcceptedFile(f));
+    if (rejected.length > 0) {
+      setUploadError(`지원하지 않는 파일 형식입니다: ${rejected.map((f) => f.name).join(", ")}`);
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+    try {
+      for (const file of fileList) {
+        await uploadDocument(file);
+      }
+      await loadDocuments();
+    } catch (err) {
+      setUploadError(err instanceof ApiError ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  const selected = documents.find((d) => d.id === selectedId) ?? null;
 
   return (
     <div className="gap-stack-lg flex h-full flex-col">
@@ -52,22 +137,31 @@ export default function PolicyExplorerPage() {
                 <MaterialIcon name="folder_open" className="text-primary" />
                 <span className="text-label-md">사내 규정 문서</span>
               </div>
-              <ul className="mt-1 ml-6 space-y-1 border-l border-outline-variant pl-2">
-                {MOCK_FILES.map((file) => (
-                  <li
-                    key={file.name}
-                    onClick={() => setSelectedFile(file.name)}
-                    className={`flex cursor-pointer items-center gap-2 rounded p-1 ${
-                      selectedFile === file.name
-                        ? "bg-secondary-fixed text-on-secondary-fixed"
-                        : "text-on-surface hover:bg-surface-container"
-                    }`}
-                  >
-                    <MaterialIcon name={file.icon} className="text-[18px]" />
-                    <span className="text-body-sm">{file.name}</span>
-                  </li>
-                ))}
-              </ul>
+              {isLoading && <p className="text-body-sm text-slate-text mt-2 ml-6">불러오는 중...</p>}
+              {error && <p className="text-body-sm text-error-red mt-2 ml-6">{error}</p>}
+              {!isLoading && !error && documents.length === 0 && (
+                <p className="text-body-sm text-slate-text mt-2 ml-6">
+                  업로드된 문서가 없습니다. 우측 영역에서 파일을 업로드해 주세요.
+                </p>
+              )}
+              {!isLoading && !error && documents.length > 0 && (
+                <ul className="mt-1 ml-6 space-y-1 border-l border-outline-variant pl-2">
+                  {documents.map((doc) => (
+                    <li
+                      key={doc.id}
+                      onClick={() => setSelectedId(doc.id)}
+                      className={`flex cursor-pointer items-center gap-2 rounded p-1 ${
+                        selectedId === doc.id
+                          ? "bg-secondary-fixed text-on-secondary-fixed"
+                          : "text-on-surface hover:bg-surface-container"
+                      }`}
+                    >
+                      <MaterialIcon name="description" className="text-[18px]" />
+                      <span className="text-body-sm">{doc.original_filename}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </Card>
 
@@ -75,27 +169,59 @@ export default function PolicyExplorerPage() {
             <h3 className="mb-stack-sm border-outline-variant text-headline-sm text-primary border-b pb-2">
               파일 메타 정보
             </h3>
-            <div className="text-body-sm mt-2 flex flex-col gap-2">
-              <MetaRow label="파일명" value={selectedFile} />
-              <MetaRow label="종류" value={meta.type} />
-              <MetaRow label="크기" value={meta.size} />
-              <MetaRow label="업로드일" value={meta.uploadedAt} />
-              <div className="flex items-start justify-between pt-2">
-                <span className="text-on-surface-variant w-20 shrink-0">상태</span>
-                <Chip tone="success">Vector화 완료</Chip>
+            {selected ? (
+              <div className="text-body-sm mt-2 flex flex-col gap-2">
+                <MetaRow label="파일명" value={selected.original_filename} />
+                <MetaRow label="종류" value={fileTypeLabel(selected.original_filename)} />
+                <MetaRow label="크기" value={formatBytes(selected.size_bytes)} />
+                <MetaRow
+                  label="업로드일"
+                  value={new Date(selected.uploaded_at).toLocaleDateString("ko-KR")}
+                />
+                <div className="flex items-start justify-between pt-2">
+                  <span className="text-on-surface-variant w-20 shrink-0">상태</span>
+                  <Chip tone={statusChip(selected).tone}>{statusChip(selected).label}</Chip>
+                </div>
+                {selected.status === "failed" && selected.error_message && (
+                  <p className="text-body-sm text-error-red">{selected.error_message}</p>
+                )}
               </div>
-            </div>
+            ) : (
+              <p className="text-body-sm text-slate-text mt-2">선택된 문서가 없습니다.</p>
+            )}
           </Card>
         </div>
 
         {/* 우측: 업로드 + 미리보기 */}
         <div className="gap-stack-lg flex flex-col">
-          <div className="border-outline-variant bg-surface-container-lowest p-stack-lg hover:border-secondary hover:bg-surface-container-low flex h-48 shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPTED_EXTENSIONS.join(",")}
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              handleUpload(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleUpload(e.dataTransfer.files);
+            }}
+            className="border-outline-variant bg-surface-container-lowest p-stack-lg hover:border-secondary hover:bg-surface-container-low flex h-48 shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
+          >
             <div className="bg-surface-container mb-4 flex h-16 w-16 items-center justify-center rounded-full">
               <MaterialIcon name="cloud_upload" className="text-outline text-[32px]" />
             </div>
             <h3 className="text-headline-md text-primary mb-1">Drag &amp; Drop</h3>
-            <p className="text-body-md text-on-surface-variant">파일 업로드</p>
+            <p className="text-body-md text-on-surface-variant">
+              {isUploading ? "업로드 중..." : "파일 업로드 (PDF, DOCX)"}
+            </p>
+            {uploadError && <p className="text-body-sm text-error-red mt-2">{uploadError}</p>}
           </div>
 
           <Card className="flex flex-1 flex-col p-stack-md">

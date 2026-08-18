@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api-client";
-import type { AnalyzeRequest, AnalyzeResponse } from "./types";
+import type { AnalyzeRequest, AnalyzeResponse, DocumentInfo, UploadResponse } from "./types";
 
 /**
  * POST /api/policies/analyze — policy-explorer-service `analyze_policy`.
@@ -8,4 +8,22 @@ import type { AnalyzeRequest, AnalyzeResponse } from "./types";
  */
 export function analyzePolicy(body: AnalyzeRequest): Promise<AnalyzeResponse> {
   return apiFetch<AnalyzeResponse>("/api/policies/analyze", { method: "POST", body });
+}
+
+/** GET /api/policies/documents — 문서 메타데이터 DB(SQLite) 기준 문서 목록. */
+export function listDocuments(): Promise<DocumentInfo[]> {
+  return apiFetch<DocumentInfo[]>("/api/policies/documents");
+}
+
+/**
+ * POST /api/policies/documents/upload — PDF/DOCX 업로드(multipart/form-data).
+ * `apiFetch`가 `body instanceof FormData`를 감지해 Content-Type을 브라우저에 맡긴다.
+ */
+export function uploadDocument(file: File): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch<UploadResponse>("/api/policies/documents/upload", {
+    method: "POST",
+    body: formData,
+  });
 }
