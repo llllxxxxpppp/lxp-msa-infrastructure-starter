@@ -132,6 +132,8 @@ services:
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
+      POLICY_EXPLORER_HOST: policy-explorer-service
+      POLICY_EXPLORER_PORT: "8086"
     ports:
       - "8080:8080"
     volumes:

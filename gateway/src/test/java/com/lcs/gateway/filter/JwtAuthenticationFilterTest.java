@@ -252,6 +252,44 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
+    void policies_경로는_ADMIN_롤이면_통과한다() {
+        String jwt = token(key, 1L, "ROLE_ADMIN", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.post("/api/policies/analyze").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(chain.called).isTrue();
+    }
+
+    @Test
+    void policies_경로는_ADMIN_롤이_없으면_403이다() {
+        String jwt = token(key, 1L, "ROLE_MEMBER", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.post("/api/policies/analyze").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(chain.called).isFalse();
+    }
+
+    @Test
+    void policies_문서_경로도_ADMIN_롤이_없으면_403이다() {
+        String jwt = token(key, 1L, "ROLE_INSTRUCTOR", 60_000);
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/policies/documents").header("Authorization", "Bearer " + jwt));
+        CapturingChain chain = new CapturingChain();
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(chain.called).isFalse();
+    }
+
+    @Test
     void members_경로는_MEMBER_롤이면_통과한다() {
         String jwt = token(key, 1L, "ROLE_MEMBER", 60_000);
         MockServerWebExchange exchange = MockServerWebExchange.from(
