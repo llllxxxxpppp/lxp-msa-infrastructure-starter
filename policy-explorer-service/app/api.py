@@ -1,5 +1,8 @@
 """REST API 라우터.
 
+경로 prefix는 gateway 라우트(/api/policies/**)와 반드시 일치해야 한다.
+gateway에는 StripPrefix·RewritePath 필터가 없어 경로를 그대로 전달하기 때문이다.
+
 PoC 리포(policy-explorer-service)의 `lxp-ollama-qwen-fileupload.py` 중
 "7. FastAPI 엔드포인트"를 옮긴 모듈이다. 4개 엔드포인트의 경로와 응답 형태는
 그 리포 `docs/02-api-specification.md`의 계약을 그대로 유지한다.
@@ -22,7 +25,7 @@ from app.rag import DocumentError
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["policy-explorer"])
+router = APIRouter(prefix="/api/policies", tags=["policy-explorer"])
 
 
 # ---------------------------------------------------------
@@ -121,7 +124,7 @@ async def reset_documents(request: Request):
 # ---------------------------------------------------------
 # 규정 충돌 분석
 # ---------------------------------------------------------
-@router.post("/analyze-policy", response_model=AnalyzeResponse)
+@router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_policy(request: Request, body: PolicyRequest):
     """신규 규정 텍스트를 받아 기존 문서와의 충돌을 검출하고 리포트를 반환한다."""
     store = request.app.state.store

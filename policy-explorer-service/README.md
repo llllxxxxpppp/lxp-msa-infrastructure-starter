@@ -85,30 +85,45 @@ Swagger UI: <http://localhost:8086/docs>
 
 ## API
 
+두 가지 경로로 접근할 수 있습니다.
+
+| 경로 | 주소 | 인증 |
+|---|---|---|
+| **Gateway 경유** (클라이언트용) | `http://localhost:8080/api/policies/**` | JWT 필수 · **`ROLE_ADMIN`만** |
+| 직접 호출 (개발용) | `http://localhost:8086/api/policies/**` | 없음 |
+
+Gateway는 JWT를 검증한 뒤 `X-User-Id`·`X-Role` 헤더를 주입해 전달합니다. 라우팅은
+`config-repo/gateway.yml`의 정적 URI 방식이며(Consul 미등록), 주소는 `compose.yaml`의
+`POLICY_EXPLORER_HOST`/`POLICY_EXPLORER_PORT`로 주입됩니다.
+
+> ⚠️ gateway와 서비스의 경로 prefix는 **반드시 같아야 합니다.** gateway 라우트에
+> `StripPrefix`·`RewritePath` 필터가 없어 경로를 그대로 전달하기 때문입니다.
+
+
 | 메서드 | 경로 | 설명 |
 |---|---|---|
 | `GET` | `/health` | 프로세스 · Ollama 도달 · 모델 보유 · Chroma 접근 확인 |
-| `POST` | `/api/v1/documents/upload` | PDF/DOCX 업로드 → 청킹 → Chroma(+BM25) 적재 |
-| `GET` | `/api/v1/documents` | 적재된 문서(출처)별 청크 개수 조회 |
-| `DELETE` | `/api/v1/documents` | 업로드 문서 전체 초기화 |
-| `POST` | `/api/v1/analyze-policy` | 규정 충돌 분석 + 마크다운 리포트 |
+| `POST` | `/api/policies/documents/upload` | PDF/DOCX 업로드 → 청킹 → Chroma(+BM25) 적재 |
+| `GET` | `/api/policies/documents` | 적재된 문서(출처)별 청크 개수 조회 |
+| `DELETE` | `/api/policies/documents` | 업로드 문서 전체 초기화 |
+| `POST` | `/api/policies/analyze` | 규정 충돌 분석 + 마크다운 리포트 |
 
 실제 OpenAPI 3.1 스펙: [docs/openapi/policy-explorer-service.openapi.json](docs/openapi/policy-explorer-service.openapi.json)
 
 ```bash
 # 문서 업로드
-curl -X POST localhost:8086/api/v1/documents/upload -F "file=@규정문서.pdf"
+curl -X POST localhost:8086/api/policies/documents/upload -F "file=@규정문서.pdf"
 
 # 적재 현황
-curl localhost:8086/api/v1/documents
+curl localhost:8086/api/policies/documents
 
 # 충돌 분석
-curl -X POST localhost:8086/api/v1/analyze-policy \
+curl -X POST localhost:8086/api/policies/analyze \
   -H "Content-Type: application/json" \
   -d '{"new_policy_text":"반차 사용 기준 시간을 4.5시간으로 변경합니다."}'
 
 # 전체 초기화
-curl -X DELETE localhost:8086/api/v1/documents
+curl -X DELETE localhost:8086/api/policies/documents
 ```
 
 응답 예 (기존 문서에 "반차는 4시간 기준"이 적재된 상태):

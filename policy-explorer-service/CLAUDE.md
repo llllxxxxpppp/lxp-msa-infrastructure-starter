@@ -86,7 +86,7 @@ policy-explorer-service/
 │  ├─ config.py   환경변수만 읽는다. 외부 연결 없음
 │  ├─ rag.py      RagStore — Chroma + BM25 앙상블, 업로드/조회/초기화
 │  ├─ graph.py    LangGraph 4노드 + LLM 구조화 출력 스키마
-│  ├─ api.py      /api/v1/* 라우터 4개
+│  ├─ api.py      /api/policies/* 라우터 4개
 │  └─ main.py     앱 조립 + lifespan + /health
 ├─ docs/          PoC 리포 docs 01~09 이식본 (+ openapi 실측 스펙)
 ├─ Dockerfile     uv 베이스. 빌드 컨텍스트는 리포 루트
@@ -120,9 +120,9 @@ curl localhost:8086/health
 작업 범위를 "컨테이너 ↔ Ollama 통신 골격"으로 한정했습니다. 아래는 **의도적으로 남긴 것**이며,
 `docs/08`에 항목으로 등록되어 있습니다.
 
-- **Gateway 라우팅** — `config-repo/gateway.yml`에 `/api/policies/**` 라우트 추가. 별도 작업.
-  (경로를 `/api/ai/**`로 잡지 않은 이유: PR #61 리뷰에서 "AI 서비스가 총 3개 들어갈 예정"이라는
-  지적이 있었다. AI 여부가 아니라 도메인으로 경로를 가른다.)
+- ~~Gateway 라우팅~~ → **완료.** `/api/policies/**` 정적 URI 라우트 + `ROLE_ADMIN` 제한.
+  경로를 AI 여부가 아니라 도메인으로 가른 이유: 이 프로젝트에 AI 기반 서비스가 여러 개
+  들어갈 예정이므로 `/api/ai/**` 하나를 공유할 수 없다.
 - **경로 순회 취약점** — `rag.py`의 `add_document()`가 업로드 파일명을 그대로 경로에 쓴다.
   원본 동작을 보존한 상태이며 코드에 `🚨 TODO` 주석으로 표시했다.
 - **문서 메타데이터 DB(SQLite)** — PoC `docs/09`의 제안 설계. 미구현.

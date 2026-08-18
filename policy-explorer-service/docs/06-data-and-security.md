@@ -42,13 +42,13 @@ save_path = os.path.join(UPLOAD_DIR, file.filename)
      실제 저장 파일명으로 사용하고 원본 파일명은 메타데이터로만 보관.
 
 ## 인증/인가 없음
-현재 모든 엔드포인트(`/api/v1/analyze-policy`, `/api/v1/documents*`)에 인증/인가가 전혀
+현재 모든 엔드포인트(`/api/policies/analyze`, `/api/policies/documents*`)에 인증/인가가 전혀
 없습니다. 로컬 단독 실행 프로토타입에서는 문제가 없었지만, MSA 환경에서는 다음 중 하나가
 반드시 필요합니다.
 - API 게이트웨이/서비스 메시 레벨에서 mTLS 또는 내부 서비스 토큰으로 접근 제어
 - 또는 애플리케이션 레벨에 인증 미들웨어 추가 (현재 코드에는 없음)
 
-또한 업로드/초기화(`DELETE /api/v1/documents`)처럼 상태를 바꾸는 엔드포인트에 대해 별도의
+또한 업로드/초기화(`DELETE /api/policies/documents`)처럼 상태를 바꾸는 엔드포인트에 대해 별도의
 인가(누가 규정 문서를 업로드/삭제할 수 있는지) 정책도 함께 설계해야 합니다.
 
 ## 로그에 남는 정보

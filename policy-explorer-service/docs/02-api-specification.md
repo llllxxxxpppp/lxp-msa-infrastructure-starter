@@ -38,7 +38,7 @@
 
 ## A. 전 서비스 공통 — 규정 충돌 분석
 
-### `POST /api/v1/analyze-policy`
+### `POST /api/policies/analyze`
 5개 서비스 모두 동일한 계약을 갖습니다. 다만 검색 대상 문서(②단계)가 벤치마크 4종은 하드코딩
 샘플 4건, 파일업로드 버전은 사용자가 업로드한 문서라는 점만 다릅니다.
 
@@ -75,13 +75,13 @@ PoC 리포 `lxp-ollama-qwen-fileupload.py`):
 
 ## B. 파일 업로드 RAG 버전 전용 (`lxp-ollama-qwen-fileupload.py`)
 
-### `POST /api/v1/documents/upload`
+### `POST /api/policies/documents/upload`
 PDF 또는 DOCX 문서를 업로드하면 청킹 후 ChromaDB(+BM25)에 적재합니다.
 (PoC 리포 `lxp-ollama-qwen-fileupload.py`)
 
 **Request**: `multipart/form-data`, 필드명 `file` (지원 확장자: `.pdf`, `.docx`)
 ```bash
-curl -X POST http://localhost:8086/api/v1/documents/upload -F "file=@규정문서.pdf"
+curl -X POST http://localhost:8086/api/policies/documents/upload -F "file=@규정문서.pdf"
 ```
 
 **Response `200`**
@@ -104,7 +104,7 @@ curl -X POST http://localhost:8086/api/v1/documents/upload -F "file=@규정문�
 > ⚠️ 업로드된 `file.filename`이 저장 경로 생성에 그대로 쓰이며 별도 검증이 없습니다. 경로 순회
 > 취약점에 대한 상세 내용은 [06-data-and-security.md](06-data-and-security.md)를 참고하세요.
 
-### `GET /api/v1/documents`
+### `GET /api/policies/documents`
 현재 적재된 문서(출처)별 청크 개수를 조회합니다.
 (PoC 리포 `lxp-ollama-qwen-fileupload.py`)
 
@@ -121,7 +121,7 @@ curl -X POST http://localhost:8086/api/v1/documents/upload -F "file=@규정문�
 > 코드 기준 계약**이며, 실제 변경 시점까지는 그대로 유효합니다. 자세한 제안 설계는
 > [09-data-architecture.md](09-data-architecture.md)를 참고하세요.
 
-### `DELETE /api/v1/documents`
+### `DELETE /api/policies/documents`
 업로드된 문서를 모두 초기화합니다 (ChromaDB + BM25 인메모리 캐시).
 (PoC 리포 `lxp-ollama-qwen-fileupload.py`)
 

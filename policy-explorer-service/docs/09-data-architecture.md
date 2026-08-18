@@ -26,7 +26,7 @@
   ChromaDB 청크 레코드 안에만 존재합니다(`upload_document`, L356-357, L363). 업로더가 누구인지,
   언제 업로드했는지, 처리 상태(처리 중/완료/실패)가 무엇인지, 체크섬이 무엇인지는 어디에도
   기록되지 않습니다.
-- **`GET /api/v1/documents`는 매번 메모리를 순회해 집계합니다.** 별도 조회 테이블 없이
+- **`GET /api/policies/documents`는 매번 메모리를 순회해 집계합니다.** 별도 조회 테이블 없이
   `all_chunks`(프로세스 메모리 리스트)를 순회하며 `source`별 청크 개수만 셉니다
   (`list_documents`, L391-394). 서버가 재시작되면 `all_chunks`는 Chroma에 저장된 청크
   메타데이터로부터 다시 복원됩니다(`_load_persisted_chunks_on_startup`) — 즉 "문서(파일)"라는
@@ -112,9 +112,9 @@ CREATE INDEX idx_documents_checksum ON documents(checksum_sha256);
   추가해야 합니다([07-operations-runbook.md](07-operations-runbook.md) 갱신분 참고).
 
 ## 업로드/조회/삭제 API에 대한 영향 (제안, 아직 미구현)
-- `POST /api/v1/documents/upload` — 응답에 `document_id`, `status`가 추가될 수 있음
+- `POST /api/policies/documents/upload` — 응답에 `document_id`, `status`가 추가될 수 있음
   (현재는 파일명 기준 요약만 반환).
-- `GET /api/v1/documents` — 현재는 `[{source, chunk_count}]`뿐이지만, SQLite 도입 후에는
+- `GET /api/policies/documents` — 현재는 `[{source, chunk_count}]`뿐이지만, SQLite 도입 후에는
   아래처럼 확장 가능합니다:
   ```json
   [
@@ -131,8 +131,8 @@ CREATE INDEX idx_documents_checksum ON documents(checksum_sha256);
   (이 확장은 [02-api-specification.md](02-api-specification.md)에 "현재 스펙"이 아니라
   "향후 변경 예정"으로만 표시해뒀습니다 — 실제 코드가 바뀌기 전까지 02번 문서의 계약이
   유효합니다.)
-- `DELETE /api/v1/documents` — 현재는 전체 초기화만 가능합니다. 문서 단위 삭제
-  (`DELETE /api/v1/documents/{document_id}`)가 자연스럽게 추가될 수 있으나, 이는 이번 문서
+- `DELETE /api/policies/documents` — 현재는 전체 초기화만 가능합니다. 문서 단위 삭제
+  (`DELETE /api/policies/documents/{document_id}`)가 자연스럽게 추가될 수 있으나, 이는 이번 문서
   세트의 범위를 넘는 API 설계 변경이므로 아이디어로만 남겨둡니다.
 
 ## 다른 문서에 반영된 변경사항

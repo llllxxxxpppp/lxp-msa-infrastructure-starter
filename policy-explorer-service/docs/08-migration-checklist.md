@@ -49,7 +49,7 @@
       > 저장 키를 `{document_id}/{original_filename}`으로 바꿔 두 문제를 동시에 해소할 수 있다.
 - [ ] **인증/인가 추가** — 현재 8086 포트가 직접 노출되어 있고 어떤 엔드포인트에도 인증이 없다.
       Gateway 라우팅(아래)이 붙으면 JWT 검증이 앞단에 생기지만, 업로드/초기화
-      (`DELETE /api/v1/documents`)의 인가 정책은 별도로 설계해야 한다. ([06](06-data-and-security.md))
+      (`DELETE /api/policies/documents`)의 인가 정책은 별도로 설계해야 한다. ([06](06-data-and-security.md))
 - [ ] **Gateway 라우팅** — `config-repo/gateway.yml`과 `gateway/src/main/resources/application.yml`에
       `/api/policies/**` 라우트 추가 + `compose.yaml`의 `gateway`에 호스트/포트 주입.
       > 경로를 `/api/ai/**`로 잡지 않는다. PR #61 리뷰에서 "이 프로젝트에 AI 기반 서비스가 총 3개
@@ -78,7 +78,7 @@
 - [ ] **테스트 작성** — `tests/` 미작성. `pytest`/`httpx`는 dev 그룹에 이미 선언되어 있다
       (컨테이너에는 `--no-dev`로 설치되지 않는다). 최소 항목: `/health`, 미지원 확장자 400,
       Ollama를 모킹한 파이프라인.
-- [ ] **업로드 엔드포인트 검증** — `POST /api/v1/documents/upload`는 실제 PDF/DOCX 파일이 필요해
+- [ ] **업로드 엔드포인트 검증** — `POST /api/policies/documents/upload`는 실제 PDF/DOCX 파일이 필요해
       아직 검증하지 않았다. 나머지 4개 엔드포인트는 컨테이너에서 확인 완료.
 - [ ] **NFS 공유 볼륨** — 업로드 원본을 로컬 named volume에서 NFS로 전환. NFS 서버 구축/운영
       주체를 다른 팀과 사전 협의 필요. ([09](09-data-architecture.md))
@@ -98,8 +98,8 @@
       채택 근거를 변경한 것이므로, 실제 사내 문서로 검색 품질을 비교 측정하는 것이 좋다.
 - [ ] **Excel/HWP 업로드 지원 여부 재검토** — 현재 PDF/DOCX만. 사유는 PoC 리포
       `select_reason.md` 8절.
-- [ ] **문서 단위 삭제 API** — 현재 `DELETE /api/v1/documents`는 전체 초기화만 지원.
-      메타데이터 DB 도입 후 `DELETE /api/v1/documents/{document_id}` 추가 여부 결정.
+- [ ] **문서 단위 삭제 API** — 현재 `DELETE /api/policies/documents`는 전체 초기화만 지원.
+      메타데이터 DB 도입 후 `DELETE /api/policies/documents/{document_id}` 추가 여부 결정.
 - [ ] **메타데이터 DB 확장** — 멀티 레플리카로 가면 SQLite를 PostgreSQL 등으로 승격 검토.
 - [ ] **벤치마크 스크립트 운영 방식** — PoC 리포의 엔진×모델 비교 스크립트 4종을 사내 CI 성능
       회귀 테스트로 재활용할지, 이식 대상에서 계속 제외할지 결정. 재활용한다면
