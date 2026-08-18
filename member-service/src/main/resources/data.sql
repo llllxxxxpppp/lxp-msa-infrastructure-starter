@@ -17,7 +17,8 @@ INSERT INTO members (
     1,
     'ADMIN',
     'admin@lxp.local',
-    '{noop}placeholder-encoded-password',
+    -- [변경] {noop} 평문 대신 BCrypt 해시 사용
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
     false,
     NULL,
     CURRENT_TIMESTAMP,
@@ -43,7 +44,8 @@ INSERT INTO members (
     2,
     'INSTRUCTOR',
     'instructor@lxp.local',
-    '{noop}placeholder-encoded-password',
+    -- [변경] {noop} 평문 대신 BCrypt 해시 사용
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
     false,
     NULL,
     CURRENT_TIMESTAMP,
@@ -69,7 +71,8 @@ INSERT INTO members (
     3,
     'MEMBER',
     'member@lxp.local',
-    '{noop}placeholder-encoded-password',
+    -- [변경] {noop} 평문 대신 BCrypt 해시 사용
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
     false,
     NULL,
     CURRENT_TIMESTAMP,
@@ -87,105 +90,149 @@ INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    10, 'INSTRUCTOR', 'instructor10@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    10, 'INSTRUCTOR', 'instructor10@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, '강사1', NULL, 'E2E 테스트용 강사 계정 1'
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    11, 'INSTRUCTOR', 'instructor11@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    11, 'INSTRUCTOR', 'instructor11@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, '강사2', NULL, 'E2E 테스트용 강사 계정 2'
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    12, 'INSTRUCTOR', 'instructor12@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    12, 'INSTRUCTOR', 'instructor12@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, '강사3', NULL, 'E2E 테스트용 강사 계정 3'
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    13, 'INSTRUCTOR', 'instructor13@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    13, 'INSTRUCTOR', 'instructor13@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, '강사4', NULL, 'E2E 테스트용 강사 계정 4'
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    14, 'INSTRUCTOR', 'instructor14@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    14, 'INSTRUCTOR', 'instructor14@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, '강사5', NULL, 'E2E 테스트용 강사 계정 5'
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    20, 'MEMBER', 'member20@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    20, 'MEMBER', 'member20@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    21, 'MEMBER', 'member21@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    21, 'MEMBER', 'member21@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    22, 'MEMBER', 'member22@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    22, 'MEMBER', 'member22@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    23, 'MEMBER', 'member23@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    23, 'MEMBER', 'member23@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    24, 'MEMBER', 'member24@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    24, 'MEMBER', 'member24@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    25, 'MEMBER', 'member25@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    25, 'MEMBER', 'member25@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    26, 'MEMBER', 'member26@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    26, 'MEMBER', 'member26@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    27, 'MEMBER', 'member27@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    27, 'MEMBER', 'member27@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    28, 'MEMBER', 'member28@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    28, 'MEMBER', 'member28@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
+
 INSERT INTO members (
     id, role, email, password, deleted, suspended_at, created_at, updated_at,
     profile_name, profile_image_url, profile_introduction
 ) VALUES (
-    29, 'MEMBER', 'member29@lxp.local', '{noop}placeholder-encoded-password', false, NULL,
+    29, 'MEMBER', 'member29@lxp.local',
+    '$2y$10$IzeB2ksrc1z0YaLARmh1K.Jo47Y1FyYIL1AgTGk7hyflw.3oRt2qG',
+    false, NULL,
     CURRENT_TIMESTAMP, NULL, NULL, NULL, NULL
 );
 

@@ -132,6 +132,8 @@ services:
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
+      AI_BOT_HOST: ai-tutor-service
+      AI_BOT_PORT: "8000"
     ports:
       - "8080:8080"
     volumes:
@@ -140,6 +142,8 @@ services:
       consul-1:
         condition: service_healthy
       config-server:
+        condition: service_healthy
+      ai-tutor-service:
         condition: service_healthy
     networks: [lxp-net]
     healthcheck:
@@ -237,6 +241,26 @@ services:
       retries: 20
       start_period: 30s
 
+  ai-tutor-service:
+    build:
+      context: .
+      dockerfile: ./ai-tutor-service/Dockerfile
+    container_name: lxp-ai-tutor-service
+    environment:
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      COURSE_SERVICE_URL: http://course-service:8083
+    volumes:
+      - ai-tutor-chroma-data:/app/data/chroma
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
   course-service:
     build:
       context: .
@@ -319,3 +343,4 @@ volumes:
   loki-data:
   alloy-data:
   rabbitmq-data:
+  ai-tutor-chroma-data:
