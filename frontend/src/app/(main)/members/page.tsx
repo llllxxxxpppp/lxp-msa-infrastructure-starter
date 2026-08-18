@@ -50,9 +50,9 @@ export default function MembersPage() {
     <div className="gap-stack-lg flex flex-col">
       <ProfileHeaderSection email={email} roles={roles} />
 
-      <div className="gap-gutter grid grid-cols-1 lg:grid-cols-3">
-        <div className="gap-stack-lg flex flex-col lg:col-span-2">
-          <LearningHistorySection />
+      <div className="gap-gutter grid grid-cols-1">
+        <div className="gap-stack-lg flex flex-col">
+          {/* <LearningHistorySection /> */}
           <PersonalInfoSection email={email} />
           {isInstructor && <InstructorProfileSection />}
           <DangerZoneSection
@@ -63,9 +63,9 @@ export default function MembersPage() {
             }}
           />
         </div>
-        <div className="lg:col-span-1">
+        {/* <div className="lg:col-span-1">
           <BadgesSection />
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -73,8 +73,8 @@ export default function MembersPage() {
 
 function ProfileHeaderSection({ email, roles }: { email: string; roles: string[] }) {
   return (
-    <div className="gap-gutter grid grid-cols-1 md:grid-cols-12">
-      <div className="gap-stack-lg border-outline-variant bg-surface-container-lowest p-stack-lg flex flex-col items-center rounded-xl border shadow-sm md:col-span-8 md:flex-row md:items-start">
+    <div className="gap-gutter grid grid-cols-1">
+      <div className="gap-stack-lg border-outline-variant bg-surface-container-lowest p-stack-lg flex flex-col items-center rounded-xl border shadow-sm md:flex-row md:items-start">
         <Avatar
           label={email}
           className="border-surface text-headline-lg h-32 w-32 shrink-0 border-4 shadow-md"
@@ -94,10 +94,10 @@ function ProfileHeaderSection({ email, roles }: { email: string; roles: string[]
         </div>
       </div>
 
-      <div className="gap-gutter grid grid-rows-2 md:col-span-4">
+      {/* <div className="gap-gutter grid grid-rows-2 md:col-span-4">
         <StatCard label="Courses Completed" value={MOCK_STATS.coursesCompleted} icon="school" />
         <StatCard label="Learning Hours" value={MOCK_STATS.learningHours} icon="timer" />
-      </div>
+      </div> */}
     </div>
   );
 }

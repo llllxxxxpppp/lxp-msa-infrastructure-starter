@@ -86,7 +86,7 @@ export default function CoursesPage() {
       {/* 좌측 필터 사이드바 */}
       <aside className="gap-stack-lg hidden flex-col md:col-span-3 md:flex">
         <Card className="p-stack-md">
-          <h3 className="mb-stack-md text-label-md text-primary">Categories</h3>
+          <h3 className="mb-stack-md text-label-md text-primary">카테고리</h3>
           <div className="gap-stack-sm flex flex-col">
             {CATEGORY_GROUPS.map((group) => (
               <div key={group.group}>
@@ -162,9 +162,9 @@ export default function CoursesPage() {
 
         <div className="mb-stack-lg flex items-center justify-between">
           <h1 className="text-headline-lg-mobile text-primary md:text-headline-lg">
-            Explore Courses
+            강좌 목록
           </h1>
-          <div className="gap-stack-sm flex items-center">
+          {/* <div className="gap-stack-sm flex items-center">
             <span className="text-body-sm text-on-surface-variant">Sort by:</span>
             <select
               value={sortBy}
@@ -175,7 +175,7 @@ export default function CoursesPage() {
               <option value="title">제목순</option>
               <option value="duration">학습시간순</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         {isLoading && <p className="text-body-sm text-slate-text">불러오는 중...</p>}

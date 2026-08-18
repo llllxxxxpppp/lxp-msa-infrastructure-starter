@@ -34,12 +34,12 @@ export default function SignupPage() {
   return (
     <div className="gap-stack-lg border-outline-variant bg-surface-container-lowest p-stack-lg flex flex-col rounded-xl border shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
       <div className="gap-stack-sm flex flex-col items-center text-center">
-        <div className="border-outline-variant bg-surface-container mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border">
+        {/* <div className="border-outline-variant bg-surface-container mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border">
           <span className="text-headline-sm text-primary font-bold">LXP</span>
-        </div>
-        <h1 className="text-headline-sm text-primary m-0">Create Account</h1>
+        </div> */}
+        <h1 className="text-headline-sm text-primary m-0">회원가입</h1>
         <p className="text-body-sm text-slate-text m-0">
-          Join EduSphere LXP to start your learning journey.
+          llllxxxxpppp에 참여해 학습 여정을 시작하세요
         </p>
       </div>
 
@@ -47,7 +47,7 @@ export default function SignupPage() {
         <Input
           id="email"
           type="email"
-          label="Email Address"
+          label="이메일"
           icon="mail"
           placeholder="name@company.com"
           value={email}
@@ -57,7 +57,7 @@ export default function SignupPage() {
         <Input
           id="password"
           type={showPassword ? "text" : "password"}
-          label="Password"
+          label="비밀번호"
           icon="lock"
           placeholder="••••••••"
           value={password}
@@ -82,16 +82,16 @@ export default function SignupPage() {
         {error && <p className="text-body-sm text-error-red">{error}</p>}
 
         <Button type="submit" disabled={isLoading} className="mt-2 w-full">
-          {isLoading ? "가입 중..." : "Create Account"}
+          {isLoading ? "가입 중..." : "회원가입"}
           <MaterialIcon name="arrow_forward" className="text-[18px]" />
         </Button>
       </form>
 
       <div className="border-outline-variant pt-stack-sm mt-2 border-t text-center">
         <p className="text-body-sm text-slate-text m-0">
-          Already have an account?{" "}
+          이미 계정이 있으신가요?{" "}
           <Link href="/login" className="text-label-md text-secondary hover:underline">
-            Log in
+            로그인
           </Link>
         </p>
       </div>

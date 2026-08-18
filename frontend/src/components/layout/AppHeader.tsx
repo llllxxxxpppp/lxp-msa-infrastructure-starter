@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useLogout } from "@/features/auth/hooks";
 import { getAccessToken } from "@/lib/token-storage";
@@ -9,9 +9,20 @@ import { decodeAccessToken } from "@/lib/jwt";
 import { Avatar } from "@/components/ui/Avatar";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 
+const NAV_LINKS = [
+  { href: "/courses", label: "강좌" },
+  { href: "/members", label: "마이페이지" },
+];
+
+/** 현재 경로가 이 nav 항목에 해당하는지 — 하위 경로(/courses/123 등)도 같이 활성화한다. */
+function isActivePath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /** design/course/course-list, design/mypage 등에 공통으로 나오는 상단 내비게이션. */
 export function AppHeader() {
   const router = useRouter();
+  const pathname = usePathname();
   const logout = useLogout();
   // 지연 초기화로 마운트 시 1회만 평가한다 — effect 안에서 setState하지 않는다.
   const [email] = useState<string | null>(() => {
@@ -41,23 +52,27 @@ export function AppHeader() {
       <div className="max-w-container-max px-margin-mobile md:px-margin-desktop mx-auto flex h-16 w-full items-center justify-between">
         <div className="gap-stack-lg flex items-center">
           <Link href="/courses" className="text-headline-md text-primary font-bold">
-            EduSphere LXP
+            llllxxxxpppp
           </Link>
         </div>
 
         <div className="gap-stack-lg hidden items-center md:flex">
-          <Link
-            href="/courses"
-            className="border-secondary text-body-md text-secondary border-b-2 pb-1 font-bold"
-          >
-            Course Categories
-          </Link>
-          <Link
-            href="/members"
-            className="text-body-md text-on-surface-variant hover:text-secondary transition-colors"
-          >
-            My Learning
-          </Link>
+          {NAV_LINKS.map((link) => {
+            const active = isActivePath(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-body-md pb-1 transition-colors ${
+                  active
+                    ? "border-secondary text-secondary border-b-2 font-bold"
+                    : "text-on-surface-variant hover:text-secondary"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <div className="gap-stack-md flex items-center">

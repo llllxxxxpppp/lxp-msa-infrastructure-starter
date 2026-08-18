@@ -62,7 +62,7 @@ export interface CourseDetail {
 export const CATEGORY_GROUPS: { group: string; categories: { value: string; label: string }[] }[] =
   [
     {
-      group: "Development",
+      group: "개발",
       categories: [
         { value: "BACKEND", label: "백엔드 개발" },
         { value: "FRONTEND", label: "프론트엔드 개발" },
@@ -72,7 +72,7 @@ export const CATEGORY_GROUPS: { group: string; categories: { value: string; labe
       ],
     },
     {
-      group: "Data/AI",
+      group: "데이터/AI",
       categories: [
         { value: "DATA_ANALYSIS", label: "데이터 분석" },
         { value: "DATA_ENGINEERING", label: "데이터 엔지니어링" },
@@ -80,7 +80,7 @@ export const CATEGORY_GROUPS: { group: string; categories: { value: string; labe
       ],
     },
     {
-      group: "Planning/Design",
+      group: "기획/디자인",
       categories: [
         { value: "PRODUCT", label: "프로덕트" },
         { value: "DESIGN", label: "디자인·UX" },

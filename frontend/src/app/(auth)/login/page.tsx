@@ -31,12 +31,12 @@ export default function LoginPage() {
   return (
     <div className="gap-stack-lg border-outline-variant bg-surface-container-lowest p-stack-lg flex flex-col rounded-xl border shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
       <div className="gap-stack-sm flex flex-col items-center text-center">
-        <div className="border-outline-variant bg-surface-container mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border">
+        {/* <div className="border-outline-variant bg-surface-container mb-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border">
           <span className="text-headline-sm text-primary font-bold">LXP</span>
-        </div>
-        <h1 className="text-headline-sm text-primary m-0">Welcome to EduSphere LXP</h1>
+        </div> */}
+        <h1 className="text-headline-sm text-primary m-0">llllxxxxpppp에 오신걸 환영합니다</h1>
         <p className="text-body-sm text-slate-text m-0">
-          Sign in to continue your learning journey.
+          학습을 계속하려면 로그인하세요
         </p>
       </div>
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
         <Input
           id="email"
           type="email"
-          label="Email Address"
+          label="이메일"
           icon="mail"
           placeholder="name@company.com"
           value={email}
@@ -55,11 +55,11 @@ export default function LoginPage() {
         <div className="gap-base flex flex-col">
           <div className="flex items-center justify-between">
             <label htmlFor="password" className="text-label-md text-primary">
-              Password
+              비밀번호
             </label>
-            <a href="#" className="text-body-sm text-secondary hover:underline">
+            {/* <a href="#" className="text-body-sm text-secondary hover:underline">
               Forgot Password?
-            </a>
+            </a> */}
           </div>
           <Input
             id="password"
@@ -86,18 +86,18 @@ export default function LoginPage() {
         </div>
 
         {/* Remember me는 로컬 UI 상태만 있고 실제 저장/자동로그인 로직은 없다 (백엔드에 해당 기능 없음). */}
-        <label className="mt-1 flex cursor-pointer items-center gap-2 select-none">
+        {/* <label className="mt-1 flex cursor-pointer items-center gap-2 select-none">
           <input
             type="checkbox"
             className="border-outline-variant text-secondary h-4 w-4 rounded-sm"
           />
           <span className="text-body-sm text-slate-text">Remember me for 30 days</span>
-        </label>
+        </label> */}
 
         {error && <p className="text-body-sm text-error-red">{error}</p>}
 
         <Button type="submit" disabled={isLoading} className="mt-2 w-full">
-          {isLoading ? "로그인 중..." : "Login"}
+          {isLoading ? "로그인 중..." : "로그인"}
           <MaterialIcon name="arrow_forward" className="text-[18px]" />
         </Button>
       </form>
@@ -106,7 +106,7 @@ export default function LoginPage() {
         <p className="text-body-sm text-slate-text m-0">Don&apos;t have an account?</p>
         <Link href="/signup">
           <Button type="button" variant="secondary" className="w-full">
-            Sign Up
+            회원가입
           </Button>
         </Link>
       </div>
