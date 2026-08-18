@@ -57,6 +57,12 @@ docker compose up --build curriculum-service
 
 - API 문서 주소: `http://localhost:8000/docs`
 
+- 임베딩 강좌 관리 API
+
+    - `GET /api/courses`: 현재 임베딩된 강좌 조회
+    - `PUT /api/courses`: 전체 강좌 조회 및 임베딩 재구성
+    - `PUT /api/courses/{courseId}`: 특정 강좌 조회 및 임베딩 갱신
+
 - 테스트 요청
 
     여러 대화에 동일한 `thread_id` 를 사용하면 대화를 이어나갈 수 있습니다.

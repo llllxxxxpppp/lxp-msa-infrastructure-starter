@@ -1,5 +1,7 @@
 """강좌 조회와 벡터 검색 서비스."""
 
+from threading import RLock
+
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
@@ -16,6 +18,8 @@ class CourseService:
         ollama_base_url: str,
         embedding_model: str,
     ) -> None:
+        self._provider = provider
+        self._lock = RLock()
         self._courses = provider.get_courses()
         self._documents = [self._to_document(course) for course in self._courses]
         embeddings = OllamaEmbeddings(
@@ -49,29 +53,84 @@ class CourseService:
         difficulty_label: str,
         k: int = 2,
     ) -> list[Document]:
-        return self._vector_store.similarity_search(
-            query=query,
-            k=k,
-            filter={"difficultyLabel": difficulty_label},
-        )
+        with self._lock:
+            return self._vector_store.similarity_search(
+                query=query,
+                k=k,
+                filter={"difficultyLabel": difficulty_label},
+            )
+
+    def get_embedded_courses(self) -> list[Course]:
+        """현재 벡터 저장소에 반영된 강좌를 반환합니다."""
+
+        with self._lock:
+            return list(self._courses)
+
+    def update_all_courses(self) -> list[Course]:
+        """전체 강좌를 다시 조회하여 벡터 저장소를 재구성합니다."""
+
+        courses = self._provider.get_courses()
+        documents = [self._to_document(course) for course in courses]
+        with self._lock:
+            self._vector_store.reset_collection()
+            if documents:
+                self._vector_store.add_documents(
+                    documents=documents,
+                    ids=[str(course.course_id) for course in courses],
+                )
+            self._courses = courses
+            self._documents = documents
+            return list(self._courses)
+
+    def update_course(self, course_id: int) -> Course:
+        """지정한 강좌를 다시 조회하여 벡터 저장소에 추가하거나 갱신합니다."""
+
+        course = self._provider.get_course(course_id)
+        document = self._to_document(course)
+        with self._lock:
+            existing_index = next(
+                (
+                    index
+                    for index, existing in enumerate(self._courses)
+                    if existing.course_id == course.course_id
+                ),
+                None,
+            )
+            if existing_index is None:
+                self._vector_store.add_documents(
+                    documents=[document],
+                    ids=[str(course.course_id)],
+                )
+                self._courses.append(course)
+                self._documents.append(document)
+            else:
+                self._vector_store.update_documents(
+                    ids=[str(course.course_id)],
+                    documents=[document],
+                )
+                self._courses[existing_index] = course
+                self._documents[existing_index] = document
+        return course
 
     def get_documents_by_difficulty_label(
         self,
         difficulty_label: str,
     ) -> list[Document]:
-        return [
-            document
-            for document in self._documents
-            if document.metadata["difficultyLabel"] == difficulty_label
-        ]
+        with self._lock:
+            return [
+                document
+                for document in self._documents
+                if document.metadata["difficultyLabel"] == difficulty_label
+            ]
 
     def get_first_course_by_difficulty_label(
         self,
         difficulty_label: str,
     ) -> dict[str, str | int]:
-        course = next(
-            course
-            for course in self._courses
-            if course.difficulty_label == difficulty_label
-        )
-        return course.model_dump(by_alias=True)
+        with self._lock:
+            course = next(
+                course
+                for course in self._courses
+                if course.difficulty_label == difficulty_label
+            )
+            return course.model_dump(by_alias=True)

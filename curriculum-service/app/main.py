@@ -6,6 +6,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from app.api.backoffice_course_controller import BackofficeCourseController
 from app.api.chat_controller import ChatController
 from app.config import (
     COURSE_SERVICE_BASE_URL,
@@ -50,9 +51,11 @@ def create_app() -> FastAPI:
         ollama_model=OLLAMA_MODEL,
         ollama_base_url=OLLAMA_BASE_URL,
     )
+    backoffice_controller = BackofficeCourseController(course_service)
 
     application = FastAPI(title="맞춤형 커리큘럼 설계 봇", version="0.1.0")
     application.include_router(controller.router)
+    application.include_router(backoffice_controller.router)
 
     return application
 
