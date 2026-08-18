@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from langgraph.checkpoint.memory import InMemorySaver
 
 from app.api.backoffice_course_controller import BackofficeCourseController
 from app.api.chat_controller import ChatController
@@ -21,10 +22,13 @@ from app.config import (
     RABBITMQ_PASSWORD,
     RABBITMQ_PORT,
     RABBITMQ_USERNAME,
+    SESSION_CLEANUP_INTERVAL_SECONDS,
+    SESSION_TIMEOUT_SECONDS,
 )
 from app.messaging.course_event_consumer import CourseEventConsumer
 from app.providers.course_provider_factory import create_course_provider
 from app.services.course_service import CourseService
+from app.services.conversation_session_service import ConversationSessionService
 from app.services.llm_service import LlmService
 from app.workflows.curriculum_workflow import CurriculumWorkflow
 
@@ -36,18 +40,29 @@ COURSES_FIXTURE_PATH = (
 def build_lifespan(
     course_service: CourseService,
     consumer: CourseEventConsumer,
+    session_service: ConversationSessionService,
 ) -> Callable[[FastAPI], AsyncIterator[None]]:
     """기동·종료 순서를 정의합니다."""
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        cleanup_task: asyncio.Task[None] | None = None
         try:
             await consumer.declare()
             await asyncio.to_thread(course_service.load_all_courses)
             await consumer.start()
+            cleanup_task = asyncio.create_task(session_service.run_cleanup())
             yield
         finally:
-            await consumer.stop()
+            try:
+                if cleanup_task is not None:
+                    cleanup_task.cancel()
+                    try:
+                        await cleanup_task
+                    except asyncio.CancelledError:
+                        pass
+            finally:
+                await consumer.stop()
 
     return lifespan
 
@@ -73,8 +88,16 @@ def create_app() -> FastAPI:
         course_service=course_service,
         llm_service=llm_service,
     )
+    checkpointer = InMemorySaver()
+    graph = workflow.build(checkpointer)
+    session_service = ConversationSessionService(
+        graph=graph,
+        checkpointer=checkpointer,
+        timeout_seconds=SESSION_TIMEOUT_SECONDS,
+        cleanup_interval_seconds=SESSION_CLEANUP_INTERVAL_SECONDS,
+    )
     controller = ChatController(
-        graph=workflow.build(),
+        session_service=session_service,
         ollama_model=OLLAMA_MODEL,
         ollama_base_url=OLLAMA_BASE_URL,
     )
@@ -90,7 +113,7 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="맞춤형 커리큘럼 설계 봇",
         version="0.1.0",
-        lifespan=build_lifespan(course_service, consumer),
+        lifespan=build_lifespan(course_service, consumer, session_service),
     )
     application.include_router(controller.router)
     application.include_router(backoffice_controller.router)

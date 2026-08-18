@@ -356,7 +356,7 @@ class CurriculumWorkflow:
             return END
         return "retrieve" if state.get("feedback_action") == "retrieve" else "planner"
 
-    def build(self):
+    def build(self, checkpointer: InMemorySaver):
         graph_builder = StateGraph(CurriculumState)
         graph_builder.add_node("interviewer", self.interviewer_node)
         graph_builder.add_node("retrieve", self.retrieve_node)
@@ -379,4 +379,4 @@ class CurriculumWorkflow:
             {"__end__": END, "planner": "planner", "retrieve": "retrieve"},
         )
         graph_builder.add_edge("planner", END)
-        return graph_builder.compile(checkpointer=InMemorySaver())
+        return graph_builder.compile(checkpointer=checkpointer)

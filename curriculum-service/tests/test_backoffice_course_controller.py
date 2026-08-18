@@ -101,7 +101,7 @@ class BackofficeCourseControllerTest(TestCase):
     def test_health_does_not_require_authentication(self) -> None:
         app = FastAPI()
         chat_controller = ChatController(
-            graph=Mock(),
+            session_service=Mock(),
             ollama_model="test-model",
             ollama_base_url="http://ollama.test",
         )
