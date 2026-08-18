@@ -52,7 +52,7 @@ ollama pull qwen3-embedding:0.6b
 ## 로컬 실행
 
 ```powershell
-cd ai-bot-service
+cd ai-tutor-service
 uv sync
 uv run uvicorn app.main:app --reload
 ```
@@ -74,13 +74,13 @@ JWT_SECRET=64바이트_이상의_랜덤값
 Ollama를 실행한 상태에서 Course Service, AI 서비스, Gateway를 실행합니다.
 
 ```powershell
-docker compose up -d --build course-service ai-bot-service gateway
+docker compose up -d --build course-service ai-tutor-service gateway
 ```
 
 회원가입과 로그인을 새로 진행해야 한다면 Auth Service와 Member Service도 함께 실행해야 합니다.
 
 ```powershell
-docker compose up -d --build auth-service member-service course-service ai-bot-service gateway
+docker compose up -d --build auth-service member-service course-service ai-tutor-service gateway
 ```
 
 Docker 환경에서는 Gateway를 통해 AI API를 호출합니다.
@@ -145,10 +145,10 @@ data: {}
 
 ## React 실행
 
-프로젝트 루트의 `frontend`에서 실행합니다.
+프로젝트 루트의 `ai-tutor-ui`에서 실행합니다.
 
 ```powershell
-cd frontend
+cd ai-tutor-ui
 npm install
 npm run dev
 ```
@@ -164,7 +164,7 @@ http://localhost:5173
 ## 테스트
 
 ```powershell
-cd ai-bot-service
+cd ai-tutor-service
 uv run pytest
 ```
 

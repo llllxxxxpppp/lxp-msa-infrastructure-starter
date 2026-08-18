@@ -1,5 +1,6 @@
 import os
 import json
+import logging  # [추가]
 
 from fastapi import APIRouter
 from langchain_ollama import ChatOllama
@@ -7,10 +8,24 @@ from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 
 from app.documents import vector_store
+from prometheus_client import Counter
 
 router = APIRouter(
     prefix="/api/ai/courses/{course_id}/chat",
     tags=["chat"],
+)
+
+logger = logging.getLogger("uvicorn.error")  # [변경]
+
+# [추가] LLM 토큰 사용량 Prometheus Metric
+LLM_INPUT_TOKENS = Counter(
+    "ai_llm_input_tokens_total",
+    "LLM input token count",
+)
+
+LLM_OUTPUT_TOKENS = Counter(
+    "ai_llm_output_tokens_total",
+    "LLM output token count",
 )
 
 REFUSAL = "업로드된 강의 자료에서 해당 내용을 찾을 수 없습니다."
@@ -110,6 +125,26 @@ def ask_question(
 
         # [변경] invoke 대신 stream을 한 번만 호출
         for chunk in llm.stream(prompt):
+            # [추가] 마지막 chunk에 들어오는 Ollama 토큰 사용량 확인
+            metadata = chunk.response_metadata
+
+            if metadata.get("done"):
+                input_tokens = metadata.get("prompt_eval_count", 0)
+                output_tokens = metadata.get("eval_count", 0)
+                total_tokens = input_tokens + output_tokens
+
+                # [추가] Prometheus에 토큰 사용량 누적
+                LLM_INPUT_TOKENS.inc(input_tokens)
+                LLM_OUTPUT_TOKENS.inc(output_tokens)
+
+                logger.info(
+                    "LLM token usage - course_id=%s, input=%s, output=%s, total=%s",
+                    course_id,
+                    input_tokens,
+                    output_tokens,
+                    total_tokens,
+                )
+
             content = str(chunk.content)
 
             if not content:

@@ -22,11 +22,11 @@ infrastructure/logs/*
 **/.pytest_cache/
 
 # Chroma가 생성하는 로컬 벡터 DB
-ai-bot-service/data/
+ai-tutor-service/data/
 
 # React
-frontend/node_modules/
-frontend/dist/
+ai-tutor-ui/node_modules/
+ai-tutor-ui/dist/
 
 # 로그
 infrastructure/logs/*
