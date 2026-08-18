@@ -308,10 +308,16 @@ services:
       COURSE_SERVICE_BASE_URL: http://course-service:8083
       OLLAMA_BASE_URL: http://ollama:11434
       PROVIDER: ${PROVIDER:-http}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
     ports:
       - "8001:8000"
     depends_on:
       course-service:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       ollama-model-init:
         condition: service_completed_successfully
