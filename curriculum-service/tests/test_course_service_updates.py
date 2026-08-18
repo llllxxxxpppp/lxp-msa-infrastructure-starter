@@ -49,6 +49,40 @@ class CourseServiceUpdatesTest(TestCase):
         vector_store.add_documents.assert_not_called()
         vector_store.update_documents.assert_not_called()
 
+    def test_load_all_courses_returns_courses(self) -> None:
+        service, provider, _ = _service([])
+        loaded_courses = [_course(1, "적재된 강좌")]
+        provider.get_courses.return_value = loaded_courses
+
+        result = service.load_all_courses()
+
+        self.assertEqual(result, loaded_courses)
+        self.assertEqual(provider.get_courses.call_count, 1)
+
+    def test_load_all_courses_retries_before_succeeding(self) -> None:
+        service, provider, _ = _service([])
+        loaded_courses = [_course(1, "적재된 강좌")]
+        provider.get_courses.side_effect = [ConnectionError("첫 시도 실패"), loaded_courses]
+
+        with self.assertLogs("app.services.course_service", level="WARNING"):
+            result = service.load_all_courses(delay_seconds=0)
+
+        self.assertEqual(result, loaded_courses)
+        self.assertEqual(provider.get_courses.call_count, 2)
+
+    def test_load_all_courses_keeps_empty_index_on_failure(self) -> None:
+        service, provider, _ = _service([])
+        provider.get_courses.side_effect = ConnectionError("계속 실패")
+
+        with self.assertLogs("app.services.course_service", level="ERROR") as logs:
+            result = service.load_all_courses(attempts=2, delay_seconds=0)
+
+        self.assertIn("빈 인덱스로 기동", logs.output[-1])
+
+        self.assertEqual(result, [])
+        self.assertEqual(service.get_embedded_courses(), [])
+        self.assertEqual(provider.get_courses.call_count, 2)
+
     def test_remove_course_deletes_document(self) -> None:
         service, _, vector_store = _service([_course(1, "기존 강좌"), _course(2, "남을 강좌")])
 

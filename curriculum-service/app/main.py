@@ -38,6 +38,7 @@ def create_app() -> FastAPI:
         ollama_base_url=OLLAMA_BASE_URL,
         embedding_model=OLLAMA_EMBEDDING_MODEL,
     )
+    course_service.load_all_courses()
     llm_service = LlmService(
         model=OLLAMA_MODEL,
         base_url=OLLAMA_BASE_URL,

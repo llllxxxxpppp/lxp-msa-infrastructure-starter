@@ -1,5 +1,7 @@
 """강좌 조회와 벡터 검색 서비스."""
 
+import logging
+import time
 from threading import RLock
 
 from langchain_chroma import Chroma
@@ -7,6 +9,8 @@ from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
 
 from app.providers.course_provider import Course, CourseProvider
+
+logger = logging.getLogger(__name__)
 
 
 class CourseService:
@@ -20,17 +24,14 @@ class CourseService:
     ) -> None:
         self._provider = provider
         self._lock = RLock()
-        self._courses = provider.get_courses()
-        self._documents = [self._to_document(course) for course in self._courses]
-        embeddings = OllamaEmbeddings(
-            model=embedding_model,
-            base_url=ollama_base_url,
-        )
-        self._vector_store = Chroma.from_documents(
-            documents=self._documents,
-            embedding=embeddings,
-            ids=[str(course.course_id) for course in self._courses],
+        self._courses: list[Course] = []
+        self._documents: list[Document] = []
+        self._vector_store = Chroma(
             collection_name="courses",
+            embedding_function=OllamaEmbeddings(
+                model=embedding_model,
+                base_url=ollama_base_url,
+            ),
         )
 
     @staticmethod
@@ -81,6 +82,35 @@ class CourseService:
             self._courses = courses
             self._documents = documents
             return list(self._courses)
+
+    def load_all_courses(
+        self,
+        attempts: int = 3,
+        delay_seconds: float = 2.0,
+    ) -> list[Course]:
+        """전체 강좌를 적재합니다. 끝내 실패하면 빈 인덱스를 유지합니다.
+
+        적재 실패의 원인이 무엇이든 기동을 막지 않는 것이 목적이므로
+        예외를 넓게 잡되, 원인은 로그로 남깁니다.
+        """
+
+        for attempt in range(1, attempts + 1):
+            try:
+                return self.update_all_courses()
+            except Exception:
+                if attempt == attempts:
+                    logger.exception(
+                        "초기 적재에 %d회 실패해 빈 인덱스로 기동합니다.", attempts
+                    )
+                    return self.get_embedded_courses()
+                logger.warning(
+                    "초기 적재 %d/%d회 실패. %.1f초 후 재시도합니다.",
+                    attempt,
+                    attempts,
+                    delay_seconds,
+                )
+                time.sleep(delay_seconds)
+        return self.get_embedded_courses()
 
     def update_course(self, course_id: int) -> Course | None:
         """지정한 강좌를 다시 조회하여 벡터 저장소에 추가하거나 갱신합니다.
