@@ -1,6 +1,8 @@
 -- Demo members for local H2 API verification.
 -- Instructor is seeded with a fixed id(2) so that other services (e.g. course-service)
 -- can seed demo data referencing this instructor's id.
+-- admin@lxp.local password: 1q2w3e4r (BCryptPasswordEncoder, strength 10 — auth-service가 이 방식으로만 검증하므로
+-- 실제 로그인이 가능하려면 {noop} 같은 플레이스홀더가 아니라 진짜 bcrypt 해시여야 한다).
 INSERT INTO members (
     id,
     role,
@@ -17,7 +19,7 @@ INSERT INTO members (
     1,
     'ADMIN',
     'admin@lxp.local',
-    '{noop}placeholder-encoded-password',
+    '$2a$10$gqDwEbF6NOW/PU7aeFXiwOzwivwYXJ.BViQEa7UwRQvYNBQwX/.Xu',
     false,
     NULL,
     CURRENT_TIMESTAMP,
