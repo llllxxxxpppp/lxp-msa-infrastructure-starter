@@ -216,3 +216,21 @@ INSERT INTO courses (id, instructor_id, title, description, status, created_at, 
 
 -- 다음 auto-increment는 기존 9001~9004, 20001~20130, 30001~30030 데이터와 겹치지 않도록 시작 값을 올린다
 ALTER TABLE courses ALTER COLUMN id RESTART WITH 30031;
+-- 2026-08-18: 강좌마다 강의 3개 + 미션 1개를 부여한다.
+-- courses에 status='PUBLIC'을 직접 INSERT하는 방식이라 Course.publish()의 "강의와 미션을 1개 이상 포함해야
+-- 공개할 수 있습니다" 검증을 거치지 않았고, 그 결과 시드 강좌는 강의도 미션도 없는 상태였다.
+-- 이 때문에 PRIVATE 시드 강좌를 API로 공개할 수 없어 course.published 이벤트를 시드만으로 트리거하지 못했다.
+INSERT INTO lectures (id, course_id, title, status, content_url, content_type, sort_order, created_at)
+SELECT (c.id * 10) + r.x, c.id, CONCAT(c.title, ' - ', r.x, '강'), 'PUBLIC',
+       CONCAT('https://cdn.example.com/lectures/', c.id, '/', r.x, '.mp4'), 'mp4',
+       r.x, CURRENT_TIMESTAMP
+FROM courses c CROSS JOIN SYSTEM_RANGE(1, 3) r;
+
+INSERT INTO missions (id, course_id, title, status, content, sort_order, created_at)
+SELECT (c.id * 10) + 4, c.id, CONCAT(c.title, ' 실습 과제'), 'PUBLIC',
+       CONCAT(c.title, '에서 배운 내용을 적용한 결과물을 제출하세요.'), 4, CURRENT_TIMESTAMP
+FROM courses c;
+
+-- 위에서 쓴 id는 (강좌 id * 10 + 1~4) 규칙이라 최대 300304다. 그보다 위에서 auto-increment를 시작한다.
+ALTER TABLE lectures ALTER COLUMN id RESTART WITH 400000;
+ALTER TABLE missions ALTER COLUMN id RESTART WITH 400000;
