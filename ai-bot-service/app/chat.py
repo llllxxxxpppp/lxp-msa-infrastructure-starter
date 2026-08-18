@@ -17,7 +17,7 @@ REFUSAL = "업로드된 강의 자료에서 해당 내용을 찾을 수 없습�
 
 # [추가] 이 점수보다 관련도가 낮은 검색 결과는 답변 근거에서 제외한다.
 MIN_RELEVANCE_SCORE = float(
-    os.getenv("RAG_MIN_RELEVANCE_SCORE", "0.5")
+    os.getenv("RAG_MIN_RELEVANCE_SCORE", "0.11")
 )
 
 # 로컬 답변 모델

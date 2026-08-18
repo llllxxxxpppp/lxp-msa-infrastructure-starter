@@ -296,6 +296,9 @@ class JwtAuthenticationFilterTest {
 
     @ParameterizedTest(name = "[{index}] {0} {1} role={2} forbidden={3}")
     @CsvSource({
+            // [추가] 담당 강좌 목록
+            "GET,    /api/courses/instructor/me,            ROLE_INSTRUCTOR, false",
+            "GET,    /api/courses/instructor/me,            ROLE_MEMBER,     true",
             // INSTRUCTOR 전용
             "POST,   /api/courses,                       ROLE_INSTRUCTOR, false",
             "POST,   /api/courses,                       ROLE_MEMBER,     true",

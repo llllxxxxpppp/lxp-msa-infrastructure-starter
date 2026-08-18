@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./AiTutorWidget.css";
 
 export default function AiTutorWidget({
   courses,
   accessToken,
+  onAuthenticationExpired,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [courseId, setCourseId] = useState(
     String(courses[0]?.id ?? ""),
   );
+  // 비동기로 강좌 목록이 도착하면 첫 번째 강좌를 선택한다.
+  useEffect(() => {
+    const courseExists = courses.some(
+      (course) => String(course.id) === courseId,
+    );
+
+    if (!courseExists) {
+      setCourseId(String(courses[0]?.id ?? ""));
+    }
+  }, [courses, courseId]);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
   const [sources, setSources] = useState([]);
@@ -73,8 +84,17 @@ export default function AiTutorWidget({
         },
       );
 
+      if (response.status === 401) {
+        onAuthenticationExpired?.();
+        throw new Error("AUTHENTICATION_REQUIRED");
+      }
+
+      if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+      }
+
       if (!response.ok || !response.body) {
-        throw new Error();
+        throw new Error("REQUEST_FAILED");
       }
 
       const reader = response.body.getReader();
@@ -117,8 +137,14 @@ export default function AiTutorWidget({
           }
         }
       }
-    } catch {
-      appendAnswer("답변을 불러오지 못했습니다.");
+    } catch (error) {
+      if (error.message === "AUTHENTICATION_REQUIRED") {
+        appendAnswer("로그인이 만료되었습니다. 다시 로그인해 주세요.");
+      } else if (error.message === "FORBIDDEN") {
+        appendAnswer("이 강좌의 AI 도우미에 접근할 권한이 없습니다.");
+      } else {
+        appendAnswer("답변을 불러오지 못했습니다.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -221,7 +247,7 @@ export default function AiTutorWidget({
 
         <button
           type="submit"
-          disabled={!question.trim() || isLoading}
+          disabled={!courseId || !question.trim() || isLoading}
         >
           전송
         </button>

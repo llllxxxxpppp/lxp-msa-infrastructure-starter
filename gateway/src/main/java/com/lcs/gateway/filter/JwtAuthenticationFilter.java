@@ -88,7 +88,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             // (isAuthorized는 매칭되는 모든 규칙을 AND로 검사하므로, 별도 /me/** 규칙을
             //  추가하는 대신 이 규칙 자체를 넓혀야 강사가 403으로 막히지 않는다.)
             rule(null, "/api/members/**", ROLE_MEMBER, ROLE_INSTRUCTOR, ROLE_ADMIN),
-
+            // [추가] 담당 강좌 목록은 강사만 조회할 수 있다.
+            rule(GET, "/api/courses/instructor/me", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/publish", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
