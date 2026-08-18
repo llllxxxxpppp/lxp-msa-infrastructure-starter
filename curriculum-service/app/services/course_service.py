@@ -117,6 +117,28 @@ class CourseService:
                 self._documents[existing_index] = document
         return course
 
+    def remove_course(self, course_id: int) -> bool:
+        """지정한 강좌를 벡터 저장소에서 제거합니다.
+
+        인덱스에 없던 강좌면 아무것도 하지 않고 False를 반환합니다.
+        """
+
+        with self._lock:
+            existing_index = next(
+                (
+                    index
+                    for index, existing in enumerate(self._courses)
+                    if existing.course_id == course_id
+                ),
+                None,
+            )
+            if existing_index is None:
+                return False
+            self._vector_store.delete(ids=[str(course_id)])
+            del self._courses[existing_index]
+            del self._documents[existing_index]
+            return True
+
     def get_documents_by_difficulty_label(
         self,
         difficulty_label: str,

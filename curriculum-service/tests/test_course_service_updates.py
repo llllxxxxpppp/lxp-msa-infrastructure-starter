@@ -49,6 +49,39 @@ class CourseServiceUpdatesTest(TestCase):
         vector_store.add_documents.assert_not_called()
         vector_store.update_documents.assert_not_called()
 
+    def test_remove_course_deletes_document(self) -> None:
+        service, _, vector_store = _service([_course(1, "기존 강좌"), _course(2, "남을 강좌")])
+
+        removed = service.remove_course(1)
+
+        self.assertTrue(removed)
+        self.assertEqual(service.get_embedded_courses(), [_course(2, "남을 강좌")])
+        vector_store.delete.assert_called_once_with(ids=["1"])
+        remaining_documents = service.get_documents_by_difficulty_label("난이도")
+        self.assertEqual(
+            [document.metadata["courseId"] for document in remaining_documents],
+            [2],
+        )
+
+    def test_remove_course_ignores_unknown_course(self) -> None:
+        existing_courses = [_course(1, "기존 강좌")]
+        service, _, vector_store = _service(existing_courses)
+
+        removed = service.remove_course(404404)
+
+        self.assertFalse(removed)
+        self.assertEqual(service.get_embedded_courses(), existing_courses)
+        vector_store.delete.assert_not_called()
+
+    def test_remove_course_is_idempotent(self) -> None:
+        service, _, vector_store = _service([_course(1, "기존 강좌")])
+
+        self.assertTrue(service.remove_course(1))
+        self.assertFalse(service.remove_course(1))
+
+        vector_store.delete.assert_called_once_with(ids=["1"])
+        self.assertEqual(service.get_embedded_courses(), [])
+
     def test_update_all_courses_replaces_documents(self) -> None:
         service, provider, vector_store = _service([_course(1, "기존 강좌")])
         updated_courses = [_course(2, "새 강좌")]
