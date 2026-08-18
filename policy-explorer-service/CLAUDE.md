@@ -77,6 +77,7 @@
 | 11 | 의존성 분리 | `vllm`·`bitsandbytes`를 optional로. **`vllm`은 linux/arm64 휠이 없어 필수 의존성으로 두면 이미지 빌드가 실패한다.** `.venv` 9.1GB → 360MB |
 | 12 | `AnalyzeResponse`에 `conflicts`(구조화된 `conflict_report`) 추가, `page`(PDF 페이지 번호) 메타데이터를 `search_results`/`conflict_report`까지 전달 | 백오피스 AI Assistance 모달이 "해당 파일 및 위치"/"변경 제안 상세"를 `markdown_report` 문자열 파싱 없이 렌더링하려면 구조화된 위치 정보가 필요했다. `page`는 `PyPDFLoader`가 이미 채집하던 값을 응답까지 흘려보낸 것뿐이라 파이프라인 로직 변경은 없다 |
 | 13 | **문서 메타데이터 DB(SQLite) 도입** ([`app/metadata_db.py`](app/metadata_db.py)) + **경로 순회 취약점 수정**(`{document_id}/{원본파일명}` UUID 하위 디렉터리 저장) + **체크섬(SHA-256) 기반 중복 감지** + **컨테이너 기동 시 `SEED_DOCUMENTS_DIR` 자동 색인**, `GET /api/policies/documents`·`UploadResponse` 스키마 확장 | PoC `docs/09`가 제안만 해두고 미구현이던 항목([08](docs/08-migration-checklist.md) 🔴). 백오피스 파일 업로드 UI를 실제로 연동하려니 "문서가 하나도 없어 테스트 불가" 문제가 드러나 이번에 구현. 체크섬 중복 감지 덕분에 API 재업로드와 컨테이너 재기동 시 시드 문서 재처리가 같은 로직으로 방지된다 |
+| 14 | 체크섬 중복 감지를 `status='ready'`만 보던 것 → 같은 체크섬의 **모든 행**을 조회(`find_all_by_checksum`)해 `ready`가 아닌 행은 항상 정리(`RagStore._discard_stale_document`)하도록 변경 | 버그 수정. Ollama 콜드스타트 중 자동 시드가 실패하면 `failed` 행이 영구히 남는데, 기존 로직(및 그 1차 수정판 `find_by_checksum`도 "가장 최근 행 1개"만 봤다)은 이미 `ready` 행이 더 최근이면 그것만 보고 끝나서 더 오래된 `failed` 잔재를 영영 못 찾았다 — 재기동을 반복해도 "같은 문서가 중복(실패 1개+성공 1개)으로 보이는" 현상이 실제로 재현됐다. 지금은 상태·최근순 무관하게 전부 훑어 `ready`가 아닌 행을 항상 정리한다 |
 
 ---
 

@@ -134,13 +134,46 @@ class RagStore:
     # -----------------------------------------------------
     # 업로드 / 조회 / 초기화
     # -----------------------------------------------------
+    def _discard_stale_document(self, row) -> None:
+        """실패했거나(status='failed') 처리 도중 중단된(status='uploading') 잔재 행을 정리한다.
+
+        메타데이터 행 삭제 + 저장된 물리 파일 디렉터리 제거 + (혹시 실패가
+        `vector_db.add_documents()` 이후 단계에서 났을 경우를 대비해) 그 document_id로 남아있는
+        청크를 Chroma/all_chunks에서도 제거한다. 이걸 안 하면 재시도할 때마다 같은 체크섬으로
+        새 행이 계속 쌓인다(재현 사례: seed-documents 자동 색인이 Ollama 콜드스타트 중 실패 →
+        재기동마다 새 document_id로 재시도 → 실패 행 + 성공 행이 나란히 남음).
+        """
+        stale_id = row["id"]
+        self.metadata_store.delete(stale_id)
+
+        stale_dir = os.path.join(config.UPLOAD_DIR, stale_id)
+        shutil.rmtree(stale_dir, ignore_errors=True)
+
+        leftover_ids = [
+            c.metadata.get("id")
+            for c in self.all_chunks
+            if c.metadata.get("document_id") == stale_id
+        ]
+        if leftover_ids:
+            self.vector_db.delete(ids=leftover_ids)
+            self.all_chunks = [
+                c for c in self.all_chunks if c.metadata.get("document_id") != stale_id
+            ]
+            self._rebuild_ensemble_retriever()
+
     def add_document(self, filename: str, fileobj) -> Dict:
         """PDF/DOCX를 저장 -> 로드 -> 청킹 -> Chroma 적재 -> BM25 재구축.
 
-        같은 내용(checksum)의 문서가 이미 색인돼 있으면 재임베딩하지 않고 기존 결과를
-        `status: "duplicate"`로 즉시 반환한다. API를 통한 동일 파일 재업로드 방지와
-        `seed_from_directory()`가 재기동마다 시드 문서를 중복 색인하지 않는 것을 이 한
-        로직으로 동시에 해결한다.
+        같은 내용(checksum)의 문서가 이미 색인 완료(status='ready')돼 있으면 재임베딩하지 않고
+        기존 결과를 `status: "duplicate"`로 즉시 반환한다. API를 통한 동일 파일 재업로드 방지와
+        `seed_from_directory()`가 재기동마다 시드 문서를 중복 색인하지 않는 것을 이 한 로직으로
+        동시에 해결한다.
+
+        이전 시도가 실패했거나(status='failed') 중단된(status='uploading') 잔재가 있으면, 그
+        잔재를 정리한 뒤 새로 시도한다 — 그래야 재시도할 때마다 실패 행이 계속 쌓이지 않는다.
+        🚨 이미 성공(ready)한 행이 있어도 **같은 체크섬의 다른 잔재 행이 남아있을 수 있으므로**
+        (예: 실패 후 재시도해서 나중에 성공한 이력) 상태와 무관하게 전부 조회해서 ready가 아닌
+        행은 항상 정리한다. 최근 행 1개만 보면 오래된 실패 잔재를 영영 놓친다.
         """
         original_filename = os.path.basename(filename)
         ext = os.path.splitext(original_filename)[1].lower()
@@ -153,14 +186,25 @@ class RagStore:
         data = fileobj.read()
         checksum = hashlib.sha256(data).hexdigest()
 
-        existing = self.metadata_store.find_ready_by_checksum(checksum)
-        if existing is not None:
+        matches = self.metadata_store.find_all_by_checksum(checksum)
+        ready_match = next((m for m in matches if m["status"] == "ready"), None)
+        for stale in matches:
+            if ready_match is not None and stale["id"] == ready_match["id"]:
+                continue
+            logger.info(
+                "%s (status=%s)의 이전 시도 잔재를 정리합니다.",
+                stale["original_filename"],
+                stale["status"],
+            )
+            self._discard_stale_document(stale)
+
+        if ready_match is not None:
             return {
                 "status": "duplicate",
-                "document_id": existing["id"],
-                "filename": existing["original_filename"],
+                "document_id": ready_match["id"],
+                "filename": ready_match["original_filename"],
                 "num_source_documents": 0,
-                "num_chunks": existing["chunk_count"],
+                "num_chunks": ready_match["chunk_count"],
                 "total_chunks_in_store": len(self.all_chunks),
             }
 

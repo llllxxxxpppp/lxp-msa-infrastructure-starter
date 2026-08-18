@@ -102,15 +102,30 @@ class DocumentMetadataStore:
                 (error_message, _now_iso(), id),
             )
 
-    def find_ready_by_checksum(self, checksum_sha256: str) -> Optional[sqlite3.Row]:
-        """이미 같은 내용(checksum)으로 색인 완료된 문서가 있으면 그 행을 반환한다."""
+    def find_all_by_checksum(self, checksum_sha256: str) -> list[sqlite3.Row]:
+        """상태와 무관하게 체크섬이 일치하는 모든 행을 반환한다(오래된 실패/중단 잔재까지 전부).
+
+        단일 행(가장 최근 것)만 보면, "실패 후 재시도해서 나중에 성공한" 이력이 있는 문서의
+        경우 성공(ready) 행이 더 최근이라 그것만 걸리고 더 오래된 failed 잔재는 영원히
+        발견되지 않는다(실제 재현된 버그). 호출부가 ready 여부와 무관하게 이 목록 전체를 훑어
+        ready가 아닌 행을 전부 정리해야, 재기동/재업로드를 몇 번 반복해도 체크섬당 행이
+        1개로 수렴한다.
+        """
         with self._connect() as conn:
             cursor = conn.execute(
-                "SELECT * FROM documents WHERE checksum_sha256=? AND status='ready' AND deleted_at IS NULL"
-                " ORDER BY uploaded_at LIMIT 1",
+                "SELECT * FROM documents WHERE checksum_sha256=? AND deleted_at IS NULL"
+                " ORDER BY uploaded_at",
                 (checksum_sha256,),
             )
-            return cursor.fetchone()
+            return cursor.fetchall()
+
+    def delete(self, id: str) -> None:
+        """단일 행을 하드 삭제한다(전체 초기화용 `delete_all()`과 별개).
+
+        실패/중단된 시도의 잔재 행을 지우고 재시도할 때 쓴다.
+        """
+        with self._connect() as conn:
+            conn.execute("DELETE FROM documents WHERE id=?", (id,))
 
     def list_active(self) -> list[sqlite3.Row]:
         with self._connect() as conn:
