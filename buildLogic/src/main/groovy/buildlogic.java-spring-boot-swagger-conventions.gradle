@@ -1,0 +1,12 @@
+// OpenAPI 문서 + Swagger UI(/swagger-ui.html).
+// webmvc-ui 스타터라서 Spring MVC가 전제되므로 web 컨벤션을 기반으로 둔다.
+plugins {
+    id 'buildlogic.java-spring-boot-web-conventions'
+}
+
+// springdoc은 Spring Boot BOM 관리 대상이 아니라 버전을 직접 지정한다.
+def springdocVersion = '2.8.6'
+
+dependencies {
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+}

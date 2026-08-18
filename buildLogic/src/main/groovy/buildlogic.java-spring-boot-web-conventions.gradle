@@ -1,0 +1,12 @@
+// Spring MVC 기반 REST API 서비스 공통 설정.
+// gateway는 WebFlux를 쓰므로 이 컨벤션을 적용하지 않는다.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // @Valid / @Validated 기반 요청 검증.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
