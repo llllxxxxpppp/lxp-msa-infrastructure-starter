@@ -22,8 +22,13 @@ COURSE_DATA = {
 }
 
 
-def _response(data: object, has_error: bool = False) -> Mock:
+def _response(
+    data: object,
+    has_error: bool = False,
+    status_code: int = 200,
+) -> Mock:
     response = Mock(spec=httpx.Response)
+    response.status_code = status_code
     response.json.return_value = data
     if has_error:
         response.raise_for_status.side_effect = httpx.HTTPStatusError(
@@ -75,6 +80,21 @@ class HttpCourseProviderTest(TestCase):
 
         with self.assertRaises(ValidationError):
             HttpCourseProvider("http://course-service").get_courses()
+
+    @patch("app.providers.http_course_provider.httpx.get")
+    def test_get_course_returns_none_when_not_found(self, mock_get: Mock) -> None:
+        mock_get.return_value = _response(None, status_code=404)
+
+        course = HttpCourseProvider("http://course-service").get_course(30017)
+
+        self.assertIsNone(course)
+
+    @patch("app.providers.http_course_provider.httpx.get")
+    def test_get_course_propagates_server_error(self, mock_get: Mock) -> None:
+        mock_get.return_value = _response({}, has_error=True, status_code=500)
+
+        with self.assertRaises(httpx.HTTPStatusError):
+            HttpCourseProvider("http://course-service").get_course(30017)
 
     def test_get_course_rejects_invalid_course_id(self) -> None:
         with self.assertRaises(ValueError):

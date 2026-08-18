@@ -21,12 +21,14 @@ class HttpCourseProvider(CourseProvider):
         response.raise_for_status()
         return TypeAdapter(list[Course]).validate_python(response.json())
 
-    def get_course(self, course_id: int) -> Course:
+    def get_course(self, course_id: int) -> Course | None:
         if course_id < 1:
             raise ValueError("course_id는 1 이상이어야 합니다.")
         response = httpx.get(
             f"{self._base_url}/internal/courses/{course_id}/for-rag",
             timeout=self._timeout,
         )
+        if response.status_code == httpx.codes.NOT_FOUND:
+            return None
         response.raise_for_status()
         return Course.model_validate(response.json())

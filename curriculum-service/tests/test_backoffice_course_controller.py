@@ -3,6 +3,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
+from fastapi import HTTPException
+
 from app.api.backoffice_course_controller import BackofficeCourseController
 from app.providers.course_provider import Course
 
@@ -50,6 +52,14 @@ class BackofficeCourseControllerTest(TestCase):
         result = self.controller.update_all_courses()
 
         self.assertEqual(result, [COURSE])
+
+    def test_update_course_returns_404_when_course_missing(self) -> None:
+        self.course_service.update_course.return_value = None
+
+        with self.assertRaises(HTTPException) as context:
+            self.controller.update_course(404404)
+
+        self.assertEqual(context.exception.status_code, 404)
 
     def test_update_course_returns_updated_course(self) -> None:
         self.course_service.update_course.return_value = COURSE

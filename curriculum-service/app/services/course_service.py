@@ -82,10 +82,15 @@ class CourseService:
             self._documents = documents
             return list(self._courses)
 
-    def update_course(self, course_id: int) -> Course:
-        """지정한 강좌를 다시 조회하여 벡터 저장소에 추가하거나 갱신합니다."""
+    def update_course(self, course_id: int) -> Course | None:
+        """지정한 강좌를 다시 조회하여 벡터 저장소에 추가하거나 갱신합니다.
+
+        강좌가 없으면 인덱스를 건드리지 않고 None을 반환합니다.
+        """
 
         course = self._provider.get_course(course_id)
+        if course is None:
+            return None
         document = self._to_document(course)
         with self._lock:
             existing_index = next(

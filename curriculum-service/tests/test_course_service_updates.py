@@ -37,6 +37,18 @@ def _service(initial_courses: list[Course]) -> tuple[CourseService, Mock, Mock]:
 
 
 class CourseServiceUpdatesTest(TestCase):
+    def test_update_course_keeps_index_when_course_missing(self) -> None:
+        existing_courses = [_course(1, "기존 강좌")]
+        service, provider, vector_store = _service(existing_courses)
+        provider.get_course.return_value = None
+
+        result = service.update_course(404404)
+
+        self.assertIsNone(result)
+        self.assertEqual(service.get_embedded_courses(), existing_courses)
+        vector_store.add_documents.assert_not_called()
+        vector_store.update_documents.assert_not_called()
+
     def test_update_all_courses_replaces_documents(self) -> None:
         service, provider, vector_store = _service([_course(1, "기존 강좌")])
         updated_courses = [_course(2, "새 강좌")]

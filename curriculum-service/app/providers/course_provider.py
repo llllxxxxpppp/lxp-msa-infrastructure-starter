@@ -29,7 +29,7 @@ class CourseProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_course(self, course_id: int) -> Course:
-        """지정한 강좌를 반환합니다."""
+    def get_course(self, course_id: int) -> Course | None:
+        """지정한 강좌를 반환합니다. 없으면 None을 반환합니다."""
 
         raise NotImplementedError

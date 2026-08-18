@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, HTTPException, Path
 
 from app.providers.course_provider import Course
 from app.services.course_service import CourseService
@@ -43,4 +43,7 @@ class BackofficeCourseController:
         self,
         course_id: Annotated[int, Path(alias="courseId", ge=1)],
     ) -> Course:
-        return self._course_service.update_course(course_id)
+        course = self._course_service.update_course(course_id)
+        if course is None:
+            raise HTTPException(status_code=404, detail="강좌를 찾을 수 없습니다.")
+        return course
