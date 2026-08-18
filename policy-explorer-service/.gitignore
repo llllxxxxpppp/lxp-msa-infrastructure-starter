@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# 런타임 산출물 (컨테이너에서는 볼륨으로 마운트된다)
+chroma_db*/
+uploaded_documents/
+logs/
+*.log
+
+# NOTE: uv.lock은 커밋 대상이다. 재현 가능한 설치를 위해 버전관리에 포함한다.
