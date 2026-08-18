@@ -37,6 +37,90 @@ def _service(initial_courses: list[Course]) -> tuple[CourseService, Mock, Mock]:
 
 
 class CourseServiceUpdatesTest(TestCase):
+    def test_update_course_keeps_index_when_course_missing(self) -> None:
+        existing_courses = [_course(1, "기존 강좌")]
+        service, provider, vector_store = _service(existing_courses)
+        provider.get_course.return_value = None
+
+        result = service.update_course(404404)
+
+        self.assertIsNone(result)
+        self.assertEqual(service.get_embedded_courses(), existing_courses)
+        vector_store.add_documents.assert_not_called()
+        vector_store.update_documents.assert_not_called()
+
+    def test_load_all_courses_returns_courses(self) -> None:
+        service, provider, _ = _service([])
+        loaded_courses = [_course(1, "적재된 강좌")]
+        provider.get_courses.return_value = loaded_courses
+
+        result = service.load_all_courses()
+
+        self.assertEqual(result, loaded_courses)
+        self.assertEqual(provider.get_courses.call_count, 1)
+
+    def test_load_all_courses_retries_before_succeeding(self) -> None:
+        service, provider, _ = _service([])
+        loaded_courses = [_course(1, "적재된 강좌")]
+        provider.get_courses.side_effect = [ConnectionError("첫 시도 실패"), loaded_courses]
+
+        with self.assertLogs("app.services.course_service", level="WARNING"):
+            result = service.load_all_courses(delay_seconds=0)
+
+        self.assertEqual(result, loaded_courses)
+        self.assertEqual(provider.get_courses.call_count, 2)
+
+    def test_load_all_courses_keeps_empty_index_on_failure(self) -> None:
+        service, provider, _ = _service([])
+        provider.get_courses.side_effect = ConnectionError("계속 실패")
+
+        with self.assertLogs("app.services.course_service", level="ERROR") as logs:
+            result = service.load_all_courses(attempts=2, delay_seconds=0)
+
+        self.assertIn("빈 인덱스로 기동", logs.output[-1])
+
+        self.assertEqual(result, [])
+        self.assertEqual(service.get_embedded_courses(), [])
+        self.assertEqual(provider.get_courses.call_count, 2)
+
+    def test_get_first_course_returns_none_for_empty_difficulty(self) -> None:
+        service, _, _ = _service([_course(1, "기존 강좌")])
+
+        self.assertIsNone(service.get_first_course_by_difficulty_label("없는 난이도"))
+
+    def test_remove_course_deletes_document(self) -> None:
+        service, _, vector_store = _service([_course(1, "기존 강좌"), _course(2, "남을 강좌")])
+
+        removed = service.remove_course(1)
+
+        self.assertTrue(removed)
+        self.assertEqual(service.get_embedded_courses(), [_course(2, "남을 강좌")])
+        vector_store.delete.assert_called_once_with(ids=["1"])
+        remaining_documents = service.get_documents_by_difficulty_label("난이도")
+        self.assertEqual(
+            [document.metadata["courseId"] for document in remaining_documents],
+            [2],
+        )
+
+    def test_remove_course_ignores_unknown_course(self) -> None:
+        existing_courses = [_course(1, "기존 강좌")]
+        service, _, vector_store = _service(existing_courses)
+
+        removed = service.remove_course(404404)
+
+        self.assertFalse(removed)
+        self.assertEqual(service.get_embedded_courses(), existing_courses)
+        vector_store.delete.assert_not_called()
+
+    def test_remove_course_is_idempotent(self) -> None:
+        service, _, vector_store = _service([_course(1, "기존 강좌")])
+
+        self.assertTrue(service.remove_course(1))
+        self.assertFalse(service.remove_course(1))
+
+        vector_store.delete.assert_called_once_with(ids=["1"])
+        self.assertEqual(service.get_embedded_courses(), [])
+
     def test_update_all_courses_replaces_documents(self) -> None:
         service, provider, vector_store = _service([_course(1, "기존 강좌")])
         updated_courses = [_course(2, "새 강좌")]

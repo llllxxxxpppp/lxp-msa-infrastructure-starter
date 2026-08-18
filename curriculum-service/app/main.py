@@ -2,6 +2,9 @@
 
 """LangGraph를 이용한 맞춤형 커리큘럼 설계 API."""
 
+import asyncio
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -14,7 +17,12 @@ from app.config import (
     OLLAMA_EMBEDDING_MODEL,
     OLLAMA_MODEL,
     PROVIDER,
+    RABBITMQ_HOST,
+    RABBITMQ_PASSWORD,
+    RABBITMQ_PORT,
+    RABBITMQ_USERNAME,
 )
+from app.messaging.course_event_consumer import CourseEventConsumer
 from app.providers.course_provider_factory import create_course_provider
 from app.services.course_service import CourseService
 from app.services.llm_service import LlmService
@@ -23,6 +31,25 @@ from app.workflows.curriculum_workflow import CurriculumWorkflow
 COURSES_FIXTURE_PATH = (
     Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "courses.json"
 )
+
+
+def build_lifespan(
+    course_service: CourseService,
+    consumer: CourseEventConsumer,
+) -> Callable[[FastAPI], AsyncIterator[None]]:
+    """기동·종료 순서를 정의합니다."""
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        try:
+            await consumer.declare()
+            await asyncio.to_thread(course_service.load_all_courses)
+            await consumer.start()
+            yield
+        finally:
+            await consumer.stop()
+
+    return lifespan
 
 
 def create_app() -> FastAPI:
@@ -52,8 +79,19 @@ def create_app() -> FastAPI:
         ollama_base_url=OLLAMA_BASE_URL,
     )
     backoffice_controller = BackofficeCourseController(course_service)
+    consumer = CourseEventConsumer(
+        course_service=course_service,
+        host=RABBITMQ_HOST,
+        port=RABBITMQ_PORT,
+        username=RABBITMQ_USERNAME,
+        password=RABBITMQ_PASSWORD,
+    )
 
-    application = FastAPI(title="맞춤형 커리큘럼 설계 봇", version="0.1.0")
+    application = FastAPI(
+        title="맞춤형 커리큘럼 설계 봇",
+        version="0.1.0",
+        lifespan=build_lifespan(course_service, consumer),
+    )
     application.include_router(controller.router)
     application.include_router(backoffice_controller.router)
 

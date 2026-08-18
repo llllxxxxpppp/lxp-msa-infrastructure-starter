@@ -18,7 +18,8 @@ class JsonCourseProvider(CourseProvider):
 
         return [Course.model_validate(item) for item in course_data]
 
-    def get_course(self, course_id: int) -> Course:
+    def get_course(self, course_id: int) -> Course | None:
         return next(
-            course for course in self.get_courses() if course.course_id == course_id
+            (course for course in self.get_courses() if course.course_id == course_id),
+            None,
         )

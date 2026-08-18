@@ -157,6 +157,16 @@ class CurriculumWorkflow:
         return {"retrieved_courses": candidates}
 
     @staticmethod
+    def _course_for_stage(
+        candidates: list[dict[str, str | int]],
+        stage: str,
+    ) -> dict[str, str | int] | None:
+        return next(
+            (item for item in candidates if item["difficultyLabel"] == stage),
+            None,
+        )
+
+    @staticmethod
     def _normalize_plan(
         plan: CurriculumPlan,
         candidates: list[dict[str, str | int]],
@@ -169,9 +179,9 @@ class CurriculumWorkflow:
             generated = generated_by_stage.get(stage)
             course = candidate_by_id.get(generated.course_id) if generated else None
             if not course or course["difficultyLabel"] != stage:
-                course = next(
-                    item for item in candidates if item["difficultyLabel"] == stage
-                )
+                course = CurriculumWorkflow._course_for_stage(candidates, stage)
+            if course is None:
+                continue
             normalized_steps.append(
                 {
                     "stage": stage,
@@ -212,10 +222,13 @@ class CurriculumWorkflow:
         }
         steps = []
         for stage in ("입문", "실전", "심화"):
-            course = next(
-                (item for item in candidates if item["difficultyLabel"] == stage),
-                self._course_service.get_first_course_by_difficulty_label(stage),
-            )
+            course = self._course_for_stage(candidates, stage)
+            if course is None:
+                course = self._course_service.get_first_course_by_difficulty_label(
+                    stage
+                )
+            if course is None:
+                continue
             steps.append(
                 {
                     "stage": stage,
@@ -262,6 +275,18 @@ class CurriculumWorkflow:
                 "커리큘럼 파싱 재시도가 모두 실패해 기본 커리큘럼을 생성합니다."
             )
             curriculum = self._fallback_curriculum(state)
+        if not curriculum["steps"]:
+            return {
+                "messages": [
+                    AIMessage(
+                        content=(
+                            "추천할 수 있는 강좌를 아직 찾지 못했습니다. "
+                            "잠시 후 다시 말씀해 주시면 새로 찾아보겠습니다."
+                        )
+                    )
+                ],
+                "status": "interviewing",
+            }
         return {
             "draft_curriculum": curriculum,
             "messages": [AIMessage(content=self._render_curriculum(curriculum))],
