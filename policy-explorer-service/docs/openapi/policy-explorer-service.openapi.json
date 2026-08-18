@@ -1,0 +1,374 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LXP Policy Explorer Service",
+    "description": "사내 규정 개정안이 기존 문서와 충돌하는지 로컬 LLM으로 검출하는 백오피스 서비스",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/documents/upload": {
+      "post": {
+        "tags": [
+          "policy-explorer"
+        ],
+        "summary": "Upload Document",
+        "description": "PDF/DOCX를 업로드하면 청킹 후 Chroma(+BM25)에 적재해 검색 대상에 추가한다.\n\n🚨 Excel(.xlsx/.xls), HWP(.hwp/.hwpx)는 미지원이다.\n   (사유는 PoC 리포 `select_reason.md` 8절)",
+        "operationId": "upload_document_api_v1_documents_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_document_api_v1_documents_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents": {
+      "get": {
+        "tags": [
+          "policy-explorer"
+        ],
+        "summary": "List Documents",
+        "description": "현재 RAG 저장소에 적재된 문서(출처)별 청크 개수를 조회한다.",
+        "operationId": "list_documents_api_v1_documents_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentInfo"
+                  },
+                  "type": "array",
+                  "title": "Response List Documents Api V1 Documents Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "policy-explorer"
+        ],
+        "summary": "Reset Documents",
+        "description": "업로드된 문서를 모두 초기화한다 (Chroma 컬렉션 + BM25 인메모리 캐시).",
+        "operationId": "reset_documents_api_v1_documents_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyze-policy": {
+      "post": {
+        "tags": [
+          "policy-explorer"
+        ],
+        "summary": "Analyze Policy",
+        "description": "신규 규정 텍스트를 받아 기존 문서와의 충돌을 검출하고 리포트를 반환한다.",
+        "operationId": "analyze_policy_api_v1_analyze_policy_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "description": "프로세스 / Ollama / Chroma 상태를 한 번에 반환한다.\n\n의존 컴포넌트(Ollama)가 죽어도 200을 반환한다. 컨테이너 자신은 살아 있으므로\nhealthcheck를 실패시켜 재시작 루프에 빠지게 하지 않는 편이 안전하다.\n대신 본문의 status가 UP -> DEGRADED로 바뀌어 어디가 문제인지 드러난다.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "total_time_seconds": {
+            "type": "number",
+            "title": "Total Time Seconds"
+          },
+          "documents_in_store": {
+            "type": "integer",
+            "title": "Documents In Store"
+          },
+          "extracted_rules": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Extracted Rules"
+          },
+          "conflict_count": {
+            "type": "integer",
+            "title": "Conflict Count"
+          },
+          "markdown_report": {
+            "type": "string",
+            "title": "Markdown Report"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "engine",
+          "model",
+          "total_time_seconds",
+          "documents_in_store",
+          "extracted_rules",
+          "conflict_count",
+          "markdown_report"
+        ],
+        "title": "AnalyzeResponse"
+      },
+      "Body_upload_document_api_v1_documents_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_document_api_v1_documents_upload_post"
+      },
+      "DocumentInfo": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "chunk_count": {
+            "type": "integer",
+            "title": "Chunk Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "chunk_count"
+        ],
+        "title": "DocumentInfo"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PolicyRequest": {
+        "properties": {
+          "new_policy_text": {
+            "type": "string",
+            "title": "New Policy Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_policy_text"
+        ],
+        "title": "PolicyRequest"
+      },
+      "ResetResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "ResetResponse"
+      },
+      "UploadResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "num_source_documents": {
+            "type": "integer",
+            "title": "Num Source Documents"
+          },
+          "num_chunks": {
+            "type": "integer",
+            "title": "Num Chunks"
+          },
+          "total_chunks_in_store": {
+            "type": "integer",
+            "title": "Total Chunks In Store"
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "filename",
+          "num_source_documents",
+          "num_chunks",
+          "total_chunks_in_store",
+          "elapsed_seconds"
+        ],
+        "title": "UploadResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
