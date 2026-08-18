@@ -305,6 +305,42 @@ services:
       start_period: 30s
 
 
+  # 사내 규정 개정안이 기존 문서와 충돌하는지 로컬 LLM으로 검출하는 백오피스 서비스.
+  # Java 서비스들과 달리 FastAPI 기반이라 Consul/config-server를 쓰지 않는다.
+  #
+  # 🚨 Ollama는 이 compose가 띄우지 않는다. 컨테이너로 올리면 Docker VM 안에 갇혀
+  #    GPU를 쓸 수 없으므로(macOS는 Metal이 VM으로 전달되지 않음), 호스트에서 실행 중인
+  #    Ollama에 extra_hosts를 통해 붙는다. 리눅스+NVIDIA 서버로 옮길 때는 .env에서
+  #    OLLAMA_BASE_URL만 바꾸면 된다(코드 수정 불필요).
+  #    필요한 모델: qwen2.5:7b(생성), bge-m3(임베딩) — `ollama pull`로 미리 받아둘 것.
+  policy-explorer-service:
+    build:
+      context: .
+      dockerfile: ./policy-explorer-service/Dockerfile
+    container_name: lxp-policy-explorer-service
+    environment:
+      SERVICE_PORT: "8086"
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
+      CHROMA_PERSIST_DIR: /data/state/chroma
+      UPLOAD_DIR: /data/uploads
+    ports:
+      - "8086:8086"
+    volumes:
+      - policy-explorer-state:/data/state
+      - policy-explorer-uploads:/data/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8086/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+
 networks:
   lxp-net:
     name: lxp-net
@@ -319,3 +355,7 @@ volumes:
   loki-data:
   alloy-data:
   rabbitmq-data:
+  # Chroma 벡터 데이터. 없으면 재기동 시 업로드 문서가 전부 유실된다.
+  policy-explorer-state:
+  # 업로드 원본 파일.
+  policy-explorer-uploads:
