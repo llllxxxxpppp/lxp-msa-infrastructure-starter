@@ -8,6 +8,8 @@ PoC 리포(policy-explorer-service)의 `lxp-ollama-qwen-fileupload.py`를 이식
     PoC 리포 `docs/07-operations-runbook.md`가 "헬스체크 엔드포인트 없음"으로 지적한 항목이며,
     docker compose의 healthcheck와 "컨테이너 <-> Ollama 통신 성공"의 증명 수단이다.
   - lifespan : 원본은 import만 해도 Chroma에 연결됐다. 연결·복원을 여기로 모았다.
+  - Consul 등록 : gateway가 lb:// 로 찾을 수 있도록 기동 시 등록하고 종료 시 해제한다.
+    등록 실패는 기동을 막지 않으며 /health의 consul 항목에 드러난다.
 """
 
 import json
@@ -22,6 +24,7 @@ from fastapi import FastAPI
 
 from app import config
 from app.api import router
+from app.consul import ConsulRegistration
 from app.graph import build_graph
 from app.rag import RagStore
 
@@ -93,6 +96,13 @@ def _check_chroma(store: RagStore | None) -> dict:
         return {"status": "DOWN", "error": str(e)}
 
 
+def _check_consul(registration: ConsulRegistration | None) -> dict:
+    """Consul 등록 상태를 반환한다. 등록을 쓰지 않는 실행에서는 DISABLED."""
+    if registration is None:
+        return {"status": "DOWN", "error": "registration not initialized"}
+    return registration.snapshot()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """기동 시 RAG 저장소를 연결하고 기존 청크를 복원한 뒤 그래프를 조립한다."""
@@ -107,8 +117,18 @@ async def lifespan(app: FastAPI):
 
     app.state.store = store
     app.state.graph = build_graph(store)
+
+    # 그래프까지 준비된 뒤에 등록한다. Consul이 곧 /health를 호출하므로
+    # 응답할 준비가 되기 전에 등록하면 첫 체크가 실패할 수 있다.
+    registration = ConsulRegistration()
+    registration.register()
+    app.state.consul = registration
+
     logger.info("[Startup] 준비 완료 (port=%s)", config.SERVICE_PORT)
     yield
+
+    # 종료 시 카탈로그에서 제거해 gateway가 죽은 인스턴스로 라우팅하지 않게 한다.
+    registration.deregister()
 
 
 app = FastAPI(
@@ -121,7 +141,7 @@ app.include_router(router)
 
 @app.get("/health", tags=["health"])
 async def health() -> dict:
-    """프로세스 / Ollama / Chroma 상태를 한 번에 반환한다.
+    """프로세스 / Ollama / Chroma / Consul 등록 상태를 한 번에 반환한다.
 
     의존 컴포넌트(Ollama)가 죽어도 200을 반환한다. 컨테이너 자신은 살아 있으므로
     healthcheck를 실패시켜 재시작 루프에 빠지게 하지 않는 편이 안전하다.
@@ -129,8 +149,16 @@ async def health() -> dict:
     """
     ollama = _check_ollama()
     chroma = _check_chroma(getattr(app.state, "store", None))
-    overall = "UP" if ollama["status"] == "UP" and chroma["status"] == "UP" else "DEGRADED"
-    return {"status": overall, "ollama": ollama, "chroma": chroma}
+    consul = _check_consul(getattr(app.state, "consul", None))
+
+    # Consul을 쓰지 않는 실행(DISABLED)은 정상으로 본다.
+    consul_ok = consul["status"] in ("UP", "DISABLED")
+    overall = (
+        "UP"
+        if ollama["status"] == "UP" and chroma["status"] == "UP" and consul_ok
+        else "DEGRADED"
+    )
+    return {"status": overall, "ollama": ollama, "chroma": chroma, "consul": consul}
 
 
 if __name__ == "__main__":

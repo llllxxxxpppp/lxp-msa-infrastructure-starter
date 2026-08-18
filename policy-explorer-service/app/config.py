@@ -77,3 +77,27 @@ CURRENT_MODEL = os.environ.get("CURRENT_MODEL", OLLAMA_MODEL)
 
 # 헬스체크에서 Ollama 응답을 기다리는 시간(초)
 HEALTH_TIMEOUT_SECONDS = _env_int("HEALTH_TIMEOUT_SECONDS", 3)
+
+# ---------------------------------------------------------
+# Consul (서비스 디스커버리)
+# ---------------------------------------------------------
+# gateway가 `lb://<이름>` 으로 이 서비스를 찾을 수 있도록 Consul에 등록한다.
+# Java 서비스는 spring-cloud-starter-consul-discovery가 자동으로 하지만,
+# 이 서비스는 Python이라 Consul HTTP API를 직접 호출한다(app/consul.py).
+#
+# CONSUL_HOST가 비어 있으면 등록을 건너뛴다. IDE·터미널에서 단독 실행할 때를 위한 것이다.
+CONSUL_HOST = os.environ.get("CONSUL_HOST", "").strip()
+CONSUL_PORT = _env_int("CONSUL_PORT", 8500)
+
+# Consul 카탈로그에 등록될 이름. gateway 라우트의 lb:// 대상과 같아야 한다.
+SERVICE_NAME = os.environ.get("SERVICE_NAME", "policy-explorer-service")
+
+# Consul이 우리 /health를 호출하는 주기·타임아웃.
+# Java 서비스의 health-check-interval(10s)과 맞춘다.
+CONSUL_CHECK_INTERVAL = os.environ.get("CONSUL_CHECK_INTERVAL", "10s")
+CONSUL_CHECK_TIMEOUT = os.environ.get("CONSUL_CHECK_TIMEOUT", "5s")
+
+# critical 상태가 이 시간을 넘으면 Consul이 카탈로그에서 자동 제거한다.
+# config-repo/application.yml의 health-check-critical-timeout과 같은 값이며,
+# Consul이 강제하는 최소값이 1분이라 그보다 작은 값은 무시된다.
+CONSUL_DEREGISTER_AFTER = os.environ.get("CONSUL_DEREGISTER_AFTER", "1m")

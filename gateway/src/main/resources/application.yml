@@ -34,7 +34,7 @@ spring:
               predicates:
                 - Path=/api/subscriptions/**,/api/payments/**
             - id: policy-explorer-service
-              uri: "http://${POLICY_EXPLORER_HOST:localhost}:${POLICY_EXPLORER_PORT:8086}"
+              uri: lb://policy-explorer-service
               predicates:
                 - Path=/api/policies/**
 

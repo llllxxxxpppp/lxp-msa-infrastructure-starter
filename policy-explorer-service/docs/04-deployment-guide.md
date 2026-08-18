@@ -26,8 +26,12 @@
 
 - **이 서비스 컨테이너는 GPU가 필요 없습니다.** 추론과 임베딩 모두 Ollama가 담당합니다.
   (원본은 임베딩만 컨테이너 안에서 torch로 계산했는데, 이식 시 그것도 Ollama로 넘겼습니다.)
-- **Consul·config-server를 쓰지 않습니다.** Java 서비스들과 달리 중앙 설정·서비스 디스커버리에
-  참여하지 않습니다. 같은 리포의 `ai-bot-service`(PR #61)와 동일한 방침입니다.
+- **Consul에는 등록하고 config-server는 쓰지 않습니다.** 등록은 gateway가
+  `lb://policy-explorer-service`로 찾게 하려는 것이며, Java 서비스와 라우팅 방식을 통일합니다.
+  등록은 [`app/consul.py`](../app/consul.py)가 Consul HTTP API를 직접 호출해 수행하며 새
+  의존성이 없습니다.
+  config-server는 Spring 형식 YAML을 서빙하고 이 서비스의 설정은 환경변수 10여 개뿐이라
+  실익이 적어 쓰지 않습니다.
 
 ## Ollama를 compose에 두지 않은 이유 ⭐
 
@@ -145,6 +149,7 @@ docker compose logs -f policy-explorer-service
 | 서비스 | 포트 | 비고 |
 |---|---|---|
 | `policy-explorer-service` | 8086 | 8085는 `infrastructure/prometheus/prometheus-docker.yml`에 `payment-service`로 예약됨 |
+| Consul (등록 대상) | 8500 | `CONSUL_HOST` 미설정 시 등록을 건너뛴다 |
 | Ollama (호스트) | 11434 | compose가 관리하지 않음 |
 
 ## 다음 문서

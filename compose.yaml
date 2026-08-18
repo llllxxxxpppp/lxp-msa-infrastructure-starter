@@ -132,8 +132,6 @@ services:
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
-      POLICY_EXPLORER_HOST: policy-explorer-service
-      POLICY_EXPLORER_PORT: "8086"
     ports:
       - "8080:8080"
     volumes:
@@ -314,6 +312,8 @@ services:
     container_name: lxp-policy-explorer-service
     environment:
       SERVICE_PORT: "8086"
+      CONSUL_HOST: consul-1
+      CONSUL_PORT: 8500
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
@@ -326,6 +326,9 @@ services:
       - policy-explorer-uploads:/data/uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      consul-1:
+        condition: service_healthy
     networks: [lxp-net]
     healthcheck:
       test: ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8086/health')"]
