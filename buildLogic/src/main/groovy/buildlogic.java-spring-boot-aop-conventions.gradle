@@ -1,0 +1,8 @@
+// @Aspect 기반 횡단 관심사 처리.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+}

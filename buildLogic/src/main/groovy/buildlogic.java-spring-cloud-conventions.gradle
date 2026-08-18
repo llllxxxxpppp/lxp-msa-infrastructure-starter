@@ -1,0 +1,21 @@
+// Spring Cloud BOM + 모든 서비스가 공유하는 Spring Cloud 의존성.
+// config 관련은 역할이 갈리므로 이 플러그인을 확장한
+// java-spring-cloud-config-{client,server}-conventions에서 다룬다.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+// 버전 없는 spring-cloud-* 좌표와 resilience4j의 버전을 공급한다.
+def springCloudVersion = '2025.0.3'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    // 서비스 디스커버리: Consul 카탈로그에 등록/조회한다.
+    // 헬스체크 경로로 /actuator/health를 쓰므로 관측성 컨벤션의 actuator가 함께 필요하다.
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+}
