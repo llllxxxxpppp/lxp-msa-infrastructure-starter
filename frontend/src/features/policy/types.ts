@@ -18,7 +18,10 @@ export interface ConflictItem {
   page: number | null;
   old_content: string;
   new_fact: string;
+  /** 한 문장 조치 제안. 판단 근거는 별도 reasoning 필드에 담긴다. */
   action_suggested: string;
+  /** action_suggested로 판단한 근거(여러 문장일 수 있음). */
+  reasoning: string;
 }
 
 export interface AnalyzeResponse {

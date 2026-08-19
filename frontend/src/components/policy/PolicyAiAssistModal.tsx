@@ -122,8 +122,20 @@ export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
               <div className="border-outline-variant bg-surface-container-low p-stack-md text-body-sm flex-1 rounded-lg border">
                 {selected ? (
                   <>
-                    <p className="text-outline line-through">{selected.old_content}</p>
-                    <p className="text-secondary mt-2 font-semibold">{selected.action_suggested}</p>
+                    <p className="text-outline line-through whitespace-pre-wrap">{selected.old_content}</p>
+                    <p className="text-secondary mt-2 font-semibold whitespace-pre-wrap">
+                      {selected.action_suggested}
+                    </p>
+                    {selected.reasoning && (
+                      <details className="mt-2">
+                        <summary className="text-label-sm text-on-surface-variant cursor-pointer">
+                          판단 근거 보기
+                        </summary>
+                        <p className="text-body-sm text-on-surface-variant mt-1 whitespace-pre-wrap">
+                          {selected.reasoning}
+                        </p>
+                      </details>
+                    )}
                   </>
                 ) : (
                   <p className="text-body-sm text-slate-text">좌측 목록에서 항목을 선택해 주세요.</p>
