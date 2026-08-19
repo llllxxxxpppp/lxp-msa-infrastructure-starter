@@ -51,10 +51,14 @@
 - [x] `src/components/chat/CourseChatWidget.tsx` (신규)
 - [x] 강좌 상세 페이지에 마운트
 
-## 8. 커리큘럼 추천 (정적) — `design/curriculum-recommand/code.html`
+## 8. 커리큘럼 추천 — `design/curriculum-recommand/code.html`
 
 - [x] `src/app/(main)/curriculum-recommendation/page.tsx` (신규)
 - [x] 강좌 목록 FAB / 강좌 상세 CTA에서 연결
+- [x] `src/features/curriculum/{types,mockClient,courseCatalog,hooks}.ts` — 봇 계약과 목 클라이언트
+- [x] `src/components/curriculum/*` — 채팅 컴포넌트 8개
+- [x] 하드코딩 시나리오를 실제 대화형으로 교체
+- [ ] 봇 실연동 — 게이트웨이 라우트가 없어 별도 작업
 
 ## 9. 정책 탐색기 어드민 (정적) — `design/policy-explorer/*`
 

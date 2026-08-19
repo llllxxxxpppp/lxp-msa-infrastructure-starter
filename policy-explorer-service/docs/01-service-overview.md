@@ -65,6 +65,7 @@
 | 오케스트레이션 | LangGraph (`StateGraph`) |
 | API 서버 | FastAPI + Uvicorn |
 | LLM 서빙 엔진 | **Ollama** (이식된 서비스는 Ollama 전용. vLLM은 PoC 벤치마크용) |
+| 서비스 디스커버리 | **Consul** — 기동 시 등록, 종료 시 해제. gateway가 `lb://`로 조회 |
 | 생성 모델 | `qwen2.5:7b` (Ollama `/api/chat`) |
 | 임베딩 | **`bge-m3`** (Ollama `/api/embed`, 1024차원) — 이식 시 `jhgan/ko-sroberta-multitask`(768차원)에서 교체 |
 | 벡터 스토어 | ChromaDB (로컬 persist) |

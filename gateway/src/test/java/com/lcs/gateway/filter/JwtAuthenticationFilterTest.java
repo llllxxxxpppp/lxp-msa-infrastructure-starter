@@ -334,6 +334,9 @@ class JwtAuthenticationFilterTest {
 
     @ParameterizedTest(name = "[{index}] {0} {1} role={2} forbidden={3}")
     @CsvSource({
+            // [추가] 담당 강좌 목록
+            "GET,    /api/courses/instructor/me,            ROLE_INSTRUCTOR, false",
+            "GET,    /api/courses/instructor/me,            ROLE_MEMBER,     true",
             // INSTRUCTOR 전용
             "POST,   /api/courses,                       ROLE_INSTRUCTOR, false",
             "POST,   /api/courses,                       ROLE_MEMBER,     true",
@@ -353,7 +356,16 @@ class JwtAuthenticationFilterTest {
             "DELETE, /api/courses/5/missions/3,          ROLE_MEMBER,     true",
             // GET 등 규칙 없는 메서드/경로는 role 무관 통과
             "GET,    /api/courses,                       ROLE_MEMBER,     false",
-            "GET,    /api/courses/5,                     ROLE_MEMBER,     false"})
+            "GET,    /api/courses/5,                     ROLE_MEMBER,     false",
+
+            // [추가]
+            "GET,    /api/ai/courses/1/documents,        ROLE_INSTRUCTOR, false",
+            "GET,    /api/ai/courses/1/documents,        ROLE_MEMBER,     true",
+            "POST,   /api/ai/courses/1/documents,        ROLE_INSTRUCTOR, false",
+            "POST,   /api/ai/courses/1/documents,        ROLE_MEMBER,     true",
+            "DELETE, /api/ai/courses/1/documents/doc-1,  ROLE_INSTRUCTOR, false",
+            "DELETE, /api/ai/courses/1/documents/doc-1,  ROLE_MEMBER,     true",
+            "POST,   /api/ai/courses/1/chat,             ROLE_MEMBER,     false"})
     void course_경로_role_게이팅(String method, String path, String role, boolean forbidden) {
         String jwt = token(key, 1L, role, 60_000);
         MockServerWebExchange exchange = MockServerWebExchange.from(

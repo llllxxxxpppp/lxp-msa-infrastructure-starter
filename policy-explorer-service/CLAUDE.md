@@ -69,6 +69,7 @@
 | 3 | Chroma 컬렉션 분리 | 임베딩 차원이 768→1024로 바뀌어 기존 컬렉션과 호환되지 않는다. `policy_docs_bge_m3` |
 | 4 | 하드코딩 → 환경변수 | PoC `docs/03`의 목록을 [`app/config.py`](app/config.py)로 일괄 추출 |
 | 5 | 단일 파일 → `app/` 패키지 | 아래 구조 참고 |
+| 12 | **Consul 등록** | Java 서비스는 `spring-cloud-starter-consul-discovery`가 자동으로 하지만 Python이라 Consul HTTP API를 직접 호출한다([`app/consul.py`](app/consul.py), 표준 라이브러리만). gateway가 `lb://`로 찾게 하려는 것이며, 등록 실패는 기동을 막지 않고 `/health`의 `consul` 항목에 드러난다 |
 | 6 | **import 부작용 제거** | 원본은 import만 해도 Chroma에 접속하고 데이터를 복원했다. `lifespan`으로 옮겨 실행 시점을 명시했다 |
 | 7 | **`GET /health` 추가** | 원본에 없었다. 프로세스·Ollama 도달·필요 모델 보유·Chroma 접근을 한 번에 확인한다 |
 | 8 | 로그를 stdout 기본으로 | `LOG_DIR`을 설정하면 파일도 남긴다 |
@@ -91,7 +92,8 @@ policy-explorer-service/
 │  ├─ rag.py          RagStore — Chroma + BM25 앙상블, 업로드/조회/초기화, 자동 시드
 │  ├─ graph.py        LangGraph 4노드 + LLM 구조화 출력 스키마
 │  ├─ api.py          /api/policies/* 라우터 4개
-│  └─ main.py         앱 조립 + lifespan(자동 시드 포함) + /health
+│  ├─ main.py     앱 조립 + lifespan + /health
+│  └─ consul.py   Consul 등록·해제 (표준 라이브러리만)
 ├─ seed-documents/    컨테이너 기동 시 자동 색인되는 샘플 문서 (git 추적, 민감 문서 금지)
 ├─ docs/              PoC 리포 docs 01~09 이식본 (+ openapi 실측 스펙)
 ├─ Dockerfile         uv 베이스. 빌드 컨텍스트는 리포 루트. seed-documents/도 이미지에 포함
@@ -126,7 +128,8 @@ curl localhost:8086/health
 작업 범위를 "컨테이너 ↔ Ollama 통신 골격"으로 한정했습니다. 아래는 **의도적으로 남긴 것**이며,
 `docs/08`에 항목으로 등록되어 있습니다.
 
-- ~~Gateway 라우팅~~ → **완료.** `/api/policies/**` 정적 URI 라우트 + `ROLE_ADMIN` 제한.
+- ~~Gateway 라우팅~~ → **완료.** `/api/policies/**` + `ROLE_ADMIN` 제한. Consul에 등록하므로
+  라우트는 `lb://policy-explorer-service`이며, 다른 서비스와 같은 형태다.
   경로를 AI 여부가 아니라 도메인으로 가른 이유: 이 프로젝트에 AI 기반 서비스가 여러 개
   들어갈 예정이므로 `/api/ai/**` 하나를 공유할 수 없다.
 - **경로 순회 취약점** — `rag.py`의 `add_document()`가 업로드 파일명을 그대로 경로에 쓴다.

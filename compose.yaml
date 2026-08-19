@@ -120,6 +120,35 @@ services:
       retries: 10
       start_period: 20s
 
+  ollama:
+    image: ollama/ollama:0.32.9
+    container_name: lxp-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  ollama-model-init:
+    image: ollama/ollama:0.32.9
+    container_name: lxp-ollama-model-init
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama pull qwen3.5:4b &&
+        ollama pull qwen3-embedding:0.6b
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks: [lxp-net]
 
   gateway:
     build:
@@ -133,8 +162,8 @@ services:
       CONFIG_SERVER_URL: http://config-server:8888
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
-      POLICY_EXPLORER_HOST: policy-explorer-service
-      POLICY_EXPLORER_PORT: "8086"
+      AI_BOT_HOST: ai-tutor-service
+      AI_BOT_PORT: "8000"
     ports:
       - "8080:8080"
     volumes:
@@ -143,6 +172,8 @@ services:
       consul-1:
         condition: service_healthy
       config-server:
+        condition: service_healthy
+      ai-tutor-service:
         condition: service_healthy
     networks: [lxp-net]
     healthcheck:
@@ -240,6 +271,39 @@ services:
       retries: 20
       start_period: 30s
 
+  ai-tutor-service:
+    build:
+      context: .
+      dockerfile: ./ai-tutor-service/Dockerfile
+    container_name: lxp-ai-tutor-service
+
+    environment:
+      # [수정] 로컬 PC Ollama → Docker Ollama
+      OLLAMA_BASE_URL: http://ollama:11434
+
+      # [추가] Docker에서 사용하는 모델
+      OLLAMA_CHAT_MODEL: qwen3.5:4b
+      OLLAMA_EMBEDDING_MODEL: qwen3-embedding:0.6b
+
+      COURSE_SERVICE_URL: http://course-service:8083
+
+    # [추가] Ollama 모델 다운로드 완료 후 AI Tutor 실행
+    depends_on:
+      ollama-model-init:
+        condition: service_completed_successfully
+
+    volumes:
+      - ai-tutor-chroma-data:/app/data/chroma
+
+    networks: [lxp-net]
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
   course-service:
     build:
       context: .
@@ -268,6 +332,36 @@ services:
     networks: [lxp-net]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  curriculum-service:
+    build:
+      context: ./curriculum-service
+      dockerfile: Dockerfile
+    container_name: lxp-curriculum-service
+    environment:
+      COURSE_SERVICE_BASE_URL: http://course-service:8083
+      OLLAMA_BASE_URL: http://ollama:11434
+      PROVIDER: ${PROVIDER:-http}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+    ports:
+      - "8001:8000"
+    depends_on:
+      course-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ollama-model-init:
+        condition: service_completed_successfully
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -315,6 +409,8 @@ services:
     container_name: lxp-policy-explorer-service
     environment:
       SERVICE_PORT: "8086"
+      CONSUL_HOST: consul-1
+      CONSUL_PORT: 8500
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-bge-m3}
@@ -328,6 +424,9 @@ services:
       - policy-explorer-uploads:/data/uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      consul-1:
+        condition: service_healthy
     networks: [lxp-net]
     healthcheck:
       test: ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8086/health')"]
@@ -353,3 +452,5 @@ volumes:
   rabbitmq-data:
   policy-explorer-state:
   policy-explorer-uploads:
+  ollama-data:
+  ai-tutor-chroma-data:

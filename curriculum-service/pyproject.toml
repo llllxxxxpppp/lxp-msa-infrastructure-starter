@@ -1,0 +1,15 @@
+[project]
+name = "curriculum-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aio-pika>=10.0.1",
+    "fastapi>=0.116.0",
+    "httpx>=0.28.1",
+    "langchain-chroma>=0.1.2",
+    "langchain-ollama>=1.0.0",
+    "langgraph>=1.0.0",
+    "uvicorn[standard]>=0.35.0",
+]

@@ -53,10 +53,28 @@
 - [ ] **인증/인가 추가** — 현재 8086 포트가 직접 노출되어 있고 어떤 엔드포인트에도 인증이 없다.
       Gateway 라우팅(아래)이 붙으면 JWT 검증이 앞단에 생기지만, 업로드/초기화
       (`DELETE /api/policies/documents`)의 인가 정책은 별도로 설계해야 한다. ([06](06-data-and-security.md))
-- [ ] **Gateway 라우팅** — `config-repo/gateway.yml`과 `gateway/src/main/resources/application.yml`에
-      `/api/policies/**` 라우트 추가 + `compose.yaml`의 `gateway`에 호스트/포트 주입.
-      > 경로를 `/api/ai/**`로 잡지 않는다. PR #61 리뷰에서 "이 프로젝트에 AI 기반 서비스가 총 3개
-      > 들어갈 예정"이라는 지적이 있었다. AI 여부가 아니라 **도메인**으로 경로를 가른다.
+- [ ] **경로 순회 취약점 수정** — [`app/rag.py`](../app/rag.py) `add_document()`의
+      `os.path.join(config.UPLOAD_DIR, filename)`이 업로드 파일명을 그대로 쓴다.
+      `os.path.basename()` + 화이트리스트 검증, 또는 서버 생성 UUID 파일명으로 교체.
+      **코드에 `🚨 TODO` 주석으로 표시되어 있다.** ([06](06-data-and-security.md))
+      > 원본 동작을 그대로 이식한 상태다. 아래 "메타데이터 DB" 항목과 함께 처리하면
+      > 저장 키를 `{document_id}/{original_filename}`으로 바꿔 두 문제를 동시에 해소할 수 있다.
+- [ ] **`ports: 8086` 제거 검토** — gateway 경유 경로가 생긴 지금 직접 노출은 개발 편의 외에
+      이유가 없고 **인증 없이 접근 가능**하다. 운영에서는 닫아야 한다. ([06](06-data-and-security.md))
+- [ ] **서비스 자체 인가** — gateway가 `ROLE_ADMIN`으로 role을 거르지만, 서비스는 아직
+      `X-User-Id`를 사용하지 않는다. 업로더 기록·문서 소유권 판정에 필요하다.
+- [x] **Gateway 라우팅** — `/api/policies/**` 라우트를 `config-repo/gateway.yml`과
+      `gateway/src/main/resources/application.yml` 두 곳에 추가. `ROLE_ADMIN` 인가 규칙 포함.
+      > 경로를 `/api/ai/**`로 잡지 않았다. 이 프로젝트에 AI 기반 서비스가 여러 개 들어갈
+      > 예정이라 하나의 prefix를 공유할 수 없다. AI 여부가 아니라 **도메인**으로 갈랐다.
+      > 라우트는 목록 **맨 뒤**에 넣어야 한다 — `GatewayRouteConfigurationTest`가 `routes[1]`을
+      > 인덱스로 검증하므로 앞에 끼우면 깨진다.
+- [x] **Consul 등록** — [`app/consul.py`](../app/consul.py)가 기동 시 등록, 종료 시 해제한다.
+      표준 라이브러리만 사용해 새 의존성이 없다. 이로써 라우트가
+      `lb://policy-explorer-service`가 되어 다른 서비스와 형태가 같아지고, `compose.yaml`
+      gateway 블록의 주소 주입 2줄이 사라졌다.
+      > 등록 실패는 기동을 막지 않는다. `/health`의 `consul` 항목에 드러난다.
+      > 인스턴스 ID에 랜덤값이 아니라 IP·포트를 써서 재기동 시 유령 인스턴스가 남지 않게 했다.
 - [ ] **문서 메타데이터 DB(SQLite) 도입** — `documents` 테이블 스키마 적용 후 업로드/조회/초기화를
       SQLite 기반으로 전환. 동일 파일명 재업로드 시 조용히 덮어써지는 문제와 경로 순회를 함께
       완화한다. ([09](09-data-architecture.md))
