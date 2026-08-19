@@ -17,7 +17,7 @@ export interface ChatMessage {
 }
 
 /*
- * 봇의 POST /chat 은 message 가 필수라 사용자가 먼저 말을 걸어야 한다.
+ * 봇의 POST /api/curriculum/chat 은 message 가 필수라 사용자가 먼저 말을 걸어야 한다.
  * 빈 화면으로 시작하면 무엇을 입력해야 할지 알 수 없으므로 첫 인사는 프론트가 심는다.
  */
 export const GREETING =
