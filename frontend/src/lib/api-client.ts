@@ -68,15 +68,18 @@ async function parseErrorBody(res: Response): Promise<ApiErrorResponse | undefin
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, headers, _retried, ...rest } = options;
   const accessToken = getAccessToken();
+  // FormData(파일 업로드)는 브라우저가 boundary 포함 Content-Type을 직접 설정해야 하므로
+  // 여기서 지정하지 않고, JSON.stringify도 건너뛴다(policy-explorer-service 업로드 등에서 사용).
+  const isFormData = body instanceof FormData;
 
   const res = await fetch(`${env.apiBaseUrl}${path}`, {
     ...rest,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (res.status === 401 && !_retried) {
@@ -88,7 +91,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   if (!res.ok) {
     const errorBody = await parseErrorBody(res);
-    throw new ApiError(res.status, errorBody?.message ?? res.statusText, errorBody);
+    // message: Java 서비스(course/member/subscription/auth), detail: FastAPI(policy-explorer-service).
+    throw new ApiError(res.status, errorBody?.message ?? errorBody?.detail ?? res.statusText, errorBody);
   }
 
   if (res.status === 204) {

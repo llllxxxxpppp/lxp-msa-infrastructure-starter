@@ -125,6 +125,9 @@ def build_graph(store: RagStore):
                         "new_fact": rule["fact"],
                         "old_content": doc.page_content,
                         "source": doc.metadata.get("source", "Unknown"),
+                        # PyPDFLoader가 채워주는 0-index 페이지 번호. DOCX 등 페이지 개념이
+                        # 없는 포맷은 키 자체가 없어 None이 된다.
+                        "page": doc.metadata.get("page"),
                     }
                 )
 
@@ -165,6 +168,7 @@ def build_graph(store: RagStore):
                 conflict_report.append(
                     {
                         "source": item["source"],
+                        "page": item.get("page"),
                         "old_content": item["old_content"],
                         "new_fact": item["new_fact"],
                         "action_suggested": analysis.action_suggested,
@@ -195,7 +199,8 @@ def build_graph(store: RagStore):
         markdown_lines.append("| 기존 출처(Source) | 기존 내용 (Old) | 신규 규정 (New Fact) | AI 수정 제안 |")
         markdown_lines.append("|---|---|---|---|")
         for item in report_data:
-            source = item["source"]
+            page = item.get("page")
+            source = f"{item['source']} (p.{page + 1})" if page is not None else item["source"]
             old = item["old_content"].replace("\n", " ")
             new = item["new_fact"].replace("\n", " ")
             action = item["action_suggested"].replace("\n", " ")

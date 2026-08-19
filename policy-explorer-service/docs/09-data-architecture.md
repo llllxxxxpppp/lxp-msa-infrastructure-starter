@@ -1,12 +1,14 @@
 # 09. 문서 메타데이터 & 파일 스토리지 아키텍처
 
-> 🔄 **이식 반영 — 이 문서는 여전히 "제안"이며 미구현입니다**
-> SQLite 문서 메타데이터 DB와 NFS 공유 볼륨은 **아직 구현되지 않았습니다.** 현재는
-> `compose.yaml`의 named volume 2개(`policy-explorer-state`, `policy-explorer-uploads`)로
-> 상태와 원본 파일을 **분리만** 해둔 상태입니다 — 이 문서가 제안한 분리 원칙은 지켰지만
-> 원본 파일 쪽이 NFS가 아니라 로컬 named volume입니다.
-> 따라서 아래에 적힌 문제(동일 파일명 재업로드 시 조용히 덮어쓰기, 문서 단위 메타데이터 부재)는
-> **그대로 남아 있습니다.**
+> 🔄 **이식 반영 — SQLite 메타데이터 DB 구현 완료, NFS는 로컬 volume 유지**
+> **SQLite 문서 메타데이터 DB는 구현됐습니다** (`app/metadata_db.py`, 아래 스키마 그대로 채택).
+> `document_id`(UUID) 하위 디렉터리 저장 방식도 함께 적용되어, 아래에 적힌 문제 중 "동일 파일명
+> 재업로드 시 조용히 덮어쓰기"와 "문서 단위 메타데이터 부재"는 **해소됐습니다.** 컨테이너 기동
+> 시에는 `SEED_DOCUMENTS_DIR`(기본 `./seed-documents`, Dockerfile이 이미지에 포함)을 자동으로
+> 스캔해 색인하며, 체크섬(SHA-256) 기준으로 이미 색인된 문서는 재기동해도 다시 임베딩하지
+> 않습니다. **물리 파일 저장은 여전히 NFS가 아니라 로컬 named volume**(`policy-explorer-uploads`)
+> 입니다 — 이 부분은 제안대로 가지 않았고, 필요해지면 별도로 전환합니다(아래 "물리 파일 저장" 절
+> 참고).
 
 
 이전 버전의 문서 세트(01~08)에는 **업로드된 문서를 어떻게 관리하는지**에 대한 데이터 계층
@@ -111,29 +113,28 @@ CREATE INDEX idx_documents_checksum ON documents(checksum_sha256);
 - NFS 서버 자체가 새로운 단일 장애점(SPOF)이 되므로, 운영 런북에 NFS 가용성 모니터링을
   추가해야 합니다([07-operations-runbook.md](07-operations-runbook.md) 갱신분 참고).
 
-## 업로드/조회/삭제 API에 대한 영향 (제안, 아직 미구현)
-- `POST /api/policies/documents/upload` — 응답에 `document_id`, `status`가 추가될 수 있음
-  (현재는 파일명 기준 요약만 반환).
-- `GET /api/policies/documents` — 현재는 `[{source, chunk_count}]`뿐이지만, SQLite 도입 후에는
-  아래처럼 확장 가능합니다:
+## 업로드/조회/삭제 API에 대한 영향 (구현됨)
+- `POST /api/policies/documents/upload` — 응답에 `document_id`, `status`(`success`/`duplicate`)가
+  추가됐습니다. 동일 체크섬 문서는 재임베딩 없이 `duplicate`로 즉시 응답합니다.
+- `GET /api/policies/documents` — 아래처럼 SQLite 메타데이터 DB 기준으로 응답합니다(실제 구현,
+  [02-api-specification.md](02-api-specification.md) 참고):
   ```json
   [
     {
-      "id": "b3f1...": ,
+      "id": "b703b657e2f346de94d65348c06d4e41",
       "original_filename": "규정문서.pdf",
       "status": "ready",
       "chunk_count": 149,
       "size_bytes": 2456123,
-      "uploaded_at": "2026-08-18T09:00:00Z"
+      "uploaded_at": "2026-08-18T09:00:00+00:00",
+      "error_message": null
     }
   ]
   ```
-  (이 확장은 [02-api-specification.md](02-api-specification.md)에 "현재 스펙"이 아니라
-  "향후 변경 예정"으로만 표시해뒀습니다 — 실제 코드가 바뀌기 전까지 02번 문서의 계약이
-  유효합니다.)
-- `DELETE /api/policies/documents` — 현재는 전체 초기화만 가능합니다. 문서 단위 삭제
-  (`DELETE /api/policies/documents/{document_id}`)가 자연스럽게 추가될 수 있으나, 이는 이번 문서
-  세트의 범위를 넘는 API 설계 변경이므로 아이디어로만 남겨둡니다.
+- `DELETE /api/policies/documents` — 여전히 전체 초기화만 가능합니다(이번 범위에 포함하지 않음).
+  Chroma + BM25 캐시뿐 아니라 `documents` 테이블 전체(hard delete)와 `UPLOAD_DIR`의 물리 파일도
+  함께 정리합니다. 문서 단위 삭제(`DELETE /api/policies/documents/{document_id}`)는 여전히 🟢 장기
+  검토 항목으로 남겨둡니다.
 
 ## 다른 문서에 반영된 변경사항
 - [03-environment-config.md](03-environment-config.md) — `METADATA_DB_PATH` 환경변수 추가
