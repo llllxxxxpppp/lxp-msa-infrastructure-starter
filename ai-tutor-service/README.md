@@ -43,7 +43,7 @@ PDF 업로드
 ### Ollama 모델 다운로드
 
 ```powershell
-ollama pull qwen3:8b
+ollama pull qwen3.5:4b
 ollama pull qwen3-embedding:0.6b
 ```
 
