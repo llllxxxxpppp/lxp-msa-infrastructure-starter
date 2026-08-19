@@ -37,7 +37,7 @@ MIN_RELEVANCE_SCORE = float(
 
 # 로컬 답변 모델
 llm = ChatOllama(
-    model="qwen3:8b",
+    model="qwen3.5:4b",
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     temperature=0,
     reasoning=False,
