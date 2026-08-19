@@ -33,6 +33,10 @@ spring:
               uri: lb://subscription-service
               predicates:
                 - Path=/api/subscriptions/**,/api/payments/**
+            - id: policy-explorer-service
+              uri: lb://policy-explorer-service
+              predicates:
+                - Path=/api/policies/**
 
             # [추가] AI 챗봇 요청을 FastAPI로 전달
             - id: ai-tutor-service

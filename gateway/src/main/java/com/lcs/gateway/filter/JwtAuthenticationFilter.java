@@ -105,6 +105,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             rule(POST, "/api/courses/*/missions/*/publish", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/missions/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
             rule(DELETE, "/api/courses/*/missions/*", ROLE_INSTRUCTOR, ROLE_ADMIN),
+            // 사내 인사 규정을 다루는 백오피스 도구이므로 관리자만 허용한다.(동현)
+            rule(null, "/api/policies/**", ROLE_ADMIN));
             // [추가] PDF 관리 API는 강사만 접근할 수 있다.
             rule(GET, "/api/ai/courses/*/documents", ROLE_INSTRUCTOR),
             rule(POST, "/api/ai/courses/*/documents", ROLE_INSTRUCTOR),
