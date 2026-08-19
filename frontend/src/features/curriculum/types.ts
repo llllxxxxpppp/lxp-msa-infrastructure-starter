@@ -42,9 +42,17 @@ export interface ChatResponse {
   curriculum: CurriculumPlan | null;
 }
 
+export type ChatStreamMetadata = Omit<ChatResponse, "message">;
+
+export type ChatStreamEvent =
+  | { type: "start" }
+  | { type: "metadata"; data: ChatStreamMetadata }
+  | { type: "delta"; content: string }
+  | { type: "done" };
+
 /** 컴포넌트와 curriculum-service 통신 수단을 분리하는 인터페이스. */
 export interface ChatClient {
-  send(request: ChatRequest): Promise<ChatResponse>;
+  stream(request: ChatRequest, signal?: AbortSignal): AsyncIterable<ChatStreamEvent>;
   reset(): Promise<void>;
 }
 

@@ -29,6 +29,7 @@ export interface UseCurriculumChat {
   isReady: boolean;
   isInitializing: boolean;
   isSending: boolean;
+  isWaiting: boolean;
   /** 초기화 또는 마지막 전송이 실패했을 때의 안내 문구. 성공하면 비워진다. */
   error: string | null;
   errorActionLabel: string;
@@ -50,8 +51,10 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
     { id: createId(), role: "bot", text: GREETING, curriculum: null, status: null },
   ]);
   const [status, setStatus] = useState<ChatStatus>("interviewing");
+  const [isReady, setIsReady] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorActionLabel, setErrorActionLabel] = useState("다시 시도");
 
@@ -62,6 +65,7 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
   const initializedRef = useRef(false);
   // 전송 중 여부는 다음 렌더를 기다리지 않고 즉시 막아야 해서 ref 로도 잠근다.
   const sendingRef = useRef(false);
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const initialize = useCallback((): Promise<void> => {
     if (initializationRef.current) {
@@ -69,17 +73,17 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
     }
 
     initializedRef.current = false;
+    setIsReady(false);
     setIsInitializing(true);
     setError(null);
     const initialization = (async () => {
       try {
         await Promise.resolve().then(() => client.reset());
         initializedRef.current = true;
+        setIsReady(true);
       } catch (cause) {
         initializationRef.current = null;
-        setError(
-          cause instanceof Error ? cause.message : "새 추천 대화를 시작하지 못했습니다.",
-        );
+        setError(cause instanceof Error ? cause.message : "새 추천 대화를 시작하지 못했습니다.");
         setErrorActionLabel("다시 시도");
       } finally {
         setIsInitializing(false);
@@ -93,6 +97,10 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
     void initialize();
   }, [initialize]);
 
+  useEffect(() => {
+    return () => activeRequestRef.current?.abort();
+  }, []);
+
   const request = useCallback(
     async (text: string) => {
       if (sendingRef.current) {
@@ -100,32 +108,63 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
       }
       sendingRef.current = true;
       setIsSending(true);
+      setIsWaiting(true);
       setError(null);
+      const botMessageId = createId();
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+      let botMessageAdded = false;
 
       try {
-        const response = await client.send({
-          message: text,
-        });
-        setStatus(response.status);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: createId(),
-            role: "bot",
-            text: response.message,
-            curriculum: response.curriculum,
-            status: response.status,
-          },
-        ]);
+        for await (const event of client.stream({ message: text }, controller.signal)) {
+          if (event.type === "metadata") {
+            setStatus(event.data.status);
+            setIsWaiting(false);
+            botMessageAdded = true;
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: botMessageId,
+                role: "bot",
+                text: "",
+                curriculum: event.data.curriculum,
+                status: event.data.status,
+              },
+            ]);
+          } else if (event.type === "delta") {
+            if (!botMessageAdded) {
+              throw new Error("스트리밍 응답의 이벤트 순서가 올바르지 않습니다.");
+            }
+            setMessages((prev) =>
+              prev.map((message) =>
+                message.id === botMessageId
+                  ? { ...message, text: message.text + event.content }
+                  : message,
+              ),
+            );
+          }
+        }
         lastSentRef.current = null;
       } catch (cause) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        if (botMessageAdded) {
+          setMessages((prev) => prev.filter((message) => message.id !== botMessageId));
+        }
         // 보낸 말은 화면에 남겨 둔다. 다시 보내기를 누르면 그대로 재전송한다.
         lastSentRef.current = text;
         setError(cause instanceof Error ? cause.message : "봇 응답을 받지 못했습니다.");
         setErrorActionLabel("다시 보내기");
       } finally {
         sendingRef.current = false;
-        setIsSending(false);
+        if (activeRequestRef.current === controller) {
+          activeRequestRef.current = null;
+        }
+        if (!controller.signal.aborted) {
+          setIsSending(false);
+          setIsWaiting(false);
+        }
       }
     },
     [client],
@@ -158,9 +197,10 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
   return {
     messages,
     status,
-    isReady: initializedRef.current,
+    isReady,
     isInitializing,
     isSending,
+    isWaiting,
     error,
     errorActionLabel,
     send,

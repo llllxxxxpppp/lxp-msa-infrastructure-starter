@@ -7,6 +7,7 @@ import type { ChatMessage } from "@/features/curriculum/hooks";
 interface MessageListProps {
   messages: ChatMessage[];
   isSending: boolean;
+  isWaiting: boolean;
   error: string | null;
   errorActionLabel: string;
   onRetry: () => void;
@@ -15,6 +16,7 @@ interface MessageListProps {
 export function MessageList({
   messages,
   isSending,
+  isWaiting,
   error,
   errorActionLabel,
   onRetry,
@@ -32,7 +34,7 @@ export function MessageList({
         {messages.map((message) => (
           <MessageItem key={message.id} message={message} />
         ))}
-        {isSending && <TypingIndicator />}
+        {isWaiting && <TypingIndicator />}
         {error && (
           <ErrorNotice
             message={error}
