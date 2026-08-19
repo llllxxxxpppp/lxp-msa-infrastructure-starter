@@ -1,4 +1,4 @@
-// curriculum-service(FastAPI) POST /chat 의 요청·응답 계약을 그대로 옮긴 타입.
+// curriculum-service(FastAPI) POST /api/curriculum/chat 의 요청·응답 계약.
 // 봇 계약이 바뀌면 이 파일만 고치면 된다.
 
 export type ChatStatus = "interviewing" | "reviewing" | "completed";
@@ -14,15 +14,13 @@ export interface UserProfile {
 }
 
 /**
- * 봇의 CurriculumStep 파이단틱 모델에는 stage/course_id/reason 만 있지만,
- * 그건 LLM 구조화 출력용 스키마다. 응답에 실리는 draft_curriculum 은
- * _normalize_plan() 이 강좌 제목·소요시간을 채워 넣은 dict 라서 5개 필드가 온다.
+ * 봇의 LLM 구조화 출력에 강좌 정보를 보강한 draft_curriculum의 한 단계다.
  */
 export interface CurriculumStep {
   stage: Stage;
-  course_id: string;
+  course_id: number;
   title: string;
-  duration: string;
+  duration_minutes: number;
   reason: string;
 }
 
@@ -32,12 +30,10 @@ export interface CurriculumPlan {
 }
 
 export interface ChatRequest {
-  thread_id: string;
   message: string;
 }
 
 export interface ChatResponse {
-  thread_id: string;
   status: ChatStatus;
   message: string;
   user_profile: UserProfile;
@@ -46,9 +42,10 @@ export interface ChatResponse {
   curriculum: CurriculumPlan | null;
 }
 
-/** 컴포넌트와 통신 수단을 갈라놓는 이음매. 지금은 목만, 나중에 실제 봇 구현을 끼운다. */
+/** 컴포넌트와 curriculum-service 통신 수단을 분리하는 인터페이스. */
 export interface ChatClient {
   send(request: ChatRequest): Promise<ChatResponse>;
+  reset(): Promise<void>;
 }
 
 export const EMPTY_PROFILE: UserProfile = {
