@@ -94,9 +94,10 @@ npm run format:check        # 포맷 여부만 검사 (CI용)
 `/curriculum-recommendation` 화면은 Gateway를 통해 `curriculum-service`와 통신합니다.
 
 - 화면 진입 시 `DELETE /api/curriculum/chat/session`으로 현재 사용자의 기존 대화를 초기화합니다.
-- 메시지는 `POST /api/curriculum/chat`에 `{ message }` 형식으로 전송합니다.
-- 인증 헤더 추가와 401 토큰 재발급은 공통 `apiFetch`가 처리합니다.
-- 추천 결과는 `curriculum` 필드로 카드를 그리고, `message`에 중복 포함된 커리큘럼 본문은 API 어댑터에서 제거합니다.
+- 메시지는 `POST /api/curriculum/chat/stream`에 `{ message }` 형식으로 전송하고 SSE 응답을 읽습니다.
+- 인증 헤더 추가와 401 토큰 재발급은 공통 `apiFetchResponse`가 처리합니다.
+- `metadata` 이벤트로 상태와 추천 카드를 반영하고, `delta` 이벤트의 텍스트를 같은 봇 메시지에 이어 붙입니다.
+- 구조화 LLM 응답이 준비되기 전에는 타이핑 표시기를 보여주고, 이후 텍스트를 점진적으로 출력합니다.
 - 세션 초기화 또는 메시지 전송이 실패하면 화면에서 해당 요청을 다시 시도할 수 있습니다.
 
 Gateway 라우트는 `/api/curriculum/**`를 `curriculum-service`의 같은 경로로 전달합니다. CORS도 Gateway에서 처리하므로 프론트엔드는 서비스에 직접 접근하지 않습니다.
