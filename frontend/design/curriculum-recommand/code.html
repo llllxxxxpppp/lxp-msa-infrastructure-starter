@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Curriculum Recommendation - Structure LXP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f7fafc;
+        color: #1a2b3c;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1a2b3c",
+              surface: "#f7fafc",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f1f4f6",
+              "surface-container": "#ebeff1",
+              outline: "#b3b9be",
+              "outline-variant": "#dde2e5",
+              "on-surface": "#1a2b3c",
+              "on-surface-variant": "#4a5b6c",
+            },
+            borderRadius: {
+              xl: "0.75rem",
+              "2xl": "1rem",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-surface text-on-surface flex h-screen flex-col antialiased">
+    <!-- BEGIN: MainHeader -->
+    <header
+      class="bg-surface-container-lowest border-outline-variant relative z-10 shrink-0 border-b px-6 py-4 shadow-sm"
+    >
+      <h1 class="text-primary text-xl font-bold">커리큘럼 추천</h1>
+    </header>
+    <!-- END: MainHeader -->
+    <!-- BEGIN: ChatContainer -->
+    <main class="flex flex-1 justify-center overflow-y-auto p-4 md:p-6 lg:p-8">
+      <div class="flex w-full max-w-3xl flex-col space-y-6 pb-20">
+        <!-- System Message 1 -->
+        <div class="flex max-w-[85%] flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-4 text-sm leading-relaxed shadow-sm"
+          >
+            안녕하세요. 몇 가지 여쭤보고 입문·실전·심화 3단계 커리큘럼을 제안해 드릴게요. 먼저 어떤
+            직무를 맡고 계신가요?
+          </div>
+        </div>
+        <!-- User Reply 1 -->
+        <div class="flex justify-end">
+          <div
+            class="bg-surface-container border-outline-variant max-w-[80%] rounded-2xl rounded-tr-sm border p-4 text-sm shadow-sm"
+          >
+            백엔드 개발자입니다
+          </div>
+        </div>
+        <!-- System Message 2 -->
+        <div class="flex max-w-[85%] flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-4 text-sm shadow-sm"
+          >
+            현재 실무 경력은 어느 정도 되시나요?
+          </div>
+        </div>
+        <!-- User Reply 2 -->
+        <div class="flex justify-end">
+          <div
+            class="bg-surface-container border-outline-variant max-w-[80%] rounded-2xl rounded-tr-sm border p-4 text-sm shadow-sm"
+          >
+            1년차입니다
+          </div>
+        </div>
+        <!-- System Message 3 -->
+        <div class="flex max-w-[85%] flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-4 text-sm shadow-sm"
+          >
+            지금 어느 정도까지 직접 해보셨는지 알려주시겠어요?
+          </div>
+        </div>
+        <!-- User Reply 3 -->
+        <div class="flex justify-end">
+          <div
+            class="bg-surface-container border-outline-variant max-w-[80%] rounded-2xl rounded-tr-sm border p-4 text-sm shadow-sm"
+          >
+            기본적인 서버 배포까지 해봤습니다
+          </div>
+        </div>
+        <!-- Curriculum Recommendation 1 -->
+        <div class="flex max-w-full flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-6 shadow-sm"
+          >
+            <p class="text-on-surface-variant mb-6 text-sm">
+              백엔드 개발 분야에서 기초를 다지고 실제로 만들어 본 뒤 확장까지 이어지는 3단계로
+              구성했습니다.
+            </p>
+            <div class="border-outline-variant mb-6 space-y-0 overflow-hidden rounded-xl border">
+              <!-- Step 1 -->
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-start border-b p-5"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >입문</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">웹과 REST API 기초</h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">5시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    본격적으로 들어가기 전에 기본 개념을 정리하는 단계입니다.
+                  </p>
+                </div>
+              </div>
+              <!-- Step 2 -->
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-start border-b p-5"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >실전</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">FastAPI 실전 프로젝트</h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">10시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    배운 내용을 실제로 만들어 보며 손에 익히는 단계입니다.
+                  </p>
+                </div>
+              </div>
+              <!-- Step 3 -->
+              <div class="bg-surface-container-lowest flex items-start p-5">
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >심화</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">
+                    확장 가능한 백엔드 아키텍처
+                  </h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">12시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    앞 단계를 확장해 혼자서도 문제를 풀 수 있게 하는 단계입니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p class="text-primary text-sm font-medium">
+              이 커리큘럼이 괜찮으신가요? 바꾸고 싶은 부분이 있다면 말씀해 주세요.
+            </p>
+          </div>
+        </div>
+        <!-- User Reply 4 -->
+        <div class="flex justify-end">
+          <div
+            class="bg-surface-container border-outline-variant max-w-[80%] rounded-2xl rounded-tr-sm border p-4 text-sm shadow-sm"
+          >
+            더 짧은 건 없나요?
+          </div>
+        </div>
+        <!-- Curriculum Recommendation 2 (Revised) -->
+        <div class="flex max-w-full flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-6 shadow-sm"
+          >
+            <p class="text-on-surface-variant mb-6 text-sm">
+              같은 분야에서 더 짧은 대안이 없어 강의는 그대로 두고, 단계마다 시간을 줄이는 방법을
+              적었습니다.
+            </p>
+            <div class="border-outline-variant mb-6 space-y-0 overflow-hidden rounded-xl border">
+              <!-- Step 1 -->
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-start border-b p-5"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >입문</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">웹과 REST API 기초</h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">5시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    이미 아시는 부분은 건너뛰고 필요한 절만 골라 들으셔도 됩니다.
+                  </p>
+                </div>
+              </div>
+              <!-- Step 2 -->
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-start border-b p-5"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >실전</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">FastAPI 실전 프로젝트</h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">10시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    전체를 다 듣기보다 프로젝트 파트 위주로 보시면 시간을 줄일 수 있습니다.
+                  </p>
+                </div>
+              </div>
+              <!-- Step 3 -->
+              <div class="bg-surface-container-lowest flex items-start p-5">
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-4 inline-flex shrink-0 items-center justify-center rounded-md border px-3 py-1 text-xs font-medium"
+                  >심화</span
+                >
+                <div>
+                  <h4 class="text-primary mb-1 text-base font-semibold">
+                    확장 가능한 백엔드 아키텍처
+                  </h4>
+                  <p class="text-on-surface-variant mb-2 text-xs">12시간 · 백엔드 개발</p>
+                  <p class="text-on-surface text-sm">
+                    앞 두 단계를 마친 뒤에 시작하셔도 늦지 않습니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p class="text-primary text-sm font-medium">
+              이 커리큘럼이 괜찮으신가요? 바꾸고 싶은 부분이 있다면 말씀해 주세요.
+            </p>
+          </div>
+        </div>
+        <!-- User Reply 5 -->
+        <div class="flex justify-end">
+          <div
+            class="bg-surface-container border-outline-variant max-w-[80%] rounded-2xl rounded-tr-sm border p-4 text-sm shadow-sm"
+          >
+            좋습니다
+          </div>
+        </div>
+        <!-- Final Confirmation -->
+        <div class="flex max-w-md flex-col space-y-2">
+          <div
+            class="bg-surface-container-lowest border-outline-variant rounded-2xl rounded-tl-sm border p-6 shadow-sm"
+          >
+            <div class="border-outline-variant mb-4 overflow-hidden rounded-xl border">
+              <div class="border-outline-variant bg-surface-container-low border-b p-4">
+                <p class="text-primary text-sm font-medium">확정된 학습 로드맵 · 총 27시간</p>
+              </div>
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-center border-b px-4 py-3"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-3 inline-flex w-10 shrink-0 items-center justify-center rounded border px-2 py-1 text-[10px] font-medium"
+                  >입문</span
+                >
+                <p class="text-on-surface text-sm font-medium">웹과 REST API 기초 · 5시간</p>
+              </div>
+              <div
+                class="border-outline-variant bg-surface-container-lowest flex items-center border-b px-4 py-3"
+              >
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-3 inline-flex w-10 shrink-0 items-center justify-center rounded border px-2 py-1 text-[10px] font-medium"
+                  >실전</span
+                >
+                <p class="text-on-surface text-sm font-medium">FastAPI 실전 프로젝트 · 10시간</p>
+              </div>
+              <div class="bg-surface-container-lowest flex items-center px-4 py-3">
+                <span
+                  class="border-outline text-on-surface-variant bg-surface mr-3 inline-flex w-10 shrink-0 items-center justify-center rounded border px-2 py-1 text-[10px] font-medium"
+                  >심화</span
+                >
+                <p class="text-on-surface text-sm font-medium">
+                  확장 가능한 백엔드 아키텍처 · 12시간
+                </p>
+              </div>
+            </div>
+            <p class="text-primary text-sm">
+              좋습니다. 이 커리큘럼을 최종 학습 로드맵으로 확정하겠습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- END: ChatContainer -->
+    <!-- BEGIN: InputArea -->
+    <footer
+      class="bg-surface-container-lowest border-outline-variant sticky bottom-0 z-10 w-full shrink-0 border-t p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]"
+    >
+      <div class="mx-auto flex max-w-3xl items-center space-x-2">
+        <div class="relative flex-1">
+          <input
+            class="border-outline-variant focus:ring-primary bg-surface-container-lowest text-on-surface placeholder-on-surface-variant w-full rounded-xl border py-3 pr-10 pl-4 text-sm transition-shadow focus:border-transparent focus:ring-2 focus:outline-none"
+            placeholder="메시지를 입력하세요"
+            type="text"
+          />
+        </div>
+        <button
+          class="bg-surface-container border-outline-variant text-primary hover:bg-outline-variant flex-shrink-0 rounded-xl border px-6 py-3 text-sm font-medium transition-colors"
+        >
+          보내기
+        </button>
+      </div>
+    </footer>
+    <!-- END: InputArea -->
+  </body>
+</html>

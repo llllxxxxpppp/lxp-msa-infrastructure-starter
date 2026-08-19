@@ -1,1 +1,3 @@
 rootProject.name = 'subscription-service'
+
+includeBuild('../buildLogic')

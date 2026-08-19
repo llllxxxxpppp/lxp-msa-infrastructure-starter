@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 class CorsConfigTest {
 
     private static final String ALLOWED_ORIGIN = "http://localhost:3000";
+    private static final String ALLOWED_VITE_ORIGIN = "http://localhost:5173";
     private static final String DISALLOWED_ORIGIN = "http://evil.example.com";
 
     private CorsWebFilter corsWebFilter;
@@ -45,6 +46,34 @@ class CorsConfigTest {
                 .isEqualTo(ALLOWED_ORIGIN);
         assertThat(responseHeaders.getAccessControlAllowMethods()).contains(HttpMethod.POST);
         // 프리플라이트는 여기서 종료 → 다운스트림(및 이후 JWT GlobalFilter)으로 넘어가지 않는다.
+        assertThat(downstreamCalled).isFalse();
+    }
+
+    @Test
+    void Vite_개발_서버_오리진의_AI_채팅_프리플라이트를_허용한다() {
+        AtomicBoolean downstreamCalled = new AtomicBoolean(false);
+        WebFilterChain chain = exchange -> {
+            downstreamCalled.set(true);
+            return Mono.empty();
+        };
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.method(
+                                HttpMethod.OPTIONS,
+                                "http://localhost:8080/api/ai/courses/1/chat")
+                        .header(HttpHeaders.ORIGIN, ALLOWED_VITE_ORIGIN)
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
+                        .header(
+                                HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
+                                "authorization,content-type"));
+
+        corsWebFilter.filter(exchange, chain).block();
+
+        HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
+        assertThat(responseHeaders.getFirst(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
+                .isEqualTo(ALLOWED_VITE_ORIGIN);
+        assertThat(responseHeaders.getAccessControlAllowMethods()).contains(HttpMethod.POST);
+        assertThat(responseHeaders.getAccessControlAllowHeaders())
+                .contains("authorization", "content-type");
         assertThat(downstreamCalled).isFalse();
     }
 

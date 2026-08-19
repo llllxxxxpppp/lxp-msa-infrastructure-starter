@@ -44,13 +44,17 @@ lxp-msa-infrastructure-starter
 ├─ course-service
 ├─ curriculum-service      # 맞춤형 커리큘럼 설계 AI 서비스
 ├─ subscription-service
+├─ frontend               # Next.js 프론트엔드 (frontend/README.md 참고)
 ├─ config-repo            # config-server가 서빙하는 설정 파일
 ├─ infrastructure         # prometheus·grafana·loki·alloy 설정, 로그
 ├─ compose.infra.yaml     # 공통 인프라(consul·관측성)만 실행
 └─ compose.yaml           # 전체 스택(인프라 + 모든 서비스) 실행
 ```
 
-서비스별 빌드 설정은 각 하위 폴더의 `build.gradle` 또는 `pyproject.toml`에 있습니다.
+서비스별 빌드 설정(의존성, 포트 등)은 각 하위 폴더의 `build.gradle`에 있습니다. `frontend`만 예외로 Node/npm 기반이며, 자체 `package.json`으로 독립 실행됩니다.
+
+> `localhost:3000`은 `frontend` 개발 서버(`npm run dev`) 몫으로 비워뒀습니다. Gateway의 CORS 설정(`gateway/src/main/java/com/lcs/gateway/config/CorsConfig.java`)이 이미 이 origin을 전제하고 있어, 대신 Grafana를 3001로 옮겼습니다(아래 표 참고).
+
 
 ## 사용 버전
 
@@ -198,7 +202,7 @@ Curriculum Service의 API 문서는 http://localhost:8001/docs 에서 확인할 
 | Config Server  | http://localhost:8888/gateway/default |
 | Consul UI      | http://localhost:8500                 |
 | Prometheus     | http://localhost:9090                 |
-| Grafana        | http://localhost:3000 (admin / admin) |
+| Grafana        | http://localhost:3001 (admin / admin) |
 | Loki readiness | http://localhost:3100/ready           |
 | Zipkin         | http://localhost:9411                 |
 

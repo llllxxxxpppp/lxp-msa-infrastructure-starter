@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Portal - 백오피스 사내 규정 관리</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-container": "#38260b",
+              "on-primary-fixed": "#0b1d2d",
+              "inverse-surface": "#2d3133",
+              "on-secondary": "#ffffff",
+              "surface-dim": "#d7dadc",
+              "success-green": "#22C55E",
+              "on-tertiary-fixed": "#281802",
+              "on-secondary-fixed": "#001848",
+              "on-secondary-fixed-variant": "#0040a2",
+              secondary: "#0453cd",
+              "error-red": "#EF4444",
+              "inverse-on-surface": "#eef1f3",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#dae2ff",
+              "on-error": "#ffffff",
+              "surface-variant": "#e0e3e5",
+              "tertiary-fixed": "#feddb5",
+              "on-secondary-container": "#fefcff",
+              "warning-amber": "#F59E0B",
+              "on-tertiary-fixed-variant": "#584326",
+              "on-error-container": "#93000a",
+              "slate-text": "#4A5568",
+              "on-surface-variant": "#44474c",
+              surface: "#f7fafc",
+              "surface-container": "#ebeef0",
+              "tertiary-fixed-dim": "#e1c29b",
+              "primary-fixed": "#d2e4fb",
+              "surface-bright": "#f7fafc",
+              background: "#f7fafc",
+              "outline-variant": "#c4c6cd",
+              "on-primary": "#ffffff",
+              "on-tertiary-container": "#a88c69",
+              tertiary: "#211200",
+              outline: "#74777d",
+              "surface-container-high": "#e5e9eb",
+              "secondary-container": "#356ee7",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#b2c5ff",
+              "primary-container": "#1a2b3c",
+              "surface-tint": "#4f6073",
+              "surface-container-highest": "#e0e3e5",
+              primary: "#041627",
+              "error-container": "#ffdad6",
+              "primary-fixed-dim": "#b7c8de",
+              "inverse-primary": "#b7c8de",
+              "on-background": "#181c1e",
+              "surface-container-low": "#f1f4f6",
+              "on-surface": "#181c1e",
+              error: "#ba1a1a",
+              "on-primary-fixed-variant": "#38485a",
+              "on-primary-container": "#8192a7",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "margin-mobile": "16px",
+              "stack-sm": "8px",
+              "stack-lg": "32px",
+              "margin-desktop": "32px",
+              base: "4px",
+              "stack-md": "16px",
+              "container-max": "1280px",
+              gutter: "24px",
+            },
+            fontFamily: {
+              "body-md": ["Inter"],
+              "headline-md": ["Inter"],
+              "label-sm": ["Inter"],
+              "body-lg": ["Inter"],
+              "body-sm": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "headline-sm": ["Inter"],
+              "label-md": ["Inter"],
+              "headline-lg": ["Inter"],
+            },
+            fontSize: {
+              "body-md": [
+                "16px",
+                {
+                  lineHeight: "24px",
+                  fontWeight: "400",
+                },
+              ],
+              "headline-md": [
+                "24px",
+                {
+                  lineHeight: "32px",
+                  fontWeight: "600",
+                },
+              ],
+              "label-sm": [
+                "12px",
+                {
+                  lineHeight: "16px",
+                  letterSpacing: "0.02em",
+                  fontWeight: "500",
+                },
+              ],
+              "body-lg": [
+                "18px",
+                {
+                  lineHeight: "28px",
+                  fontWeight: "400",
+                },
+              ],
+              "body-sm": [
+                "14px",
+                {
+                  lineHeight: "20px",
+                  fontWeight: "400",
+                },
+              ],
+              "headline-lg-mobile": [
+                "24px",
+                {
+                  lineHeight: "32px",
+                  fontWeight: "700",
+                },
+              ],
+              "headline-sm": [
+                "20px",
+                {
+                  lineHeight: "28px",
+                  fontWeight: "600",
+                },
+              ],
+              "label-md": [
+                "14px",
+                {
+                  lineHeight: "20px",
+                  letterSpacing: "0.01em",
+                  fontWeight: "600",
+                },
+              ],
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "40px",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings: "FILL" 1;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #c4c6cd;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-background font-body-md flex h-screen min-h-screen overflow-hidden"
+  >
+    <!-- SideNavBar -->
+    <nav
+      class="bg-primary dark:bg-primary-container py-stack-lg px-stack-md fixed top-0 left-0 z-40 hidden h-full w-64 flex-col duration-200 ease-in-out md:flex"
+    >
+      <!-- Header -->
+      <div class="gap-stack-sm mb-stack-lg px-stack-md flex items-center">
+        <div
+          class="bg-primary-fixed flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+        >
+          <span class="material-symbols-outlined text-on-primary-fixed" data-icon="shield_person"
+            >shield_person</span
+          >
+        </div>
+        <div>
+          <h1 class="font-headline-sm text-headline-sm text-on-primary font-black">Admin Portal</h1>
+          <p class="font-label-sm text-label-sm text-on-primary-container">엔터프라이즈 관리</p>
+        </div>
+      </div>
+      <!-- Navigation Links -->
+      <ul class="gap-base flex flex-grow flex-col">
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm text-on-primary-container hover:bg-primary-fixed-dim hover:text-on-primary-fixed flex items-center rounded-lg opacity-80 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+            <span class="font-label-md text-label-md">대시보드</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm bg-secondary text-on-secondary flex items-center rounded-lg transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="folder">folder</span>
+            <span class="font-label-md text-label-md">사내 규정</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm text-on-primary-container hover:bg-primary-fixed-dim hover:text-on-primary-fixed flex items-center rounded-lg opacity-80 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+            <span class="font-label-md text-label-md">애널리틱스</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm text-on-primary-container hover:bg-primary-fixed-dim hover:text-on-primary-fixed flex items-center rounded-lg opacity-80 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="settings">settings</span>
+            <span class="font-label-md text-label-md">설정</span>
+          </a>
+        </li>
+      </ul>
+      <!-- Footer Links -->
+      <ul class="gap-base mt-auto flex flex-col">
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm text-on-primary-container hover:bg-primary-fixed-dim hover:text-on-primary-fixed flex items-center rounded-lg opacity-80 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="help">help</span>
+            <span class="font-label-md text-label-md">고객센터</span>
+          </a>
+        </li>
+        <li>
+          <a
+            class="gap-stack-md px-stack-md py-stack-sm text-on-primary-container hover:bg-primary-fixed-dim hover:text-on-primary-fixed flex items-center rounded-lg opacity-80 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined" data-icon="logout">logout</span>
+            <span class="font-label-md text-label-md">로그아웃</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- Main Content Canvas -->
+    <main
+      class="p-margin-mobile md:p-margin-desktop max-w-container-max gap-stack-lg mx-auto flex h-full w-full flex-1 flex-col overflow-hidden md:ml-64"
+    >
+      <!-- Header Section -->
+      <header
+        class="gap-stack-md flex shrink-0 flex-col items-start justify-between md:flex-row md:items-center"
+      >
+        <div>
+          <h2 class="font-headline-lg text-headline-lg text-primary">백오피스 사내 규정 관리</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-base">
+            사내 규정 관련 문서 업로드 및 관리 (사내 파일 관리)
+          </p>
+        </div>
+        <button
+          class="bg-secondary text-on-secondary px-stack-md font-label-md hover:bg-primary inline-flex items-center gap-2 rounded-lg py-2 transition-colors"
+        >
+          <span class="material-symbols-outlined text-[20px]">smart_toy</span>AI Assistance
+        </button>
+      </header>
+      <!-- Two Column Layout -->
+      <div class="gap-stack-lg flex min-h-0 flex-1 flex-col md:flex-row">
+        <!-- Left Column: File Tree & Metadata -->
+        <div class="gap-stack-lg flex h-full w-full shrink-0 flex-col md:w-80">
+          <!-- File Tree Section -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-md flex min-h-0 flex-1 flex-col rounded-lg border"
+          >
+            <h3
+              class="font-headline-sm text-headline-sm text-primary mb-stack-sm border-outline-variant border-b pb-2"
+            >
+              파일 Tree
+            </h3>
+            <div class="custom-scrollbar text-body-sm flex-1 overflow-y-auto">
+              <ul class="mt-2 space-y-1">
+                <li>
+                  <div
+                    class="hover:bg-surface-container text-on-surface flex cursor-pointer items-center gap-2 rounded p-1"
+                  >
+                    <span class="material-symbols-outlined text-primary text-[20px]"
+                      >folder_open</span
+                    >
+                    <span class="font-label-md">사내 규정 문서</span>
+                  </div>
+                  <ul class="border-outline-variant mt-1 ml-6 space-y-1 border-l pl-2">
+                    <li>
+                      <div
+                        class="bg-secondary-fixed text-on-secondary-fixed flex cursor-pointer items-center gap-2 rounded p-1"
+                      >
+                        <span class="material-symbols-outlined text-[18px]">description</span>
+                        <span>취업규칙_2024.pdf</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        class="hover:bg-surface-container text-on-surface flex cursor-pointer items-center gap-2 rounded p-1"
+                      >
+                        <span class="material-symbols-outlined text-[18px]">description</span>
+                        <span>보안가이드라인.pdf</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        class="hover:bg-surface-container text-on-surface flex cursor-pointer items-center gap-2 rounded p-1"
+                      >
+                        <span class="material-symbols-outlined text-[18px]">movie</span>
+                        <span>신규입사자_교육.mp4</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- File Metadata Section -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-md flex h-1/3 shrink-0 flex-col rounded-lg border"
+          >
+            <h3
+              class="font-headline-sm text-headline-sm text-primary mb-stack-sm border-outline-variant border-b pb-2"
+            >
+              파일 메타 정보
+            </h3>
+            <div class="custom-scrollbar mt-2 flex-1 overflow-y-auto">
+              <div class="text-body-sm flex flex-col gap-2">
+                <div
+                  class="border-surface-container-high flex items-start justify-between border-b pb-2"
+                >
+                  <span class="text-on-surface-variant w-20 shrink-0">파일명</span>
+                  <span class="text-on-surface text-right break-all">취업규칙_2024.pdf</span>
+                </div>
+                <div
+                  class="border-surface-container-high flex items-start justify-between border-b pb-2"
+                >
+                  <span class="text-on-surface-variant w-20 shrink-0">종류</span>
+                  <span class="text-on-surface text-right">PDF 문서</span>
+                </div>
+                <div
+                  class="border-surface-container-high flex items-start justify-between border-b pb-2"
+                >
+                  <span class="text-on-surface-variant w-20 shrink-0">크기</span>
+                  <span class="text-on-surface text-right">3.2 MB</span>
+                </div>
+                <div
+                  class="border-surface-container-high flex items-start justify-between border-b pb-2"
+                >
+                  <span class="text-on-surface-variant w-20 shrink-0">업로드일</span>
+                  <span class="text-on-surface text-right">2024. 05. 20</span>
+                </div>
+                <div class="flex items-start justify-between">
+                  <span class="text-on-surface-variant w-20 shrink-0">상태</span>
+                  <span
+                    class="bg-surface-container-high font-label-sm text-label-sm text-success-green inline-flex items-center gap-1 rounded px-2 py-0.5"
+                  >
+                    <span class="bg-success-green h-1.5 w-1.5 rounded-full"></span> Vector화 완료
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column: Upload & Preview -->
+        <div class="gap-stack-lg flex h-full min-w-0 flex-1 flex-col">
+          <!-- Drag & Drop Section -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg hover:bg-surface-container-low hover:border-secondary group flex h-48 shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
+          >
+            <div
+              class="bg-surface-container group-hover:bg-primary-fixed mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors"
+            >
+              <span
+                class="material-symbols-outlined text-outline group-hover:text-secondary text-[32px]"
+                >cloud_upload</span
+              >
+            </div>
+            <h3 class="font-headline-lg text-headline-md text-primary mb-1">Drag &amp; Drop</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">파일 업로드</p>
+          </div>
+          <!-- Preview Section -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-md flex min-h-0 flex-1 flex-col rounded-lg border"
+          >
+            <h3
+              class="font-headline-sm text-headline-sm text-primary mb-stack-sm border-outline-variant border-b pb-2"
+            >
+              Preview (파일 미리보기)
+            </h3>
+            <div
+              class="bg-surface border-outline-variant p-stack-lg custom-scrollbar flex flex-1 flex-col items-center justify-center overflow-auto rounded border text-center"
+            >
+              <span class="material-symbols-outlined text-outline-variant mb-4 text-[64px]"
+                >visibility</span
+              >
+              <div class="text-on-surface-variant font-body-md space-y-2">
+                <p>- PDF 등 문서면 내용 미리 보기</p>
+                <p>- mp4 등 영상이면 영상 내용 및 프리뷰</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div
+      class="bg-primary/40 p-margin-mobile fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+    >
+      <div
+        class="bg-surface-container-lowest border-outline-variant flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border shadow-2xl"
+      >
+        <div
+          class="p-stack-md border-outline-variant bg-surface-container-low flex items-center justify-between border-b"
+        >
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary">smart_toy</span>
+            <h2 class="font-headline-sm text-headline-sm text-primary">AI 규정 변경 지원</h2>
+          </div>
+          <button class="text-outline hover:text-primary transition-colors">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="p-stack-md custom-scrollbar gap-stack-md flex flex-1 flex-col overflow-y-auto">
+          <div class="flex flex-col gap-2">
+            <label class="font-label-md text-on-surface-variant">변경하고자 하는 규정 작성</label
+            ><textarea
+              class="p-stack-md border-outline-variant bg-surface focus:border-secondary focus:ring-secondary text-body-md h-32 w-full rounded-lg border outline-none focus:ring-1"
+              placeholder="예: 신규 입사자의 수습 기간 규정을 3개월에서 2개월로 단축하고 싶습니다."
+            ></textarea>
+          </div>
+          <div class="gap-stack-md grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
+            <div class="flex flex-col gap-2">
+              <h3 class="font-label-md text-on-surface-variant">해당 파일 및 위치</h3>
+              <div
+                class="border-outline-variant bg-surface flex-1 overflow-hidden rounded-lg border"
+              >
+                <ul class="divide-outline-variant divide-y">
+                  <li
+                    class="p-stack-sm hover:bg-surface-container-low bg-secondary-fixed/30 flex cursor-pointer items-center gap-2"
+                  >
+                    <span class="material-symbols-outlined text-primary text-[18px]"
+                      >description</span
+                    ><span class="text-body-sm">취업규칙_2024.pdf (p.12 제4조)</span>
+                  </li>
+                  <li
+                    class="p-stack-sm hover:bg-surface-container-low flex cursor-pointer items-center gap-2"
+                  >
+                    <span class="material-symbols-outlined text-primary text-[18px]"
+                      >description</span
+                    ><span class="text-body-sm">인사관리규정.pdf (p.5 제2항)</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="font-label-md text-on-surface-variant">변경 제안 상세</h3>
+              <div
+                class="border-outline-variant bg-surface-container-low p-stack-md text-body-sm flex-1 rounded-lg border"
+              >
+                <div class="space-y-2">
+                  <p class="text-outline line-through">
+                    제4조(수습기간) 신규 채용된 자의 수습기간은 채용일로부터 3개월로 한다.
+                  </p>
+                  <p class="text-secondary font-semibold">
+                    제4조(수습기간) 신규 채용된 자의 수습기간은 채용일로부터 2개월로 한다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="p-stack-md border-outline-variant gap-stack-sm bg-surface-container-low flex justify-end border-t"
+        >
+          <button
+            class="px-stack-md font-label-md text-on-surface-variant hover:bg-surface-container rounded-lg py-2 transition-colors"
+          >
+            취소</button
+          ><button
+            class="px-stack-md font-label-md bg-secondary text-on-secondary hover:bg-primary rounded-lg py-2 transition-colors"
+          >
+            변경 사항 적용
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

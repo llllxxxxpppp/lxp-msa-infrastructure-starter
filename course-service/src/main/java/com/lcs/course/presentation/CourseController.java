@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+// [추가] 담당 강좌 목록 응답
+import com.lcs.course.application.dto.response.InstructorCourseStatusResponse;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -43,6 +45,13 @@ public class CourseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(courseService.getCourses(keyword, page, size));
+    }
+
+    // [추가] 로그인한 강사의 담당 강좌 목록을 조회한다.
+    @GetMapping("/instructor/me")
+    public ResponseEntity<List<InstructorCourseStatusResponse>> getInstructorCourses(
+            @RequestHeader("X-User-Id") Long userId) {
+        return ResponseEntity.ok(courseService.getCoursesByInstructor(userId));
     }
 
     @GetMapping("/{courseId}")

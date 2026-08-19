@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>User Profile | EduSphere LXP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001848",
+              "surface-dim": "#d7dadc",
+              "tertiary-fixed": "#feddb5",
+              "on-primary-fixed-variant": "#38485a",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#e1c29b",
+              "on-tertiary": "#ffffff",
+              "warning-amber": "#F59E0B",
+              "tertiary-container": "#38260b",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#181c1e",
+              "surface-tint": "#4f6073",
+              "surface-bright": "#f7fafc",
+              "on-secondary": "#ffffff",
+              secondary: "#0453cd",
+              "on-surface": "#181c1e",
+              surface: "#f7fafc",
+              "surface-container-highest": "#e0e3e5",
+              "slate-text": "#4A5568",
+              tertiary: "#211200",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#b2c5ff",
+              "on-tertiary-container": "#a88c69",
+              "inverse-surface": "#2d3133",
+              "surface-container-low": "#f1f4f6",
+              "inverse-on-surface": "#eef1f3",
+              "outline-variant": "#c4c6cd",
+              "secondary-container": "#356ee7",
+              "on-secondary-fixed-variant": "#0040a2",
+              "success-green": "#22C55E",
+              "surface-container-high": "#e5e9eb",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d2e4fb",
+              background: "#f7fafc",
+              "on-primary-fixed": "#0b1d2d",
+              "on-secondary-container": "#fefcff",
+              "surface-container": "#ebeef0",
+              "on-primary": "#ffffff",
+              primary: "#041627",
+              "on-tertiary-fixed-variant": "#584326",
+              "inverse-primary": "#b7c8de",
+              "surface-variant": "#e0e3e5",
+              "primary-fixed-dim": "#b7c8de",
+              "secondary-fixed": "#dae2ff",
+              "primary-container": "#1a2b3c",
+              outline: "#74777d",
+              "error-red": "#EF4444",
+              error: "#ba1a1a",
+              "on-tertiary-fixed": "#281802",
+              "on-primary-container": "#8192a7",
+              "on-surface-variant": "#44474c",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "stack-lg": "32px",
+              base: "4px",
+              "margin-desktop": "32px",
+              "stack-sm": "8px",
+              "margin-mobile": "16px",
+              "container-max": "1280px",
+              gutter: "24px",
+              "stack-md": "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "label-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-sm": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+              "label-sm": [
+                "12px",
+                { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" },
+              ],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "label-md": [
+                "14px",
+                { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" },
+              ],
+              "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #f7fafc;
+        color: #181c1e;
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background flex min-h-screen flex-col">
+    <!-- TopNavBar -->
+    <header
+      class="bg-surface dark:bg-primary font-body-md text-body-md border-outline-variant dark:border-primary-container sticky top-0 z-50 w-full border-b"
+    >
+      <div
+        class="px-margin-desktop max-w-container-max mx-auto flex h-16 w-full items-center justify-between"
+      >
+        <!-- Brand -->
+        <div class="gap-stack-md flex items-center">
+          <span
+            class="font-headline-md text-headline-md text-primary dark:text-inverse-primary font-bold"
+            >EduSphere LXP</span
+          >
+        </div>
+        <!-- Search (on_left) -->
+        <div class="mx-stack-lg relative hidden max-w-md flex-1 md:flex">
+          <span
+            class="material-symbols-outlined text-outline absolute top-1/2 left-3 -translate-y-1/2"
+            >search</span
+          >
+          <input
+            class="bg-surface-container-lowest border-outline-variant text-body-sm focus:border-secondary focus:ring-secondary w-full rounded-full border py-2 pr-4 pl-10 transition-all focus:ring-1 focus:outline-none"
+            placeholder="Search..."
+            type="text"
+          />
+        </div>
+        <!-- Navigation Links -->
+        <nav class="gap-stack-lg hidden items-center md:flex">
+          <a
+            class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+            href="#"
+            >Course Categories</a
+          >
+          <a
+            class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+            href="#"
+            >My Learning</a
+          >
+        </nav>
+        <!-- Trailing Actions -->
+        <div class="gap-stack-md ml-stack-lg flex items-center">
+          <button
+            class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+          >
+            <span class="material-symbols-outlined">notifications</span>
+          </button>
+          <div
+            class="text-secondary border-secondary relative cursor-pointer border-b-2 pb-1 font-bold transition-all active:opacity-80"
+          >
+            <div class="border-outline-variant h-8 w-8 overflow-hidden rounded-full border">
+              <img
+                alt="User profile"
+                class="h-full w-full object-cover"
+                data-alt="A professional headshot of a corporate employee in a bright, modern office setting. The individual is wearing a crisp white shirt, smiling subtly. The lighting is soft and natural, emphasizing a clean, corporate light-mode aesthetic with cool blue and slate undertones in the background."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfq4u9JZQu-UUdKR5H1TzlvlXmcAGBTaWBWeWV97-DqTxChjqmzS3VecwNoj5sCRgakXldxIri8cT2lqwIKnM_G8G51AhLL8N3A99vbPWA4IPalFBwqvRzfuiayRoUynw9reVpd9peL_pnVYEoU1ygvQOQYKzx2ZZglaiANl8xW_rAi8gtEgL1U-2PM07PyKQW9WOgv2t1xN14AWaAUtL5ThdsOMchmq2W_pVg4JH7DIaO7AhYrgzOWA"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main
+      class="max-w-container-max px-margin-mobile md:px-margin-desktop py-stack-lg mx-auto w-full flex-1"
+    >
+      <!-- Profile Header Bento -->
+      <div class="gap-gutter mb-stack-lg grid grid-cols-1 md:grid-cols-12">
+        <!-- User Info Card -->
+        <div
+          class="bg-surface-container-lowest border-outline-variant p-stack-lg gap-stack-lg flex flex-col items-center rounded-xl border shadow-sm md:col-span-8 md:flex-row md:items-start"
+        >
+          <div
+            class="border-surface h-32 w-32 shrink-0 overflow-hidden rounded-full border-4 shadow-md"
+          >
+            <img
+              class="h-full w-full object-cover"
+              data-alt="A highly detailed professional portrait of an executive working in a well-lit modern corporate environment. The subject is framed tightly, showcasing a sharp, confident expression. The background features blurred architectural elements with a light, airy color palette dominated by whites, subtle grays, and soft blues."
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCln8KeIID3QLKpukuYUtWAz-3gWoCGk7eyLJBMh_pPfYn-KNizYbooVhpGlPR_B-2IQBVos1t1oD0jLYPYIL_eUueHGJvaX7hR5c_avc6tJ2PkeztZ5WHrE9OaN8WR_R9sl01MKECC-XlVvwUiHqL-20IO7Vy2VHyopHevVyPT3x9Ktf8VItPrdXUbn4SMDacRnRDg1uuVzaHUfbf3DfmCvgIbfpccZagkBiuYSA7k_rnUjiX4-KrfyA"
+            />
+          </div>
+          <div class="flex-1 text-center md:text-left">
+            <h1
+              class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-stack-sm"
+            >
+              Alex Worthington
+            </h1>
+            <p class="font-body-lg text-body-lg text-slate-text mb-stack-md">
+              Senior Talent Acquisition Specialist
+            </p>
+            <div class="gap-stack-sm flex flex-wrap justify-center md:justify-start">
+              <span
+                class="bg-surface-container font-label-sm text-label-sm text-on-surface-variant border-outline-variant inline-flex items-center gap-1 rounded-full border px-3 py-1"
+              >
+                <span class="material-symbols-outlined text-[16px]">location_on</span> New York, NY
+              </span>
+              <span
+                class="bg-primary-fixed font-label-sm text-label-sm text-on-primary-fixed border-primary-fixed-dim inline-flex items-center gap-1 rounded-full border px-3 py-1"
+              >
+                <span class="material-symbols-outlined text-[16px]">domain</span> Human Resources
+              </span>
+            </div>
+          </div>
+          <div class="gap-stack-sm flex w-full flex-col md:w-auto">
+            <button
+              class="bg-secondary text-on-secondary font-label-md text-label-md hover:bg-secondary-container rounded-lg px-6 py-2 shadow-sm transition-colors"
+            >
+              Edit Profile
+            </button>
+            <button
+              class="border-outline-variant text-slate-text font-label-md text-label-md hover:bg-surface-container rounded-lg border bg-transparent px-6 py-2 transition-colors"
+            >
+              Settings
+            </button>
+          </div>
+        </div>
+        <!-- Quick Stats -->
+        <div class="gap-gutter grid grid-rows-2 md:col-span-4">
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-md relative flex items-center justify-between overflow-hidden rounded-xl border shadow-sm"
+          >
+            <div class="relative z-10">
+              <p class="font-label-sm text-label-sm text-slate-text mb-1 tracking-wider uppercase">
+                Courses Completed
+              </p>
+              <p class="font-headline-lg text-headline-lg text-primary">24</p>
+            </div>
+            <span
+              class="material-symbols-outlined text-primary-fixed-dim absolute right-4 -bottom-2 z-0 text-5xl opacity-30"
+              >school</span
+            >
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-md relative flex items-center justify-between overflow-hidden rounded-xl border shadow-sm"
+          >
+            <div class="relative z-10">
+              <p class="font-label-sm text-label-sm text-slate-text mb-1 tracking-wider uppercase">
+                Learning Hours
+              </p>
+              <p class="font-headline-lg text-headline-lg text-primary">148</p>
+            </div>
+            <span
+              class="material-symbols-outlined text-primary-fixed-dim absolute right-4 -bottom-2 z-0 text-5xl opacity-30"
+              >timer</span
+            >
+          </div>
+        </div>
+      </div>
+      <div class="gap-gutter grid grid-cols-1 lg:grid-cols-3">
+        <!-- Left Column: History & Settings -->
+        <div class="gap-stack-lg flex flex-col lg:col-span-2">
+          <!-- Learning History -->
+          <section
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg rounded-xl border shadow-sm"
+          >
+            <div
+              class="mb-stack-md border-surface-container pb-stack-sm flex items-center justify-between border-b"
+            >
+              <h2 class="font-headline-sm text-headline-sm text-on-surface">Learning History</h2>
+              <a class="font-label-sm text-label-sm text-secondary hover:underline" href="#"
+                >View All</a
+              >
+            </div>
+            <div class="gap-stack-md flex flex-col">
+              <!-- History Item 1 -->
+              <div
+                class="group p-stack-sm hover:bg-surface-container-low hover:border-surface-container flex items-center justify-between rounded-lg border border-transparent transition-colors"
+              >
+                <div class="gap-stack-md flex items-center">
+                  <div
+                    class="bg-primary-fixed text-on-primary-fixed flex h-12 w-12 items-center justify-center rounded-lg"
+                  >
+                    <span class="material-symbols-outlined">gavel</span>
+                  </div>
+                  <div>
+                    <h3 class="font-label-md text-label-md text-on-surface">
+                      Advanced Compliance Regulations 2024
+                    </h3>
+                    <p class="font-body-sm text-body-sm text-slate-text">
+                      Completed on Oct 12, 2024
+                    </p>
+                  </div>
+                </div>
+                <span
+                  class="bg-success-green/10 text-success-green inline-flex items-center rounded px-2 py-1 text-[10px] font-bold tracking-wider uppercase"
+                  >Completed</span
+                >
+              </div>
+              <!-- History Item 2 -->
+              <div
+                class="group p-stack-sm hover:bg-surface-container-low hover:border-surface-container flex items-center justify-between rounded-lg border border-transparent transition-colors"
+              >
+                <div class="gap-stack-md flex items-center">
+                  <div
+                    class="bg-secondary-fixed text-on-secondary-fixed flex h-12 w-12 items-center justify-center rounded-lg"
+                  >
+                    <span class="material-symbols-outlined">group</span>
+                  </div>
+                  <div>
+                    <h3 class="font-label-md text-label-md text-on-surface">
+                      Inclusive Leadership Seminars
+                    </h3>
+                    <p class="font-body-sm text-body-sm text-slate-text">In Progress (80%)</p>
+                  </div>
+                </div>
+                <div class="bg-surface-dim h-2 w-24 overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full w-[80%] rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <!-- Personal Information / Settings Snippet -->
+          <section
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg rounded-xl border shadow-sm"
+          >
+            <div
+              class="mb-stack-md border-surface-container pb-stack-sm flex items-center justify-between border-b"
+            >
+              <h2 class="font-headline-sm text-headline-sm text-on-surface">
+                Personal Information
+              </h2>
+              <button
+                class="font-label-sm text-label-sm text-secondary flex items-center gap-1 hover:underline"
+              >
+                <span class="material-symbols-outlined text-[16px]">edit</span> Edit
+              </button>
+            </div>
+            <div class="gap-y-stack-md gap-x-gutter grid grid-cols-1 md:grid-cols-2">
+              <div>
+                <p class="font-label-sm text-label-sm text-slate-text mb-1">Email Address</p>
+                <p class="font-body-md text-body-md text-on-surface">
+                  alex.worthington@enterprise.com
+                </p>
+              </div>
+              <div>
+                <p class="font-label-sm text-label-sm text-slate-text mb-1">Phone Number</p>
+                <p class="font-body-md text-body-md text-on-surface">+1 (555) 019-2834</p>
+              </div>
+              <div>
+                <p class="font-label-sm text-label-sm text-slate-text mb-1">Department</p>
+                <p class="font-body-md text-body-md text-on-surface">Human Resources</p>
+              </div>
+              <div>
+                <p class="font-label-sm text-label-sm text-slate-text mb-1">Manager</p>
+                <p class="font-body-md text-body-md text-on-surface">Sarah Jenkins</p>
+              </div>
+            </div>
+          </section>
+        </div>
+        <!-- Right Column: Badges & Gamification -->
+        <div class="gap-stack-lg flex flex-col lg:col-span-1">
+          <!-- Achievement Badges Bento -->
+          <section
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg h-full rounded-xl border shadow-sm"
+          >
+            <h2
+              class="font-headline-sm text-headline-sm text-on-surface mb-stack-md border-surface-container pb-stack-sm border-b"
+            >
+              Achievement Badges
+            </h2>
+            <div class="gap-stack-md grid grid-cols-2">
+              <!-- Badge 1 -->
+              <div
+                class="p-stack-md border-surface-container bg-surface hover:bg-surface-container-low group relative flex cursor-pointer flex-col items-center justify-center rounded-lg border text-center transition-colors"
+              >
+                <div
+                  class="from-warning-amber to-tertiary-fixed-dim mb-stack-sm flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br shadow-sm transition-transform group-hover:scale-110"
+                >
+                  <span
+                    class="material-symbols-outlined text-3xl text-white"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >military_tech</span
+                  >
+                </div>
+                <h4 class="font-label-sm text-label-sm text-on-surface leading-tight">
+                  Compliance Master
+                </h4>
+                <!-- Tooltip (CSS Hover) -->
+                <div
+                  class="bg-inverse-surface text-inverse-on-surface font-body-sm text-body-sm pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded p-2 text-left opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
+                >
+                  Awarded for completing all 2024 compliance modules with 100% accuracy.
+                </div>
+              </div>
+              <!-- Badge 2 -->
+              <div
+                class="p-stack-md border-surface-container bg-surface hover:bg-surface-container-low group relative flex cursor-pointer flex-col items-center justify-center rounded-lg border text-center transition-colors"
+              >
+                <div
+                  class="from-secondary to-primary-fixed-dim mb-stack-sm flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br shadow-sm transition-transform group-hover:scale-110"
+                >
+                  <span
+                    class="material-symbols-outlined text-3xl text-white"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >emoji_events</span
+                  >
+                </div>
+                <h4 class="font-label-sm text-label-sm text-on-surface leading-tight">
+                  Top Learner Q3
+                </h4>
+              </div>
+              <!-- Badge 3 -->
+              <div
+                class="p-stack-md border-surface-container bg-surface hover:bg-surface-container-low group relative flex cursor-pointer flex-col items-center justify-center rounded-lg border text-center transition-colors"
+              >
+                <div
+                  class="from-success-green mb-stack-sm flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br to-emerald-200 shadow-sm transition-transform group-hover:scale-110"
+                >
+                  <span
+                    class="material-symbols-outlined text-3xl text-white"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >verified</span
+                  >
+                </div>
+                <h4 class="font-label-sm text-label-sm text-on-surface leading-tight">
+                  Diversity Advocate
+                </h4>
+              </div>
+              <!-- Empty Slot -->
+              <div
+                class="p-stack-md border-outline-variant bg-surface/50 flex flex-col items-center justify-center rounded-lg border border-dashed text-center opacity-60"
+              >
+                <div
+                  class="bg-surface-container-highest mb-stack-sm flex h-16 w-16 items-center justify-center rounded-full"
+                >
+                  <span class="material-symbols-outlined text-outline">lock</span>
+                </div>
+                <h4 class="font-label-sm text-label-sm text-slate-text leading-tight">
+                  Next Milestone
+                </h4>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="bg-surface-container-low dark:bg-surface-container-highest font-body-sm text-body-sm py-stack-lg border-outline-variant mt-auto w-full border-t"
+    >
+      <div
+        class="gap-gutter px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3"
+      >
+        <div class="flex items-center justify-center md:justify-start">
+          <span class="font-label-md text-label-md text-primary font-bold">EduSphere LXP</span>
+        </div>
+        <div
+          class="gap-stack-md text-on-surface dark:text-on-surface-variant flex flex-wrap justify-center"
+        >
+          <a
+            class="text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Privacy Policy</a
+          >
+          <a
+            class="text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Terms of Service</a
+          >
+          <a
+            class="text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Support</a
+          >
+          <a
+            class="text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Contact Us</a
+          >
+        </div>
+        <div class="text-slate-text flex items-center justify-center md:justify-end">
+          © 2024 EduSphere Enterprise. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

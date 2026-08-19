@@ -7,3 +7,27 @@
 infrastructure/logs/*
 !infrastructure/logs/.gitkeep
 .env
+
+# VS Code
+.vscode/
+
+# Java build output
+**/bin/
+*.class
+
+# Python
+**/.venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+
+# Chroma가 생성하는 로컬 벡터 DB
+ai-tutor-service/data/
+
+# React
+ai-tutor-ui/node_modules/
+ai-tutor-ui/dist/
+
+# 로그
+infrastructure/logs/*
+!infrastructure/logs/.gitkeep

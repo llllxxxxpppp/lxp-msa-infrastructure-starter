@@ -1,0 +1,8 @@
+// RabbitMQ 기반 비동기 메시징.
+plugins {
+    id 'buildlogic.java-spring-boot-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+}
