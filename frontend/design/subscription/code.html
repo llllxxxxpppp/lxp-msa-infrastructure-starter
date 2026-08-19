@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Subscription Management | EduSphere LXP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001848",
+              "surface-dim": "#d7dadc",
+              "tertiary-fixed": "#feddb5",
+              "on-primary-fixed-variant": "#38485a",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#e1c29b",
+              "on-tertiary": "#ffffff",
+              "warning-amber": "#F59E0B",
+              "tertiary-container": "#38260b",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#181c1e",
+              "surface-tint": "#4f6073",
+              "surface-bright": "#f7fafc",
+              "on-secondary": "#ffffff",
+              secondary: "#0453cd",
+              "on-surface": "#181c1e",
+              surface: "#f7fafc",
+              "surface-container-highest": "#e0e3e5",
+              "slate-text": "#4A5568",
+              tertiary: "#211200",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#b2c5ff",
+              "on-tertiary-container": "#a88c69",
+              "inverse-surface": "#2d3133",
+              "surface-container-low": "#f1f4f6",
+              "inverse-on-surface": "#eef1f3",
+              "outline-variant": "#c4c6cd",
+              "secondary-container": "#356ee7",
+              "on-secondary-fixed-variant": "#0040a2",
+              "success-green": "#22C55E",
+              "surface-container-high": "#e5e9eb",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d2e4fb",
+              background: "#f7fafc",
+              "on-primary-fixed": "#0b1d2d",
+              "on-secondary-container": "#fefcff",
+              "surface-container": "#ebeef0",
+              "on-primary": "#ffffff",
+              primary: "#041627",
+              "on-tertiary-fixed-variant": "#584326",
+              "inverse-primary": "#b7c8de",
+              "surface-variant": "#e0e3e5",
+              "primary-fixed-dim": "#b7c8de",
+              "secondary-fixed": "#dae2ff",
+              "primary-container": "#1a2b3c",
+              outline: "#74777d",
+              "error-red": "#EF4444",
+              error: "#ba1a1a",
+              "on-tertiary-fixed": "#281802",
+              "on-primary-container": "#8192a7",
+              "on-surface-variant": "#44474c",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "stack-lg": "32px",
+              base: "4px",
+              "margin-desktop": "32px",
+              "stack-sm": "8px",
+              "margin-mobile": "16px",
+              "container-max": "1280px",
+              gutter: "24px",
+              "stack-md": "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "label-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-sm": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+              "label-sm": [
+                "12px",
+                { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" },
+              ],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "label-md": [
+                "14px",
+                { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" },
+              ],
+              "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      /* Subtle patterns */
+      .bg-pattern-dots {
+        background-image: radial-gradient(rgba(116, 119, 125, 0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background text-on-background font-body-md flex min-h-screen flex-col antialiased"
+  >
+    <!-- TopNavBar -->
+    <header
+      class="bg-surface dark:bg-primary border-outline-variant dark:border-primary-container sticky top-0 z-50 w-full border-b"
+    >
+      <div
+        class="px-margin-desktop max-w-container-max mx-auto flex h-16 w-full items-center justify-between"
+      >
+        <!-- Brand -->
+        <div class="gap-stack-sm flex items-center">
+          <span
+            class="font-headline-md text-headline-md text-primary dark:text-inverse-primary font-bold"
+            >EduSphere LXP</span
+          >
+        </div>
+        <!-- Navigation Links -->
+        <nav class="gap-gutter hidden items-center md:flex">
+          <a
+            class="text-on-surface-variant dark:text-on-primary-container font-body-md text-body-md hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+            href="#"
+            >Course Categories</a
+          >
+          <a
+            class="text-on-surface-variant dark:text-on-primary-container font-body-md text-body-md hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+            href="#"
+            >My Learning</a
+          >
+          <a
+            class="text-secondary border-secondary font-body-md text-body-md cursor-pointer border-b-2 pb-1 font-bold transition-all active:opacity-80"
+            href="#"
+            >Settings</a
+          >
+          <!-- Intent mapping: Subscription is under Settings/Profile -->
+        </nav>
+        <!-- Actions -->
+        <div class="gap-stack-md flex items-center">
+          <button
+            aria-label="notifications"
+            class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary transition-colors"
+          >
+            <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+          </button>
+          <div class="gap-stack-sm group flex cursor-pointer items-center">
+            <img
+              alt="User profile"
+              class="border-outline-variant group-hover:border-secondary h-8 w-8 rounded-full border object-cover transition-colors"
+              data-alt="A professional headshot of a young business professional wearing a crisp blue shirt, set against a clean, bright, minimalist white background. The lighting is soft and corporate, fitting an enterprise software avatar. 50 words exact."
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCak5kTKjFiYzEyZSTo94oyGXQiuV1cDEfdkTr6gYFB673JkEhkkJp8L_2BO3haSXJkqxxx9RUdJYKtcBJDTZlv5pYaxw4qpo5CNQTLvdMJbB2KNhqJxIzDa1l-n3-TA7jNzppnLnMDo_28-SBWhn4uwyGybF86zj_T3Yz-HWGHKk2LrJOu6sNwCt65-vBkOSaF31AKeVRAULaG0IpdeKvW8Oat8XR8MIvfnnR74OqHnUYITbqeYYAicw"
+            />
+            <span
+              class="font-label-md text-label-md text-primary group-hover:text-secondary hidden transition-colors md:inline"
+              >Profile</span
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Layout with SideNav -->
+    <div
+      class="max-w-container-max px-margin-desktop gap-gutter py-stack-lg mx-auto flex w-full flex-1"
+    >
+      <!-- Side Navigation (Settings Context) -->
+      <aside class="hidden w-64 flex-shrink-0 flex-col lg:flex">
+        <nav class="gap-base flex flex-col">
+          <a
+            class="gap-stack-sm px-stack-md py-stack-sm text-on-surface-variant hover:bg-surface-container hover:text-secondary flex items-center rounded-lg transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined text-[20px]">person</span>
+            <span class="font-label-md text-label-md">Profile Details</span>
+          </a>
+          <a
+            class="gap-stack-sm px-stack-md py-stack-sm text-on-surface-variant hover:bg-surface-container hover:text-secondary flex items-center rounded-lg transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined text-[20px]">security</span>
+            <span class="font-label-md text-label-md">Security</span>
+          </a>
+          <a
+            class="gap-stack-sm px-stack-md py-stack-sm bg-secondary text-on-secondary flex items-center rounded-lg shadow-sm transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined text-[20px]">credit_card</span>
+            <span class="font-label-md text-label-md">Subscription &amp; Billing</span>
+          </a>
+          <a
+            class="gap-stack-sm px-stack-md py-stack-sm text-on-surface-variant hover:bg-surface-container hover:text-secondary flex items-center rounded-lg transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+            <span class="font-label-md text-label-md">Notifications</span>
+          </a>
+        </nav>
+      </aside>
+      <!-- Main Content Area -->
+      <main class="gap-stack-lg flex flex-1 flex-col">
+        <!-- Header Section -->
+        <div
+          class="gap-stack-md border-outline-variant pb-stack-md flex flex-col justify-between border-b md:flex-row md:items-end"
+        >
+          <div>
+            <h1 class="font-headline-lg text-headline-lg text-primary mb-base">
+              Subscription Management
+            </h1>
+            <p class="font-body-md text-body-md text-slate-text">
+              Manage your plan, billing cycle, and payment methods.
+            </p>
+          </div>
+        </div>
+        <!-- Bento Grid Layout for Subscription Status -->
+        <div class="gap-gutter grid grid-cols-1 lg:grid-cols-3">
+          <!-- Current Plan Card -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg relative flex flex-col justify-between overflow-hidden rounded-xl border shadow-[0_2px_4px_rgba(0,0,0,0.04)] lg:col-span-2"
+          >
+            <!-- Decorative Background element -->
+            <div
+              class="bg-primary-fixed pointer-events-none absolute -top-16 -right-16 h-64 w-64 rounded-full opacity-20 blur-3xl"
+            ></div>
+            <div class="mb-stack-md z-10 flex items-start justify-between">
+              <div>
+                <span
+                  class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm mb-stack-sm inline-block rounded-full px-3 py-1"
+                  >Current Plan</span
+                >
+                <h2
+                  class="font-headline-md text-headline-md text-primary gap-stack-sm flex items-center"
+                >
+                  Enterprise Professional
+                  <span
+                    class="material-symbols-outlined filled text-secondary text-[24px]"
+                    title="Verified Enterprise"
+                    >verified</span
+                  >
+                </h2>
+                <p class="font-body-sm text-body-sm text-slate-text mt-base">
+                  Includes access to 500+ premium courses and advanced analytics.
+                </p>
+              </div>
+              <div class="text-right">
+                <div class="font-headline-lg text-headline-lg text-primary">
+                  $199<span class="font-body-md text-body-md text-slate-text">/mo</span>
+                </div>
+                <div
+                  class="font-label-sm text-label-sm text-success-green mt-1 flex items-center justify-end gap-1"
+                >
+                  <span class="material-symbols-outlined text-[16px]">check_circle</span> Active
+                </div>
+              </div>
+            </div>
+            <div
+              class="pt-stack-md border-surface-container gap-stack-md z-10 flex flex-col justify-between border-t sm:flex-row sm:items-center"
+            >
+              <div class="flex flex-col gap-1">
+                <span class="font-label-sm text-label-sm text-slate-text tracking-wider uppercase"
+                  >Next Billing Date</span
+                >
+                <span class="font-label-md text-label-md text-primary">October 15, 2024</span>
+              </div>
+              <div class="gap-stack-sm flex">
+                <button
+                  class="font-label-md text-label-md border-outline-variant text-primary hover:bg-surface-container focus:ring-secondary rounded-lg border px-4 py-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                >
+                  Cancel Plan
+                </button>
+                <button
+                  class="font-label-md text-label-md bg-secondary text-on-secondary hover:bg-secondary-container focus:ring-secondary rounded-lg px-4 py-2 shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                >
+                  Upgrade Plan
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Payment Method Card -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant p-stack-lg flex flex-col rounded-xl border shadow-[0_2px_4px_rgba(0,0,0,0.04)]"
+          >
+            <div class="mb-stack-md flex items-center justify-between">
+              <h3 class="font-headline-sm text-headline-sm text-primary">Payment Method</h3>
+              <button
+                aria-label="Edit payment method"
+                class="text-secondary hover:text-secondary-container p-1 transition-colors"
+              >
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+            </div>
+            <div
+              class="py-stack-md border-surface-container bg-surface-bright mb-stack-md flex flex-1 flex-col items-center justify-center rounded-lg border"
+            >
+              <span class="material-symbols-outlined text-slate-text mb-2 text-[48px]"
+                >credit_card</span
+              >
+              <div class="font-label-md text-label-md text-primary">Visa ending in **** 4242</div>
+              <div class="font-label-sm text-label-sm text-slate-text mt-1">Expires 12/2025</div>
+            </div>
+            <button
+              class="font-label-md text-label-md border-secondary text-secondary hover:bg-primary-fixed w-full rounded-lg border py-2 transition-colors"
+            >
+              Add New Method
+            </button>
+          </div>
+        </div>
+        <!-- Usage / Progress Section -->
+        <div
+          class="bg-surface-container-lowest border-outline-variant p-stack-lg rounded-xl border"
+        >
+          <h3 class="font-headline-sm text-headline-sm text-primary mb-stack-md">Plan Usage</h3>
+          <div class="space-y-stack-md">
+            <!-- Progress Item 1 -->
+            <div>
+              <div class="mb-2 flex items-end justify-between">
+                <span class="font-label-md text-label-md text-primary"
+                  >Active Users (Enterprise)</span
+                >
+                <span class="font-label-sm text-label-sm text-slate-text">45 / 50 seats</span>
+              </div>
+              <div class="bg-surface-variant h-2 w-full overflow-hidden rounded-full">
+                <div class="bg-secondary h-2 rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+            <!-- Progress Item 2 -->
+            <div>
+              <div class="mb-2 flex items-end justify-between">
+                <span class="font-label-md text-label-md text-primary">Cloud Storage</span>
+                <span class="font-label-sm text-label-sm text-slate-text">120GB / 500GB</span>
+              </div>
+              <div class="bg-surface-variant h-2 w-full overflow-hidden rounded-full">
+                <div class="bg-primary h-2 rounded-full opacity-80" style="width: 24%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Billing History Table -->
+        <div
+          class="bg-surface-container-lowest border-outline-variant overflow-hidden rounded-xl border"
+        >
+          <div
+            class="p-stack-md border-surface-container bg-surface flex items-center justify-between border-b"
+          >
+            <h3 class="font-headline-sm text-headline-sm text-primary">Billing History</h3>
+            <button
+              class="text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:underline"
+            >
+              <span class="material-symbols-outlined text-[16px]">download</span> Download All
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="bg-surface-bright border-surface-container border-b">
+                  <th
+                    class="px-stack-md font-label-sm text-label-sm text-slate-text py-3 font-semibold tracking-wider uppercase"
+                  >
+                    Date
+                  </th>
+                  <th
+                    class="px-stack-md font-label-sm text-label-sm text-slate-text py-3 font-semibold tracking-wider uppercase"
+                  >
+                    Description
+                  </th>
+                  <th
+                    class="px-stack-md font-label-sm text-label-sm text-slate-text py-3 font-semibold tracking-wider uppercase"
+                  >
+                    Amount
+                  </th>
+                  <th
+                    class="px-stack-md font-label-sm text-label-sm text-slate-text py-3 font-semibold tracking-wider uppercase"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-stack-md font-label-sm text-label-sm text-slate-text py-3 text-right font-semibold tracking-wider uppercase"
+                  >
+                    Invoice
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="font-body-sm text-body-sm text-primary">
+                <tr class="border-surface-container hover:bg-surface border-b transition-colors">
+                  <td class="px-stack-md py-4">Sep 15, 2024</td>
+                  <td class="px-stack-md py-4">Enterprise Professional - Monthly</td>
+                  <td class="px-stack-md py-4">$199.00</td>
+                  <td class="px-stack-md py-4">
+                    <span
+                      class="bg-success-green/10 text-success-green font-label-sm text-label-sm inline-flex items-center rounded-sm px-2 py-0.5"
+                    >
+                      Paid
+                    </span>
+                  </td>
+                  <td class="px-stack-md py-4 text-right">
+                    <button
+                      aria-label="Download Invoice"
+                      class="text-slate-text hover:text-secondary transition-colors"
+                    >
+                      <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="border-surface-container hover:bg-surface border-b transition-colors">
+                  <td class="px-stack-md py-4">Aug 15, 2024</td>
+                  <td class="px-stack-md py-4">Enterprise Professional - Monthly</td>
+                  <td class="px-stack-md py-4">$199.00</td>
+                  <td class="px-stack-md py-4">
+                    <span
+                      class="bg-success-green/10 text-success-green font-label-sm text-label-sm inline-flex items-center rounded-sm px-2 py-0.5"
+                    >
+                      Paid
+                    </span>
+                  </td>
+                  <td class="px-stack-md py-4 text-right">
+                    <button
+                      aria-label="Download Invoice"
+                      class="text-slate-text hover:text-secondary transition-colors"
+                    >
+                      <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-surface transition-colors">
+                  <td class="px-stack-md py-4">Jul 15, 2024</td>
+                  <td class="px-stack-md py-4">Enterprise Professional - Monthly</td>
+                  <td class="px-stack-md py-4">$199.00</td>
+                  <td class="px-stack-md py-4">
+                    <span
+                      class="bg-success-green/10 text-success-green font-label-sm text-label-sm inline-flex items-center rounded-sm px-2 py-0.5"
+                    >
+                      Paid
+                    </span>
+                  </td>
+                  <td class="px-stack-md py-4 text-right">
+                    <button
+                      aria-label="Download Invoice"
+                      class="text-slate-text hover:text-secondary transition-colors"
+                    >
+                      <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- Footer -->
+    <footer
+      class="bg-surface-container-low dark:bg-surface-container-highest py-stack-lg border-outline-variant mt-auto w-full border-t"
+    >
+      <div
+        class="gap-gutter px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3"
+      >
+        <div class="gap-stack-sm flex flex-col">
+          <span class="font-label-md text-label-md text-primary font-bold">EduSphere LXP</span>
+          <span class="font-body-sm text-body-sm text-on-surface dark:text-on-surface-variant"
+            >© 2024 EduSphere Enterprise. All rights reserved.</span
+          >
+        </div>
+        <div class="gap-stack-sm flex flex-col md:col-span-2">
+          <nav class="gap-x-gutter gap-y-stack-sm flex flex-wrap">
+            <a
+              class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Privacy Policy</a
+            >
+            <a
+              class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Terms of Service</a
+            >
+            <a
+              class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Support</a
+            >
+            <a
+              class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+              href="#"
+              >Contact Us</a
+            >
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

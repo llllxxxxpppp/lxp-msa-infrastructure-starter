@@ -1,0 +1,8 @@
+// 설정을 내려주는 쪽. 자기 자신은 config client가 아니므로 starter-config를 쓰지 않는다.
+plugins {
+    id 'buildlogic.java-spring-cloud-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+}

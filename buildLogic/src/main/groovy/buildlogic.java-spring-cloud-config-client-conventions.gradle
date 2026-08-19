@@ -1,0 +1,8 @@
+// config-server에서 설정을 내려받는 쪽. config-repo/application.yml + {service}.yml을 읽는다.
+plugins {
+    id 'buildlogic.java-spring-cloud-conventions'
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+}

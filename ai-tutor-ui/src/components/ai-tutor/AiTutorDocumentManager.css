@@ -1,0 +1,66 @@
+.ai-document-manager {
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 24px;
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgb(37 99 235 / 10%);
+}
+
+.ai-document-manager h2 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+
+.ai-document-manager select,
+.ai-document-manager input {
+  padding: 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+}
+
+.ai-document-manager select {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.ai-document-manager form {
+  display: flex;
+  gap: 10px;
+}
+
+.ai-document-manager button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.ai-document-manager ul {
+  padding: 0;
+  list-style: none;
+}
+
+.ai-document-manager li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ai-document-manager li span {
+  overflow-wrap: anywhere;
+}
+
+.ai-document-manager li button {
+  background: #ef4444;
+}
+
+.ai-document-message {
+  color: #2563eb;
+}

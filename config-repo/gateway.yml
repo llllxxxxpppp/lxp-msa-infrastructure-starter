@@ -25,3 +25,9 @@ spring:
               uri: lb://subscription-service
               predicates:
                 - Path=/api/subscriptions/**,/api/payments/**
+
+            # [추가] AI 챗봇 서비스
+            - id: ai-tutor-service
+              uri: "http://${AI_BOT_HOST:localhost}:${AI_BOT_PORT:8000}"
+              predicates:
+                - Path=/api/ai/**
