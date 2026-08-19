@@ -63,7 +63,7 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
   // 전송 중 여부는 다음 렌더를 기다리지 않고 즉시 막아야 해서 ref 로도 잠근다.
   const sendingRef = useRef(false);
 
-  const initialize = useCallback(async () => {
+  const initialize = useCallback((): Promise<void> => {
     if (initializationRef.current) {
       return initializationRef.current;
     }
@@ -71,21 +71,22 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
     initializedRef.current = false;
     setIsInitializing(true);
     setError(null);
-    const initialization = client.reset();
+    const initialization = (async () => {
+      try {
+        await Promise.resolve().then(() => client.reset());
+        initializedRef.current = true;
+      } catch (cause) {
+        initializationRef.current = null;
+        setError(
+          cause instanceof Error ? cause.message : "새 추천 대화를 시작하지 못했습니다.",
+        );
+        setErrorActionLabel("다시 시도");
+      } finally {
+        setIsInitializing(false);
+      }
+    })();
     initializationRef.current = initialization;
-
-    try {
-      await initialization;
-      initializedRef.current = true;
-    } catch (cause) {
-      initializationRef.current = null;
-      setError(
-        cause instanceof Error ? cause.message : "새 추천 대화를 시작하지 못했습니다.",
-      );
-      setErrorActionLabel("다시 시도");
-    } finally {
-      setIsInitializing(false);
-    }
+    return initialization;
   }, [client]);
 
   useEffect(() => {
