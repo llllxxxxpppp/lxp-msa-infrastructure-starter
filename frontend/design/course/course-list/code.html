@@ -1,0 +1,2115 @@
+<!doctype html>
+
+<html class="light" lang="en" style="">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Course Catalog - EduSphere LXP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001848",
+              "surface-dim": "#d7dadc",
+              "tertiary-fixed": "#feddb5",
+              "on-primary-fixed-variant": "#38485a",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#e1c29b",
+              "on-tertiary": "#ffffff",
+              "warning-amber": "#F59E0B",
+              "tertiary-container": "#38260b",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#181c1e",
+              "surface-tint": "#4f6073",
+              "surface-bright": "#f7fafc",
+              "on-secondary": "#ffffff",
+              secondary: "#0453cd",
+              "on-surface": "#181c1e",
+              surface: "#f7fafc",
+              "surface-container-highest": "#e0e3e5",
+              "slate-text": "#4A5568",
+              tertiary: "#211200",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#b2c5ff",
+              "on-tertiary-container": "#a88c69",
+              "inverse-surface": "#2d3133",
+              "surface-container-low": "#f1f4f6",
+              "inverse-on-surface": "#eef1f3",
+              "outline-variant": "#c4c6cd",
+              "secondary-container": "#356ee7",
+              "on-secondary-fixed-variant": "#0040a2",
+              "success-green": "#22C55E",
+              "surface-container-high": "#e5e9eb",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d2e4fb",
+              background: "#f7fafc",
+              "on-primary-fixed": "#0b1d2d",
+              "on-secondary-container": "#fefcff",
+              "surface-container": "#ebeef0",
+              "on-primary": "#ffffff",
+              primary: "#041627",
+              "on-tertiary-fixed-variant": "#584326",
+              "inverse-primary": "#b7c8de",
+              "surface-variant": "#e0e3e5",
+              "primary-fixed-dim": "#b7c8de",
+              "secondary-fixed": "#dae2ff",
+              "primary-container": "#1a2b3c",
+              outline: "#74777d",
+              "error-red": "#EF4444",
+              error: "#ba1a1a",
+              "on-tertiary-fixed": "#281802",
+              "on-primary-container": "#8192a7",
+              "on-surface-variant": "#44474c",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              "stack-lg": "32px",
+              base: "4px",
+              "margin-desktop": "32px",
+              "stack-sm": "8px",
+              "margin-mobile": "16px",
+              "container-max": "1280px",
+              gutter: "24px",
+              "stack-md": "16px",
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "body-lg": ["Inter"],
+              "label-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-sm": ["Inter"],
+              "body-sm": ["Inter"],
+              "label-md": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+              "label-sm": [
+                "12px",
+                { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" },
+              ],
+              "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "label-md": [
+                "14px",
+                { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" },
+              ],
+              "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #f4f7f9;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="font-body-md text-body-md text-on-background flex min-h-screen flex-col">
+    <!-- TopNavBar -->
+    <nav
+      class="bg-surface dark:bg-primary border-outline-variant dark:border-primary-container sticky top-0 z-50 w-full border-b"
+    >
+      <div
+        class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex h-16 w-full items-center justify-between"
+      >
+        <div class="gap-stack-lg flex items-center">
+          <a
+            class="font-headline-md text-headline-md text-primary dark:text-inverse-primary font-bold"
+            href="#"
+            >EduSphere LXP</a
+          >
+          <!-- Search Bar (on_left as per JSON) -->
+          <div class="relative hidden w-64 items-center md:flex">
+            <span
+              class="material-symbols-outlined text-outline text-body-md absolute left-3"
+              style="font-variation-settings: &quot;FILL&quot; 0"
+              >search</span
+            >
+            <input
+              class="bg-surface-container-lowest border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-secondary h-10 w-full rounded-lg border pr-4 pl-10 transition-all focus:ring-1 focus:outline-none"
+              placeholder="Search courses..."
+              type="text"
+            />
+          </div>
+        </div>
+        <div class="gap-stack-lg hidden items-center md:flex">
+          <a
+            class="font-body-md text-body-md text-secondary border-secondary hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer border-b-2 pb-1 font-bold transition-all transition-colors active:opacity-80"
+            href="#"
+            >Course Categories</a
+          >
+          <a
+            class="font-body-md text-body-md text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed cursor-pointer transition-all transition-colors active:opacity-80"
+            href="#"
+            >My Learning</a
+          >
+        </div>
+        <div class="gap-stack-md flex items-center">
+          <button
+            class="text-on-surface-variant hover:text-secondary hover:bg-surface-container cursor-pointer rounded-full p-2 transition-colors active:opacity-80"
+          >
+            <span
+              class="material-symbols-outlined"
+              data-icon="notifications"
+              style="font-variation-settings: &quot;FILL&quot; 0"
+              >notifications</span
+            >
+          </button>
+          <button
+            class="text-on-surface-variant hover:text-secondary flex cursor-pointer items-center gap-2 transition-colors active:opacity-80"
+          >
+            <img
+              alt="User profile"
+              class="border-outline-variant h-8 w-8 rounded-full border object-cover"
+              data-alt="A small, circular profile picture of a professional individual in a corporate setting. High key lighting, modern light mode aesthetic. Sharp focus."
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE16Ae15cgV6SbZpS8joj9x5sOU3-2U_jqnYaKGnsnnN5CE0v3Fh2ur7Q3HoR6KAIsimvAy3U2x0VOGdtM2m_vdO3fqNVob3JTqLalB2cTwpESVvmK74mrj4zm4Qs_nBC91aSVz2nTnKx_yqx20LAmf8u6cXqiVPv4pzRfAhB6Wkv5Y01r7VWCXSpFGqKjYBFOuFGcwF7ZqHuePBrTOFGx5sTZlBH5hOPqetaVOac-8fH-seKusBeFtw"
+            />
+            <span class="font-label-md text-label-md hidden md:block">Profile</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <main
+      class="max-w-container-max px-margin-mobile md:px-margin-desktop py-stack-lg gap-gutter mx-auto grid w-full flex-grow grid-cols-1 md:grid-cols-12"
+    >
+      <!-- Left Sidebar (Filters) -->
+      <aside class="space-y-stack-lg hidden md:col-span-3 md:block">
+        <div
+          class="bg-surface-container-lowest border-outline-variant p-stack-md rounded-lg border"
+        >
+          <h3 class="font-label-md text-label-md text-primary mb-stack-md">Categories</h3>
+          <div class="space-y-stack-sm">
+            <div class="mb-2">
+              <p class="font-label-sm text-label-sm text-outline mb-1">Development</p>
+              <div class="space-y-1">
+                <label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >백엔드 개발</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >프론트엔드 개발</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >모바일 개발</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >데브옵스·인프라</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >보안</span
+                  ></label
+                >
+              </div>
+            </div>
+            <div class="mb-2">
+              <p class="font-label-sm text-label-sm text-outline mb-1">Data/AI</p>
+              <div class="space-y-1">
+                <label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >데이터 분석</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >데이터 엔지니어링</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >AI·머신러닝</span
+                  ></label
+                >
+              </div>
+            </div>
+            <div>
+              <p class="font-label-sm text-label-sm text-outline mb-1">Planning/Design</p>
+              <div class="space-y-1">
+                <label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >프로덕트</span
+                  ></label
+                ><label
+                  class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+                  ><input
+                    class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4 rounded"
+                    type="checkbox"
+                  /><span class="font-body-sm text-body-sm text-on-surface-variant"
+                    >디자인·UX</span
+                  ></label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-surface-container-lowest border-outline-variant p-stack-md rounded-lg border"
+        >
+          <h3 class="font-label-md text-label-md text-primary mb-stack-md">Skill Level</h3>
+          <div class="space-y-stack-sm">
+            <label
+              class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+              ><input
+                class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4"
+                name="level"
+                type="radio"
+              /><span class="font-body-sm text-body-sm text-on-surface-variant">입문</span></label
+            ><label
+              class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+              ><input
+                checked=""
+                class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4"
+                name="level"
+                type="radio"
+              /><span class="font-body-sm text-body-sm text-on-surface-variant">실전</span></label
+            ><label
+              class="hover:bg-surface-container flex cursor-pointer items-center gap-2 rounded p-1 transition-colors"
+              ><input
+                class="border-outline-variant text-secondary focus:ring-secondary h-4 w-4"
+                name="level"
+                type="radio"
+              /><span class="font-body-sm text-body-sm text-on-surface-variant">심화</span></label
+            >
+          </div>
+        </div>
+      </aside>
+      <!-- Course Grid -->
+      <section class="col-span-1 md:col-span-9">
+        <div class="mb-stack-lg flex items-center justify-between">
+          <h1
+            class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary"
+          >
+            Explore Courses
+          </h1>
+          <div class="gap-stack-sm flex items-center">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">Sort by:</span>
+            <select
+              class="bg-surface-container-lowest border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-secondary rounded-lg border py-1 pr-8 pl-2 focus:ring-1 focus:outline-none"
+            >
+              <option>Recommended</option>
+              <option>Highest Rated</option>
+              <option>Newest</option>
+            </select>
+          </div>
+        </div>
+        <!-- Mobile Search/Filter Toggle (Visible only on mobile) -->
+        <div class="gap-stack-sm mb-stack-lg flex md:hidden">
+          <div class="relative flex-grow">
+            <span
+              class="material-symbols-outlined text-outline text-body-md absolute top-2.5 left-3"
+              style="font-variation-settings: &quot;FILL&quot; 0"
+              >search</span
+            >
+            <input
+              class="bg-surface-container-lowest border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-secondary h-10 w-full rounded-lg border pr-4 pl-10 focus:ring-1 focus:outline-none"
+              placeholder="Search..."
+              type="text"
+            />
+          </div>
+          <button
+            class="bg-surface-container-lowest border-outline-variant text-on-surface flex items-center justify-center rounded-lg border px-4 py-2"
+          >
+            <span class="material-symbols-outlined text-body-md">tune</span>
+          </button>
+        </div>
+        <div class="gap-gutter grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Course Card 1 (Started) -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                />
+                <span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  >
+                  <span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span>
+                  <span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Repeat Card 1 for 10 items -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Repeat Card 2 (Not Started) for 10 items -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                />
+                <span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  >
+                  <span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Repeat Card 3 (Completed) for 10 items -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                />
+                <span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  >
+                  <span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Placeholder for brevity: Repeat the above 3 card blocks 9 more times to reach 30 cards total] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 8 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 7 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 6 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 5 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 4 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 3 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 2 more times...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- [Repeat 1 more time...] -->
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBtDLbMigN33q9EJjxOHReaL2HFZ29CT9mjNJ28YLlS0USNkF88GRLXn2AiUPclWjlCIQ1eEvAq7mFX52yC7Ds-qu811ud7rp_zPCO95CmVWDG2aWBLiI1zKoZL7sZY5WBh0ksaQGJsLmE_j4KMEpRoa89Q5hja4xJYLJfNvZPZNQNItzRm-jhAdEYtmw9u1Aagx3awwEiDOJdgnxSvEI53bvGZpasGsTQmzwftcHxAvo7AblWmiUlMtw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Compliance
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Data Privacy &amp; Security Essentials
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Mandatory annual training on handling sensitive corporate information.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDImvM8tb4jDPfD2P2PQ57JyXimdLL60wun8_IE-WytElqL1j7Y0Nt-kP0NrYvcWH1gCGEbVnQ-mspSOLY9ZuruVla4cIXvpUFIkGlDeVEkZxaCAuek8LtwwNIg-rz6aBWaIkWomS_UblTKAXf6qSQ-fNmBnCCpnJ3sfrxOF4ejbfK7xPG0DYnJezw1w-H-n0jtGrovxUgFGwSVm1RdyIUP1yYA85mRUasTgtXxRE2rTUfRaHC79m9fQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Sarah Jenkins</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.8</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">2h 15m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div class="font-label-sm text-label-sm mb-1 flex justify-between">
+                  <span class="text-secondary">In Progress</span
+                  ><span class="text-on-surface">65%</span>
+                </div>
+                <div class="bg-primary/10 h-1.5 w-full overflow-hidden rounded-full">
+                  <div class="bg-secondary h-full rounded-full" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBzkEkATtijwwLn6M9wk0NZOvsQXzofRoNo3-jHcGlUpVeE0CvzJ-ksKmlP556lfOIa87YUbn_Gyypj9m3j_TCigd76kFs7QXfuhJeomnBvLAJWcsCek6mYb7JAINWj106ppTr82XcFuCSpHih8pSsjFMBiosh0LBMSpo7-NwKnu2uytmWYU6F2Tc8sAlfU7-qvuvrezfNKWqLO7Bj46UOwOZMI8Y4bydLYWY7i0uKojl_F2-DYjzVnRQ&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Technical
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Cloud Infrastructure Fundamentals
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Learn the basics of deploying and managing scalable cloud environments.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwLayXdc8h8whDh8N02zrR0xE92ZfwibQZlSOJ5i_hpnlUdHBw9LiPnU9NMS8uce58MxKbUY_wOiazrAIT5ckdqipXGgEorKDxYa_f8h_AouQX1ey4SW_cUnvMh0529-tJgW_Jgx2xdLj7LL9wuSlWK3wUS2_RHVKccojtZuRCwVM0pl-rzUjhGumEForVfdt1xpC_M0GF3WHUQLo7kEOhyfuXaLpmXwEnajutlKdv0xYF2Xmxwa2MUQ"
+                /><span class="font-label-sm text-label-sm text-slate-text">Dr. Alan Turing</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.9</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">4h 30m</span>
+              </div>
+              <div class="pt-stack-sm mt-auto">
+                <button
+                  class="border-secondary text-secondary font-label-md text-label-md hover:bg-secondary/5 w-full rounded-lg border bg-transparent py-2 transition-colors"
+                >
+                  Start Course
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-surface-container-lowest border-outline-variant group flex cursor-pointer flex-col overflow-hidden rounded-lg border opacity-90 transition-shadow duration-300 hover:shadow-md"
+          >
+            <div
+              class="relative h-40 w-full bg-cover bg-center"
+              style="
+                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDixa_tqOimiihCySFOXnRld5XsyqTTsuneOQb5pJPxY25YPGx9d5QJqq-0l538O-CBLmL9C2JpD9rKYLFkIj6vTtx6hSzgAm9_S3hGMijk-suIvpRg5_goev14gfsOm8BlAqrE8VXA9z16c-GrDWdjToz2qv9Y6udbWevtOFMYSKOuo-jRKx9Cy_3lhDpDkGGK0RjFCaUMh9J4XyhS4HXw5EsC8ZGXr3jhXYHU7RMPwNZoQNGEidGNBw&quot;);
+              "
+            >
+              <div
+                class="bg-surface-container-lowest/90 font-label-sm text-label-sm text-primary border-outline-variant/50 absolute top-2 right-2 rounded border px-2 py-1 backdrop-blur-sm"
+              >
+                Leadership
+              </div>
+            </div>
+            <div class="p-stack-md flex flex-grow flex-col">
+              <h3
+                class="font-headline-sm text-headline-sm text-primary group-hover:text-secondary mb-1 line-clamp-2 transition-colors"
+              >
+                Effective Team Management
+              </h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md line-clamp-2">
+                Strategies for leading high-performing teams and conflict resolution.
+              </p>
+              <div class="mb-stack-md flex items-center gap-2">
+                <img
+                  alt="Instructor"
+                  class="h-6 w-6 rounded-full object-cover"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNXwBn_UeqeDWOloCTDwY8kVZwQZ5f27zGXju8fHZTilmYx4e9GS5rL07WbVX5e9V7az6FKLRK3DVP4nJcn38OIpP2F3klver6knBkrMSd105gHk6sna4s0wISRE573IIB6IkzCNvTiA2kbm4s2fS5D59QyMR9q_V0BSV_OxRrYZaqmIYfWRrc7KD7VQF2Uz2Utykckc_l3tXnzzBRJB5pVaDjbZJu_JOUPEkudJa1okvzNBbGPv-aNw"
+                /><span class="font-label-sm text-label-sm text-slate-text">Elena Rodriguez</span>
+              </div>
+              <div class="mb-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="material-symbols-outlined text-warning-amber text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >star</span
+                  ><span class="font-label-sm text-label-sm text-on-surface">4.7</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-slate-text">3h 0m</span>
+              </div>
+              <div class="pt-stack-sm border-surface-container mt-auto border-t">
+                <div
+                  class="font-label-sm text-label-sm text-success-green bg-success-green/10 flex w-fit items-center gap-2 rounded px-2 py-1"
+                >
+                  <span
+                    class="material-symbols-outlined text-[16px]"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >check_circle</span
+                  >Completed
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Pagination -->
+        <div class="mt-stack-lg flex items-center justify-center gap-2">
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container rounded-lg border p-2 disabled:opacity-50"
+            disabled=""
+          >
+            <span class="material-symbols-outlined text-body-md">chevron_left</span>
+          </button>
+          <button
+            class="bg-secondary text-on-secondary font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg"
+          >
+            1
+          </button>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            2
+          </button>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            3
+          </button>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            4
+          </button>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            5
+          </button>
+          <span class="text-on-surface-variant">...</span>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm flex h-8 w-8 items-center justify-center rounded-lg border"
+          >
+            10
+          </button>
+          <button
+            class="border-outline-variant text-on-surface-variant hover:bg-surface-container rounded-lg border p-2"
+          >
+            <span class="material-symbols-outlined text-body-md">chevron_right</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="bg-surface-container-low dark:bg-surface-container-highest py-stack-lg border-outline-variant mt-auto w-full border-t"
+    >
+      <div
+        class="gap-gutter px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3"
+      >
+        <div class="gap-stack-sm flex flex-col">
+          <span class="font-label-md text-label-md text-primary font-bold">EduSphere LXP</span>
+          <p class="font-body-sm text-body-sm text-slate-text">
+            © 2024 EduSphere Enterprise. All rights reserved.
+          </p>
+        </div>
+        <div
+          class="gap-stack-sm md:gap-stack-lg flex flex-col md:col-span-2 md:flex-row md:justify-end"
+        >
+          <a
+            class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Privacy Policy</a
+          >
+          <a
+            class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Terms of Service</a
+          >
+          <a
+            class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Support</a
+          >
+          <a
+            class="font-body-sm text-body-sm text-slate-text hover:text-secondary underline opacity-90 transition-all hover:opacity-100"
+            href="#"
+            >Contact Us</a
+          >
+        </div>
+      </div>
+    </footer>
+    <button
+      class="bg-secondary text-on-secondary font-label-md text-label-md fixed right-8 bottom-24 z-50 flex items-center gap-2 rounded-full px-6 py-3 shadow-lg transition-all hover:opacity-90 hover:shadow-xl active:scale-95"
+    >
+      <span class="material-symbols-outlined">auto_awesome</span>
+      커리큘럼 추천
+    </button>
+  </body>
+</html>

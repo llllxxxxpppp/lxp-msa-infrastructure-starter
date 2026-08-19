@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/*
+ * frontend/design/DESIGN.md의 디자인 토큰을 Tailwind v4 CSS-first 테마로 이식했다.
+ * 원본 Stitch export는 CDN Tailwind + JS 설정(tailwind.config)을 썼지만, 이 프로젝트는
+ * 컴파일된 Tailwind v4(@tailwindcss/postcss)를 쓰므로 @theme 블록으로 옮겨온다.
+ *
+ * 다크모드는 DESIGN.md/Stitch export 어디에도 실제로 쓰이지 않아(전 화면 라이트 전용
+ * 엔터프라이즈 SaaS 톤) 의도적으로 넣지 않았다.
+ */
+@theme {
+  /* Colors (Material-3 스타일 토큰, DESIGN.md frontmatter 그대로) */
+  --color-surface: #f7fafc;
+  --color-surface-dim: #d7dadc;
+  --color-surface-bright: #f7fafc;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f4f6;
+  --color-surface-container: #ebeef0;
+  --color-surface-container-high: #e5e9eb;
+  --color-surface-container-highest: #e0e3e5;
+  --color-surface-variant: #e0e3e5;
+  --color-on-surface: #181c1e;
+  --color-on-surface-variant: #44474c;
+  --color-inverse-surface: #2d3133;
+  --color-inverse-on-surface: #eef1f3;
+  --color-outline: #74777d;
+  --color-outline-variant: #c4c6cd;
+  --color-surface-tint: #4f6073;
+
+  --color-primary: #041627;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1a2b3c;
+  --color-on-primary-container: #8192a7;
+  --color-inverse-primary: #b7c8de;
+  --color-primary-fixed: #d2e4fb;
+  --color-primary-fixed-dim: #b7c8de;
+  --color-on-primary-fixed: #0b1d2d;
+  --color-on-primary-fixed-variant: #38485a;
+
+  --color-secondary: #0453cd;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #356ee7;
+  --color-on-secondary-container: #fefcff;
+  --color-secondary-fixed: #dae2ff;
+  --color-secondary-fixed-dim: #b2c5ff;
+  --color-on-secondary-fixed: #001848;
+  --color-on-secondary-fixed-variant: #0040a2;
+
+  --color-tertiary: #211200;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #38260b;
+  --color-on-tertiary-container: #a88c69;
+  --color-tertiary-fixed: #feddb5;
+  --color-tertiary-fixed-dim: #e1c29b;
+  --color-on-tertiary-fixed: #281802;
+  --color-on-tertiary-fixed-variant: #584326;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #f7fafc;
+  --color-on-background: #181c1e;
+
+  /* DESIGN.md 부가 시맨틱 색상 */
+  --color-slate-text: #4a5568;
+  --color-success-green: #22c55e;
+  --color-warning-amber: #f59e0b;
+  --color-error-red: #ef4444;
+
+  /* Radius (DESIGN.md `rounded` 스케일) */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Spacing (DESIGN.md `spacing` 스케일 — 기본 숫자 스케일에 이름 있는 값 추가) */
+  --spacing-base: 4px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 32px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 32px;
+  --spacing-container-max: 1280px;
+
+  /* Typography — Inter 단일 폰트, DESIGN.md typography 스케일 */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg--font-weight: 700;
+
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-headline-lg-mobile--font-weight: 700;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 600;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.02em;
+  --text-label-sm--font-weight: 500;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-background);
+}
+
+/* Material Symbols는 가변 폰트라 font-variation-settings로 채움/굵기를 제어한다. */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}

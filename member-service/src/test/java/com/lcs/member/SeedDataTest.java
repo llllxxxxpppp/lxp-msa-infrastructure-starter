@@ -35,6 +35,11 @@ class SeedDataTest {
     private static final long INSTRUCTOR_SEED_ID = 2L;
     private static final long MEMBER_SEED_ID = 3L;
 
+    // [추가] 실제 Auth의 BCryptPasswordEncoder와 동일한 형식의 테스트 비밀번호 해시
+    // 원문 비밀번호: placeholder-encoded-password
+    private static final String TEST_PASSWORD_HASH =
+            "$2y$12$EvSDwbHrRetLZ.7raipRv.bGUyts1AsR0AwdIgebFFc1g3jTtWBQW";
+
     @Autowired
     private MemberRepository memberRepository;
 
@@ -105,7 +110,10 @@ class SeedDataTest {
     @Transactional
     @DisplayName("고정 시드(id 1~3) 이후 새 회원을 저장하면 RESTART WITH 1000이 반영되어 1000 이상의 새 ID가 발급된다")
     void givenRestartWith1000Applied_whenSavingNewRegularMember_thenAssignsIdNotConflictingWithFixedSeedIds() {
-        RegularMember newMember = RegularMember.create("new-member@lxp.local", "placeholder-encoded-password");
+
+        // [변경] 평문 대신 BCrypt 해시 형태의 비밀번호를 저장
+        RegularMember newMember =
+                RegularMember.create("new-member@lxp.local", TEST_PASSWORD_HASH);
 
         RegularMember saved = memberRepository.save(newMember);
 

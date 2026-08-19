@@ -1,5 +1,7 @@
 package com.lcs.gateway.filter;
 
+// [추가]
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
@@ -86,7 +88,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             // (isAuthorized는 매칭되는 모든 규칙을 AND로 검사하므로, 별도 /me/** 규칙을
             //  추가하는 대신 이 규칙 자체를 넓혀야 강사가 403으로 막히지 않는다.)
             rule(null, "/api/members/**", ROLE_MEMBER, ROLE_INSTRUCTOR, ROLE_ADMIN),
-
+            // [추가] 담당 강좌 목록은 강사만 조회할 수 있다.
+            rule(GET, "/api/courses/instructor/me", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/publish", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
@@ -102,8 +105,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             rule(POST, "/api/courses/*/missions/*/publish", ROLE_INSTRUCTOR),
             rule(POST, "/api/courses/*/missions/*/unpublish", ROLE_INSTRUCTOR, ROLE_ADMIN),
             rule(DELETE, "/api/courses/*/missions/*", ROLE_INSTRUCTOR, ROLE_ADMIN),
-            // 사내 인사 규정을 다루는 백오피스 도구이므로 관리자만 허용한다.
+            // 사내 인사 규정을 다루는 백오피스 도구이므로 관리자만 허용한다.(동현)
             rule(null, "/api/policies/**", ROLE_ADMIN));
+            // [추가] PDF 관리 API는 강사만 접근할 수 있다.
+            rule(GET, "/api/ai/courses/*/documents", ROLE_INSTRUCTOR),
+            rule(POST, "/api/ai/courses/*/documents", ROLE_INSTRUCTOR),
+            rule(DELETE, "/api/ai/courses/*/documents/*", ROLE_INSTRUCTOR));
 
     private static RoleRule rule(HttpMethod method, String pathPattern, String... allowedRoles) {
         return new RoleRule(method, pathPattern, Set.of(allowedRoles));
