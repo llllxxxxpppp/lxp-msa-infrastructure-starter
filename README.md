@@ -13,6 +13,9 @@ Public API Gateway
   ├─ course-service
   └─ subscription-service   # 구독 + 결제 (payment 도메인 임시 통합)
 
+AI 서비스
+  └─ curriculum-service     # 맞춤형 커리큘럼 설계, 현재 직접 접근
+
 공통 인프라
   ├─ config-server
   ├─ Consul 3-node
@@ -23,15 +26,14 @@ Public API Gateway
   └─ Zipkin : 분산 트레이싱 저장/조회
 ```
 
-모든 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
+Spring 기반 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `curriculum-service`는 현재 호스트 포트 8001로 직접 접근합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
 
 > 구독(subscription)과 결제(payment) 도메인은 현재 결합도가 높아 `subscription-service` 하나로 통합해 운영합니다. `/api/subscriptions/**`와
 `/api/payments/**` 모두 이 서비스가 서빙하며, 도메인 경계가 명확해지면 별도 서비스로 분리할 예정입니다.
 
 ## 프로젝트 구성
 
-이 프로젝트는 **하나의 저장소 안에 서비스별 하위 프로젝트를 두는 모노레포**입니다. 각 하위 폴더는 자체 `settings.gradle`, `build.gradle`, Gradle Wrapper(
-`gradlew`), `Dockerfile`, `src`를 가진 완전히 독립된 프로젝트이며, 각자 자기 폴더 안에서 단독으로 빌드·실행됩니다. **루트에는 빌드 설정을 두지 않습니다.**
+이 프로젝트는 **하나의 저장소 안에 서비스별 하위 프로젝트를 두는 모노레포**입니다. Spring 기반 서비스는 자체 `settings.gradle`, `build.gradle`, Gradle Wrapper(`gradlew`)를 사용하고, Python 기반 `curriculum-service`는 `pyproject.toml`과 `uv.lock`을 사용합니다. 각 서비스는 자체 `Dockerfile`을 가지며 독립적으로 빌드·실행됩니다. **루트에는 빌드 설정을 두지 않습니다.**
 
 ```text
 lxp-msa-infrastructure-starter
@@ -40,6 +42,7 @@ lxp-msa-infrastructure-starter
 ├─ auth-service
 ├─ member-service
 ├─ course-service
+├─ curriculum-service      # 맞춤형 커리큘럼 설계 AI 서비스
 ├─ subscription-service
 ├─ frontend               # Next.js 프론트엔드 (frontend/README.md 참고)
 ├─ config-repo            # config-server가 서빙하는 설정 파일
@@ -52,17 +55,20 @@ lxp-msa-infrastructure-starter
 
 > `localhost:3000`은 `frontend` 개발 서버(`npm run dev`) 몫으로 비워뒀습니다. Gateway의 CORS 설정(`gateway/src/main/java/com/lcs/gateway/config/CorsConfig.java`)이 이미 이 origin을 전제하고 있어, 대신 Grafana를 3001로 옮겼습니다(아래 표 참고).
 
+
 ## 사용 버전
 
 - Java 17
+- Python 3.12
 - Spring Boot 3.5.15
 - Spring Cloud 2025.0.3
 - Consul 1.18
+- Ollama 0.32.9
 - Prometheus 3.1.0
 
 ## 실행 방법
 
-모든 도메인 서비스는 **Consul(서비스 디스커버리)** 과 **config-server(중앙 설정)** 에 의존합니다. 따라서 무엇을 실행하든 이 공통 의존성이 함께 떠 있어야 합니다.
+Spring 기반 도메인 서비스는 **Consul(서비스 디스커버리)** 과 **config-server(중앙 설정)** 에 의존합니다. `curriculum-service`는 Course Service와 Ollama에 의존합니다.
 
 > ⚠️ Consul은 `bootstrap-expect=3` 구성이라 **consul-1·2·3 세 노드가 모두** 떠야 리더가 선출됩니다. 하나만 띄우면 서비스가 config-server를 기다리며 멈춥니다.
 
@@ -104,7 +110,7 @@ docker compose up --build # 포그라운드
 docker compose up --build -d # 백그라운드 
 ```
 
-처음 실행할 때는 각 프로젝트의 Gradle 의존성을 내려받기 때문에 시간이 걸릴 수 있습니다.
+처음 실행할 때는 각 프로젝트의 Gradle·Python 의존성과 Ollama의 채팅 및 임베딩 모델을 내려받기 때문에 시간이 걸릴 수 있습니다. Ollama 모델은 `ollama-model-init` 컨테이너가 자동으로 준비합니다.
 
 ### 특정 서비스만 개발 / 실행
 
@@ -126,6 +132,31 @@ docker compose up --build \
   consul-1 consul-2 consul-3 \
   prometheus grafana loki alloy zipkin \
   config-server auth-service
+```
+
+Curriculum Service만 확인할 때는 Course Service의 공통 의존성과 Ollama를 함께 실행합니다.
+
+```bash
+docker compose up --build \
+  consul-1 consul-2 consul-3 config-server rabbitmq \
+  course-service ollama ollama-model-init curriculum-service
+```
+
+기본적으로 Course Service의 강좌 데이터를 사용합니다. 개발 및 테스트 목적으로
+`curriculum-service/tests/fixtures/courses.json`을 사용하려면 `PROVIDER=json`을
+설정한 뒤 실행합니다.
+
+**macOS / Linux**
+
+```bash
+PROVIDER=json docker compose up --build curriculum-service
+```
+
+**Windows (PowerShell)**
+
+```powershell
+$env:PROVIDER = "json"
+docker compose up --build curriculum-service
 ```
 
 **방법 B. 서비스만 IntelliJ에서 실행**
@@ -157,9 +188,12 @@ docker compose up --build \
 | auth-service         | http://localhost:8081/actuator/health | http://localhost:8080/api/auth/ping       |
 | member-service       | http://localhost:8082/actuator/health | http://localhost:8080/api/members/ping    |
 | course-service       | http://localhost:8083/actuator/health | http://localhost:8080/api/courses/ping    |
+| curriculum-service   | http://localhost:8001/health           | -                                         |
 | subscription-service | http://localhost:8084/actuator/health | http://localhost:8080/api/subscriptions/1 |
 
 > `subscription-service`는 payment 도메인도 서빙합니다: http://localhost:8080/api/payments/subscriptions/1
+
+Curriculum Service의 API 문서는 http://localhost:8001/docs 에서 확인할 수 있습니다.
 
 **공통 인프라**
 

@@ -120,6 +120,35 @@ services:
       retries: 10
       start_period: 20s
 
+  ollama:
+    image: ollama/ollama:0.32.9
+    container_name: lxp-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  ollama-model-init:
+    image: ollama/ollama:0.32.9
+    container_name: lxp-ollama-model-init
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama pull qwen3.5:4b &&
+        ollama pull qwen3-embedding:0.6b
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks: [lxp-net]
 
   gateway:
     build:
@@ -295,6 +324,36 @@ services:
       retries: 20
       start_period: 30s
 
+  curriculum-service:
+    build:
+      context: ./curriculum-service
+      dockerfile: Dockerfile
+    container_name: lxp-curriculum-service
+    environment:
+      COURSE_SERVICE_BASE_URL: http://course-service:8083
+      OLLAMA_BASE_URL: http://ollama:11434
+      PROVIDER: ${PROVIDER:-http}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+    ports:
+      - "8001:8000"
+    depends_on:
+      course-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ollama-model-init:
+        condition: service_completed_successfully
+    networks: [lxp-net]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
   subscription-service:
     build:
       context: .
@@ -344,4 +403,5 @@ volumes:
   loki-data:
   alloy-data:
   rabbitmq-data:
+  ollama-data:
   ai-tutor-chroma-data:
