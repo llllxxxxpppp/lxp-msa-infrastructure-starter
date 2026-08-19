@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatClient, ChatStatus, CurriculumPlan } from "./types";
 
 /*
@@ -26,11 +26,13 @@ export const GREETING =
 export interface UseCurriculumChat {
   messages: ChatMessage[];
   status: ChatStatus;
+  isInitializing: boolean;
   isSending: boolean;
-  /** 마지막 전송이 실패했을 때의 안내 문구. 성공하면 비워진다. */
+  /** 초기화 또는 마지막 전송이 실패했을 때의 안내 문구. 성공하면 비워진다. */
   error: string | null;
+  errorActionLabel: string;
   send: (text: string) => void;
-  /** 실패한 마지막 메시지를 그대로 다시 보낸다. */
+  /** 실패한 초기화 또는 마지막 메시지 전송을 다시 시도한다. */
   retry: () => void;
 }
 
@@ -41,25 +43,53 @@ function createId(): string {
   return `id-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 }
 
-/**
- * client 는 렌더마다 같은 인스턴스여야 한다. 목 클라이언트는 대화 상태를 자기 안에
- * 들고 있어서, 렌더마다 새로 만들면 매번 첫 턴으로 돌아간다.
- */
+/** client는 렌더마다 같은 인스턴스여야 세션 초기화 effect가 반복되지 않는다. */
 export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     { id: createId(), role: "bot", text: GREETING, curriculum: null, status: null },
   ]);
   const [status, setStatus] = useState<ChatStatus>("interviewing");
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // 세션당 한 번만 만들어 대화 내내 고정한다. 지연 초기화라 렌더마다 새로 생기지 않는다.
-  const [threadId] = useState(createId);
+  const [errorActionLabel, setErrorActionLabel] = useState("다시 시도");
 
   // 실패한 메시지를 재전송하려면 원문을 들고 있어야 한다.
   const lastSentRef = useRef<string | null>(null);
+  // 개발 모드의 effect 재실행에서도 세션 초기화 요청을 한 번만 보낸다.
+  const initializationRef = useRef<Promise<void> | null>(null);
+  const initializedRef = useRef(false);
   // 전송 중 여부는 다음 렌더를 기다리지 않고 즉시 막아야 해서 ref 로도 잠근다.
   const sendingRef = useRef(false);
+
+  const initialize = useCallback(async () => {
+    if (initializationRef.current) {
+      return initializationRef.current;
+    }
+
+    initializedRef.current = false;
+    setIsInitializing(true);
+    setError(null);
+    const initialization = client.reset();
+    initializationRef.current = initialization;
+
+    try {
+      await initialization;
+      initializedRef.current = true;
+    } catch (cause) {
+      initializationRef.current = null;
+      setError(
+        cause instanceof Error ? cause.message : "새 추천 대화를 시작하지 못했습니다.",
+      );
+      setErrorActionLabel("다시 시도");
+    } finally {
+      setIsInitializing(false);
+    }
+  }, [client]);
+
+  useEffect(() => {
+    void initialize();
+  }, [initialize]);
 
   const request = useCallback(
     async (text: string) => {
@@ -72,7 +102,6 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
 
       try {
         const response = await client.send({
-          thread_id: threadId,
           message: text,
         });
         setStatus(response.status);
@@ -91,18 +120,19 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
         // 보낸 말은 화면에 남겨 둔다. 다시 보내기를 누르면 그대로 재전송한다.
         lastSentRef.current = text;
         setError(cause instanceof Error ? cause.message : "봇 응답을 받지 못했습니다.");
+        setErrorActionLabel("다시 보내기");
       } finally {
         sendingRef.current = false;
         setIsSending(false);
       }
     },
-    [client, threadId],
+    [client],
   );
 
   const send = useCallback(
     (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed || sendingRef.current) {
+      if (!trimmed || !initializedRef.current || sendingRef.current) {
         return;
       }
       setMessages((prev) => [
@@ -118,8 +148,19 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
     const pending = lastSentRef.current;
     if (pending) {
       void request(pending);
+      return;
     }
-  }, [request]);
+    void initialize();
+  }, [initialize, request]);
 
-  return { messages, status, isSending, error, send, retry };
+  return {
+    messages,
+    status,
+    isInitializing,
+    isSending,
+    error,
+    errorActionLabel,
+    send,
+    retry,
+  };
 }

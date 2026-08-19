@@ -22,7 +22,16 @@ interface CurriculumChatProps {
  * 제목과 뒤로가기는 페이지가 갖고 있으므로 여기서는 대화와 입력창만 그린다.
  */
 export function CurriculumChat({ client, onStatusChange }: CurriculumChatProps) {
-  const { messages, status, isSending, error, send, retry } = useCurriculumChat(client);
+  const {
+    messages,
+    status,
+    isInitializing,
+    isSending,
+    error,
+    errorActionLabel,
+    send,
+    retry,
+  } = useCurriculumChat(client);
 
   useEffect(() => {
     onStatusChange?.(status);
@@ -30,8 +39,18 @@ export function CurriculumChat({ client, onStatusChange }: CurriculumChatProps) 
 
   return (
     <div className="flex w-full flex-col">
-      <MessageList messages={messages} isSending={isSending} error={error} onRetry={retry} />
-      <MessageInput onSend={send} disabled={isSending} />
+      <MessageList
+        messages={messages}
+        isSending={isSending}
+        error={error}
+        errorActionLabel={errorActionLabel}
+        onRetry={retry}
+      />
+      <MessageInput
+        onSend={send}
+        disabled={isInitializing || isSending}
+        disabledPlaceholder={isInitializing ? "대화를 준비하는 중…" : undefined}
+      />
     </div>
   );
 }

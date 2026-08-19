@@ -1,4 +1,3 @@
-import { findCourse } from "@/features/curriculum/courseCatalog";
 import type { CurriculumStep } from "@/features/curriculum/types";
 
 interface CurriculumStepItemProps {
@@ -15,14 +14,11 @@ export function CurriculumStepItem({ step, confirmed }: CurriculumStepItemProps)
           {step.stage}
         </span>
         <p className="text-on-surface text-sm font-medium">
-          {step.title} · {step.duration}
+          {step.title} · {step.duration_minutes}분
         </p>
       </li>
     );
   }
-
-  // 카테고리는 봇 응답에 없어 목 카탈로그에서 붙인다. 모르는 강좌면 소요 시간만 보여준다.
-  const category = findCourse(step.course_id)?.category;
 
   return (
     <li className="border-outline-variant bg-surface-container-lowest flex items-start border-b p-5 last:border-b-0">
@@ -31,9 +27,7 @@ export function CurriculumStepItem({ step, confirmed }: CurriculumStepItemProps)
       </span>
       <div>
         <h4 className="text-primary mb-1 text-base font-semibold">{step.title}</h4>
-        <p className="text-on-surface-variant mb-2 text-xs">
-          {category ? `${step.duration} · ${category}` : step.duration}
-        </p>
+        <p className="text-on-surface-variant mb-2 text-xs">{step.duration_minutes}분</p>
         <p className="text-on-surface text-sm">{step.reason}</p>
       </div>
     </li>

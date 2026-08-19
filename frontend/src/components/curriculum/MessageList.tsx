@@ -8,10 +8,17 @@ interface MessageListProps {
   messages: ChatMessage[];
   isSending: boolean;
   error: string | null;
+  errorActionLabel: string;
   onRetry: () => void;
 }
 
-export function MessageList({ messages, isSending, error, onRetry }: MessageListProps) {
+export function MessageList({
+  messages,
+  isSending,
+  error,
+  errorActionLabel,
+  onRetry,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // 새 메시지·로딩·오류가 붙을 때마다 맨 아래로 따라간다.
@@ -26,7 +33,14 @@ export function MessageList({ messages, isSending, error, onRetry }: MessageList
           <MessageItem key={message.id} message={message} />
         ))}
         {isSending && <TypingIndicator />}
-        {error && <ErrorNotice message={error} onRetry={onRetry} disabled={isSending} />}
+        {error && (
+          <ErrorNotice
+            message={error}
+            actionLabel={errorActionLabel}
+            onRetry={onRetry}
+            disabled={isSending}
+          />
+        )}
       </ol>
       <div ref={bottomRef} />
     </>
