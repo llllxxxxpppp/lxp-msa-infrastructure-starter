@@ -26,6 +26,7 @@ export const GREETING =
 export interface UseCurriculumChat {
   messages: ChatMessage[];
   status: ChatStatus;
+  isReady: boolean;
   isInitializing: boolean;
   isSending: boolean;
   /** 초기화 또는 마지막 전송이 실패했을 때의 안내 문구. 성공하면 비워진다. */
@@ -156,6 +157,7 @@ export function useCurriculumChat(client: ChatClient): UseCurriculumChat {
   return {
     messages,
     status,
+    isReady: initializedRef.current,
     isInitializing,
     isSending,
     error,

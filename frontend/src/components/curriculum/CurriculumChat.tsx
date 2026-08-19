@@ -24,7 +24,7 @@ export function CurriculumChat({ client, onStatusChange }: CurriculumChatProps) 
   const {
     messages,
     status,
-    isInitializing,
+    isReady,
     isSending,
     error,
     errorActionLabel,
@@ -47,8 +47,8 @@ export function CurriculumChat({ client, onStatusChange }: CurriculumChatProps) 
       />
       <MessageInput
         onSend={send}
-        disabled={isInitializing || isSending}
-        disabledPlaceholder={isInitializing ? "대화를 준비하는 중…" : undefined}
+        disabled={!isReady || isSending}
+        disabledPlaceholder={!isReady ? "대화를 준비하는 중…" : undefined}
       />
     </div>
   );
