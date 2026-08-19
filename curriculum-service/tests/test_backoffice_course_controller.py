@@ -40,9 +40,9 @@ class BackofficeCourseControllerTest(TestCase):
             for route in self.controller.router.routes
         }
 
-        self.assertIn(("/api/courses", ("GET",)), methods_by_path)
-        self.assertIn(("/api/courses", ("PUT",)), methods_by_path)
-        self.assertIn(("/api/courses/{courseId}", ("PUT",)), methods_by_path)
+        self.assertIn(("/api/curriculum/courses", ("GET",)), methods_by_path)
+        self.assertIn(("/api/curriculum/courses", ("PUT",)), methods_by_path)
+        self.assertIn(("/api/curriculum/courses/{courseId}", ("PUT",)), methods_by_path)
 
     def test_get_courses_returns_embedded_courses(self) -> None:
         self.course_service.get_embedded_courses.return_value = [COURSE]
@@ -58,9 +58,9 @@ class BackofficeCourseControllerTest(TestCase):
         headers = {"X-User-Id": " 1 ", "X-Role": "ROLE_ADMIN"}
 
         responses = [
-            self.client.get("/api/courses", headers=headers),
-            self.client.put("/api/courses", headers=headers),
-            self.client.put("/api/courses/1", headers=headers),
+            self.client.get("/api/curriculum/courses", headers=headers),
+            self.client.put("/api/curriculum/courses", headers=headers),
+            self.client.put("/api/curriculum/courses/1", headers=headers),
         ]
 
         self.assertEqual([response.status_code for response in responses], [200, 200, 200])
@@ -78,7 +78,7 @@ class BackofficeCourseControllerTest(TestCase):
                 if user_id is not None:
                     headers["X-User-Id"] = user_id
 
-                response = self.client.get("/api/courses", headers=headers)
+                response = self.client.get("/api/curriculum/courses", headers=headers)
 
                 self.assertEqual(response.status_code, 401)
                 self.course_service.get_embedded_courses.assert_not_called()
@@ -93,7 +93,7 @@ class BackofficeCourseControllerTest(TestCase):
                 if role is not None:
                     headers["X-Role"] = role
 
-                response = self.client.put("/api/courses", headers=headers)
+                response = self.client.put("/api/curriculum/courses", headers=headers)
 
                 self.assertEqual(response.status_code, 403)
                 self.course_service.update_all_courses.assert_not_called()

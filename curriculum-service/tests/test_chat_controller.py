@@ -45,7 +45,7 @@ class ChatControllerApiTest(TestCase):
 
     def test_chat_uses_header_user_and_ignores_body_thread_id(self) -> None:
         response = self.client.post(
-            "/chat",
+            "/api/curriculum/chat",
             headers={"X-User-Id": " 7 "},
             json={"thread_id": "다른 사용자", "message": "안녕하세요"},
         )
@@ -59,7 +59,7 @@ class ChatControllerApiTest(TestCase):
 
     def test_chat_requires_message(self) -> None:
         response = self.client.post(
-            "/chat",
+            "/api/curriculum/chat",
             headers={"X-User-Id": "1"},
             json={"thread_id": "1"},
         )
@@ -76,7 +76,7 @@ class ChatControllerApiTest(TestCase):
                     headers["X-User-Id"] = user_id
 
                 response = self.client.post(
-                    "/chat",
+                    "/api/curriculum/chat",
                     headers=headers,
                     json={"message": "안녕하세요"},
                 )
@@ -87,7 +87,7 @@ class ChatControllerApiTest(TestCase):
     def test_delete_session_is_idempotent_and_returns_empty_204(self) -> None:
         for _ in range(2):
             response = self.client.delete(
-                "/chat/session",
+                "/api/curriculum/chat/session",
                 headers={"X-User-Id": "1"},
             )
 
@@ -98,7 +98,7 @@ class ChatControllerApiTest(TestCase):
         self.session_service.delete.assert_awaited_with(1)
 
     def test_delete_session_requires_authenticated_user(self) -> None:
-        response = self.client.delete("/chat/session")
+        response = self.client.delete("/api/curriculum/chat/session")
 
         self.assertEqual(response.status_code, 401)
         self.session_service.delete.assert_not_awaited()
@@ -148,7 +148,7 @@ class ChatSessionIntegrationTest(TestCase):
 
     def _chat(self, user_id: int) -> str:
         response = self.client.post(
-            "/chat",
+            "/api/curriculum/chat",
             headers={"X-User-Id": str(user_id)},
             json={"message": "메시지"},
         )
@@ -164,11 +164,11 @@ class ChatSessionIntegrationTest(TestCase):
         self.assertEqual(self._chat(1), "1번째 메시지")
 
         response = self.client.delete(
-            "/chat/session",
+            "/api/curriculum/chat/session",
             headers={"X-User-Id": "1"},
         )
         repeated_response = self.client.delete(
-            "/chat/session",
+            "/api/curriculum/chat/session",
             headers={"X-User-Id": "1"},
         )
 

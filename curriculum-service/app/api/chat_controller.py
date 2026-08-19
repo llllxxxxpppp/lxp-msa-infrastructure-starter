@@ -42,19 +42,21 @@ class ChatController:
         self._ollama_base_url = ollama_base_url
         self.router = APIRouter()
         self.router.add_api_route("/health", self.health, methods=["GET"])
-        self.router.add_api_route(
+        chat_router = APIRouter(prefix="/api/curriculum")
+        chat_router.add_api_route(
             "/chat",
             self.chat,
             methods=["POST"],
             response_model=ChatResponse,
         )
-        self.router.add_api_route(
+        chat_router.add_api_route(
             "/chat/session",
             self.delete_session,
             methods=["DELETE"],
             status_code=status.HTTP_204_NO_CONTENT,
             response_class=Response,
         )
+        self.router.include_router(chat_router)
 
     async def health(self) -> dict[str, str]:
         return {"status": "ok", "ollama_model": self._ollama_model}

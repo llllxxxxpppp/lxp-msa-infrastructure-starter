@@ -15,7 +15,7 @@ class BackofficeCourseController:
     def __init__(self, course_service: CourseService) -> None:
         self._course_service = course_service
         self.router = APIRouter(
-            prefix="/api",
+            prefix="/api/curriculum",
             tags=["backoffice"],
             dependencies=[Depends(require_admin)],
         )
