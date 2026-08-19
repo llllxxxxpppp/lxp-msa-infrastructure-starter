@@ -3,6 +3,8 @@
 from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, Mock
 
+from langgraph.checkpoint.memory import InMemorySaver
+
 from app.services.llm_service import CurriculumPlan, CurriculumStep
 from app.workflows.curriculum_workflow import CurriculumWorkflow
 
@@ -41,6 +43,13 @@ class CurriculumWorkflowStageTest(TestCase):
             [step["stage"] for step in curriculum["steps"]],
             ["입문", "실전"],
         )
+
+    def test_build_uses_injected_checkpointer(self) -> None:
+        checkpointer = InMemorySaver()
+
+        graph = self.workflow.build(checkpointer)
+
+        self.assertIs(graph.checkpointer, checkpointer)
 
     def test_fallback_curriculum_skips_missing_stage(self) -> None:
         self.course_service.get_first_course_by_difficulty_label.return_value = None

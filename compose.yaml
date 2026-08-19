@@ -164,6 +164,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       AI_BOT_HOST: ai-tutor-service
       AI_BOT_PORT: "8000"
+      CURRICULUM_BOT_HOST: curriculum-service
+      CURRICULUM_BOT_PORT: "8000"
     ports:
       - "8080:8080"
     volumes:
@@ -350,8 +352,6 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: admin
       RABBITMQ_PASSWORD: admin
-    ports:
-      - "8001:8000"
     depends_on:
       course-service:
         condition: service_healthy

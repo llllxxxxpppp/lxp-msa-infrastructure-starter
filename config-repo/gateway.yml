@@ -35,3 +35,9 @@ spring:
               uri: "http://${AI_BOT_HOST:localhost}:${AI_BOT_PORT:8000}"
               predicates:
                 - Path=/api/ai/**
+
+            # [추가] 커리큘럼 추천 서비스
+            - id: curriculum-service
+              uri: "http://${CURRICULUM_BOT_HOST:localhost}:${CURRICULUM_BOT_PORT:8000}"
+              predicates:
+                - Path=/api/curriculum/**

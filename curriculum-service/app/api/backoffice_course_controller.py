@@ -2,8 +2,9 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path
 
+from app.api.auth_dependencies import require_admin
 from app.providers.course_provider import Course
 from app.services.course_service import CourseService
 
@@ -13,7 +14,11 @@ class BackofficeCourseController:
 
     def __init__(self, course_service: CourseService) -> None:
         self._course_service = course_service
-        self.router = APIRouter(prefix="/api", tags=["backoffice"])
+        self.router = APIRouter(
+            prefix="/api/curriculum",
+            tags=["backoffice"],
+            dependencies=[Depends(require_admin)],
+        )
         self.router.add_api_route(
             "/courses",
             self.get_courses,
