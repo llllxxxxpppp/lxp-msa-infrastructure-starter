@@ -76,6 +76,7 @@ def build_graph(store: RagStore):
         model=config.OLLAMA_MODEL,
         base_url=config.OLLAMA_BASE_URL,
         temperature=0.0,
+        reasoning=False,    # 추론 on/off
     )
     rule_extractor_llm = llm.with_structured_output(RuleExtractionOutput)
     structured_llm = llm.with_structured_output(ConflictAnalysis)

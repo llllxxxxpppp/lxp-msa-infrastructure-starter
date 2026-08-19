@@ -36,7 +36,8 @@ SERVICE_PORT = _env_int("SERVICE_PORT", 8086)
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
 
 # 생성 모델 — 규정 팩트 추출(Node 1)과 충돌 분석(Node 3)에 쓰인다.
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
+# 8/19 팀 통합으로 
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3.5:4b")
 
 # 임베딩 모델 — PoC 리포는 HuggingFace `jhgan/ko-sroberta-multitask`(768차원)를 컨테이너
 # 안에서 torch로 직접 계산했다. 이식 시 Ollama가 서빙하는 bge-m3(1024차원)로 교체해
@@ -63,16 +64,10 @@ METADATA_DB_PATH = os.environ.get("METADATA_DB_PATH", "./documents.db")
 SEED_DOCUMENTS_DIR = os.environ.get("SEED_DOCUMENTS_DIR", "./seed-documents")
 
 # ---------------------------------------------------------
-# RAG 파라미터 (TOP_K는 PoC 원본 값, 청킹 값은 seed-documents 실측으로 조정)
+# RAG 파라미터 (PoC 리포의 원본 값을 기본값으로 유지)
 # ---------------------------------------------------------
-# seed-documents 50개(표준취업규칙 + 사내 문서 49개)를 실측해 정한 값이다.
-# 800은 두 문서군의 의미 단위(조문 / [ 목적 ] 섹션)가 모두 한 청크에 담기는 최소 크기다.
-#   - 500: 조문 온전성 52%, 섹션 온전성 67%
-#   - 800: 조문 온전성 93%, 섹션 온전성 100%
-#   - 600으로 줄이면 사내 문서 섹션이 넘쳐 68%로 무너진다.
-RAG_CHUNK_SIZE = _env_int("RAG_CHUNK_SIZE", 800)
-# 조문 경계에서 잘릴 때 앞 조문의 꼬리를 남겨 문맥을 잇는다(크기의 15%).
-RAG_CHUNK_OVERLAP = _env_int("RAG_CHUNK_OVERLAP", 120)
+RAG_CHUNK_SIZE = _env_int("RAG_CHUNK_SIZE", 500)
+RAG_CHUNK_OVERLAP = _env_int("RAG_CHUNK_OVERLAP", 50)
 RAG_TOP_K = _env_int("RAG_TOP_K", 2)
 
 # ---------------------------------------------------------
