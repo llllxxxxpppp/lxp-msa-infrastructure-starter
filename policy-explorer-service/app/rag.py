@@ -19,6 +19,7 @@ import glob
 import hashlib
 import logging
 import os
+import re
 import shutil
 import uuid
 from typing import Dict, List, Optional
@@ -45,13 +46,51 @@ class DocumentError(Exception):
     """업로드 요청 자체가 잘못된 경우(확장자 미지원, 텍스트 추출 실패 등)."""
 
 
+# 추출 텍스트에 섞이는 "의미가 0인" 문자들. seed-documents 50개를 실측해 고른 것만 지운다.
+# 해설 칼럼([필수]/☞ (참고) 등)은 개정안 검토에 쓸모가 있어 지우지 않고, 아래 구분자로
+# 경계만 인식시켜 규정 본문과 다른 청크로 갈라놓는다.
+_NOISE_PATTERNS = [
+    # 장식 구분선. 사내 문서 49개에서 45,472자(텍스트의 27%)를 차지했다.
+    (re.compile(r"[\u2500-\u257f=]{5,}"), ""),
+    # 페이지 번호만 있는 줄 (- 118 -).
+    (re.compile(r"^\s*[-–]\s*\d+\s*[-–]\s*$", re.M), ""),
+    # PDF가 중간점·쉼표 뒤에서 줄을 끊어 나열 항목이 쪼개진 것을 되붙인다.
+    #   '임신‧\n출산' → '임신‧출산'   (표준취업규칙 45곳, 사내 문서 52곳)
+    (re.compile(r"([‧·,、])\n(?=\S)"), r"\1"),
+    # 행말 공백 → 제거, 빈 줄 3개 이상 → 2개. 이 정리로 단락 구분자 \n\n 이 생긴다.
+    (re.compile(r"[ \t]+\n"), "\n"),
+    (re.compile(r"\n{3,}"), "\n\n"),
+]
+
+
+def _normalize(text: str) -> str:
+    """청킹 전에 의미 없는 문자를 걷어내고 단락 구조를 드러낸다.
+
+    PyPDFLoader가 뽑은 원문에는 장식 구분선·페이지 번호가 섞여 있고, 빈 줄이 없어
+    RecursiveCharacterTextSplitter의 1순위 구분자("\n\n")가 한 번도 매칭되지 않는다.
+    이 함수를 거치면 단락 경계가 생겨 구분자가 제대로 동작한다.
+    """
+    for pattern, replacement in _NOISE_PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text.strip()
+
+
 def _load_document(save_path: str, ext: str) -> List[Document]:
-    """확장자에 맞는 LangChain 로더로 파일을 읽어 Document 리스트를 반환한다."""
+    """확장자에 맞는 LangChain 로더로 파일을 읽고 전처리한 Document 리스트를 반환한다."""
     if ext == ".pdf":
-        return PyPDFLoader(save_path).load()
-    if ext == ".docx":
-        return Docx2txtLoader(save_path).load()
-    raise DocumentError(f"지원하지 않는 확장자입니다: {ext}")
+        docs = PyPDFLoader(save_path).load()
+    elif ext == ".docx":
+        docs = Docx2txtLoader(save_path).load()
+    else:
+        raise DocumentError(f"지원하지 않는 확장자입니다: {ext}")
+
+    # 전처리 후 알맹이가 남은 페이지만 넘긴다(표지·간지처럼 장식만 있던 페이지는 사라진다).
+    normalized = []
+    for doc in docs:
+        doc.page_content = _normalize(doc.page_content)
+        if doc.page_content:
+            normalized.append(doc)
+    return normalized
 
 
 class RagStore:
@@ -78,10 +117,28 @@ class RagStore:
             search_kwargs={"k": config.RAG_TOP_K}
         )
 
+        # 기본 구분자 ["\n\n", "\n", ". ", " ", ""]는 영어 산문을 전제한 LangChain 기본값이라
+        # 한국어 규정 PDF에서는 1순위(\n\n: 0회)와 3순위(". ": 문장 727개 중 160회)가
+        # 사실상 작동하지 않아 결국 공백 단위로 잘렸다. 아래는 두 문서군을 모두 커버한다.
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=config.RAG_CHUNK_SIZE,
             chunk_overlap=config.RAG_CHUNK_OVERLAP,
-            separators=["\n\n", "\n", ". ", " ", ""],
+            separators=[
+                r"\n\n",                              # 단락 (_normalize가 만들어 준다)
+                r"\n제\s*\d+\s*장",                    # 장 — 표준취업규칙 71회
+                r"제\s*\d+\s*조\s*\(",                 # 조문 정의. 여는 괄호를 요구해
+                                                       # '근로기준법 제93조' 같은 상호참조
+                                                       # 369곳을 배제한다.
+                r"\n(?=\s*\[[^\]\n]{2,14}\]\s*\n)",    # [ 목적 ] — 줄 전체가 대괄호인 경우만.
+                                                       # 표준취업규칙의 [선택]/[필수] 인라인
+                                                       # 태그 371개에서 문장이 부서지지 않게 한다.
+                r"\n(?=■)",                           # ■ 섹션 — 사내 문서
+                r"(?<=다\.)\s*(?=[①-⑳])",              # 항 경계
+                r"(?<=다\.)",                          # 한국어 문장 끝. 룩비하인드가 없으면
+                                                       # '한다.'가 '한'+'다.'로 쪼개진다.
+                r"\n", r"\s", "",
+            ],
+            is_separator_regex=True,
         )
 
         self.all_chunks: List[Document] = []

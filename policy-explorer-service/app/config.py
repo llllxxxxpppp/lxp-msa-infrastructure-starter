@@ -63,10 +63,16 @@ METADATA_DB_PATH = os.environ.get("METADATA_DB_PATH", "./documents.db")
 SEED_DOCUMENTS_DIR = os.environ.get("SEED_DOCUMENTS_DIR", "./seed-documents")
 
 # ---------------------------------------------------------
-# RAG 파라미터 (PoC 리포의 원본 값을 기본값으로 유지)
+# RAG 파라미터 (TOP_K는 PoC 원본 값, 청킹 값은 seed-documents 실측으로 조정)
 # ---------------------------------------------------------
-RAG_CHUNK_SIZE = _env_int("RAG_CHUNK_SIZE", 500)
-RAG_CHUNK_OVERLAP = _env_int("RAG_CHUNK_OVERLAP", 50)
+# seed-documents 50개(표준취업규칙 + 사내 문서 49개)를 실측해 정한 값이다.
+# 800은 두 문서군의 의미 단위(조문 / [ 목적 ] 섹션)가 모두 한 청크에 담기는 최소 크기다.
+#   - 500: 조문 온전성 52%, 섹션 온전성 67%
+#   - 800: 조문 온전성 93%, 섹션 온전성 100%
+#   - 600으로 줄이면 사내 문서 섹션이 넘쳐 68%로 무너진다.
+RAG_CHUNK_SIZE = _env_int("RAG_CHUNK_SIZE", 800)
+# 조문 경계에서 잘릴 때 앞 조문의 꼬리를 남겨 문맥을 잇는다(크기의 15%).
+RAG_CHUNK_OVERLAP = _env_int("RAG_CHUNK_OVERLAP", 120)
 RAG_TOP_K = _env_int("RAG_TOP_K", 2)
 
 # ---------------------------------------------------------
