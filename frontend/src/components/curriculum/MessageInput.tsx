@@ -4,9 +4,10 @@ interface MessageInputProps {
   onSend: (text: string) => void;
   /** 응답을 기다리는 동안 잠근다. */
   disabled: boolean;
+  disabledPlaceholder?: string;
 }
 
-export function MessageInput({ onSend, disabled }: MessageInputProps) {
+export function MessageInput({ onSend, disabled, disabledPlaceholder }: MessageInputProps) {
   const [text, setText] = useState("");
 
   function handleSubmit(event: FormEvent) {
@@ -27,7 +28,9 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
         type="text"
         value={text}
         onChange={(event) => setText(event.target.value)}
-        placeholder={disabled ? "응답을 기다리는 중…" : "메시지를 입력하세요"}
+        placeholder={
+          disabled ? (disabledPlaceholder ?? "응답을 기다리는 중…") : "메시지를 입력하세요"
+        }
         aria-label="메시지"
         disabled={disabled}
         className="border-outline-variant focus:ring-primary bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant w-full flex-1 rounded-xl border py-3 pr-10 pl-4 text-sm transition-shadow focus:border-transparent focus:ring-2 focus:outline-none disabled:opacity-60"

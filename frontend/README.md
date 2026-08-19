@@ -40,7 +40,7 @@ src/
 │  ├─ member/                 # member-service (/api/members/**)
 │  ├─ course/                  # course-service (/api/courses/**)
 │  ├─ subscription/             # subscription-service (/api/subscriptions/**)
-│  └─ curriculum/               # curriculum-service (POST /chat) — 미연결, 목 클라이언트
+│  └─ curriculum/               # curriculum-service (/api/curriculum/**)
 ├─ lib/
 │  ├─ api-client.ts           # fetch 래퍼 + 401 인터셉터(재발급)
 │  ├─ token-storage.ts         # access/refresh 토큰 저장
@@ -74,7 +74,7 @@ src/
 | `features/member/*`       | `member-service/src/main/java/com/lcs/member/presentation/MemberController.java`                   |
 | `features/course/*`       | `course-service/src/main/java/com/lcs/course/presentation/CourseController.java`                   |
 | `features/subscription/*` | `subscription-service/src/main/java/com/lcs/subscription/presentation/SubscriptionController.java` |
-| `features/curriculum/*`   | `curriculum-service/app/api/chat_controller.py` (`feature/curriculum-service` 브랜치)              |
+| `features/curriculum/*`   | `curriculum-service/app/api/chat_controller.py`                                                     |
 
 주의: 4개 서비스의 에러 응답은 각각 `record ErrorResponse(String message)`로 **개별 정의**되어 있고(공통 모듈로 통일되지 않음), `status`/`code`/`timestamp` 같은 필드는 없습니다. `types/api.ts`의 `ApiErrorResponse`도 이에 맞춰 `message` 하나만 갖습니다.
 
@@ -89,39 +89,15 @@ npm run format             # Prettier로 포맷
 npm run format:check        # 포맷 여부만 검사 (CI용)
 ```
 
-## 커리큘럼 추천 봇 (미연결)
+## 커리큘럼 추천 봇
 
-`/curriculum-recommendation` 화면은 커리큘럼 추천봇과 대화하는 UI지만, **아직 봇을 호출하지 않고 목 클라이언트로 동작합니다.**
+`/curriculum-recommendation` 화면은 Gateway를 통해 `curriculum-service`와 통신합니다.
 
-봇(`curriculum-service`)은 `feature/curriculum-service` 브랜치에서 이 저장소로 들어와 compose에 등록돼 있습니다(호스트 `8001`). 프론트엔드는 게이트웨이만 호출하는데 **게이트웨이에 이 봇으로 가는 라우트가 없어서** 부를 방법이 없습니다. `/api/ai/**`는 `ai-tutor-service`(강의 PDF 챗봇)가 쓰고 있어 경로도 겹치지 않게 새로 정해야 합니다.
+- 화면 진입 시 `DELETE /api/curriculum/chat/session`으로 현재 사용자의 기존 대화를 초기화합니다.
+- 메시지는 `POST /api/curriculum/chat/stream`에 `{ message }` 형식으로 전송하고 SSE 응답을 읽습니다.
+- 인증 헤더 추가와 401 토큰 재발급은 공통 `apiFetchResponse`가 처리합니다.
+- `metadata` 이벤트로 상태와 추천 카드를 반영하고, `delta` 이벤트의 텍스트를 같은 봇 메시지에 이어 붙입니다.
+- 구조화 LLM 응답이 준비되기 전에는 타이핑 표시기를 보여주고, 이후 텍스트를 점진적으로 출력합니다.
+- 세션 초기화 또는 메시지 전송이 실패하면 화면에서 해당 요청을 다시 시도할 수 있습니다.
 
-### 실연동할 때 할 일
-
-1. **게이트웨이 라우트 추가** — 봇의 실제 경로가 prefix 없는 `POST /chat`이라 `RewritePath` 필터가 필요합니다.
-
-   ```yaml
-   - id: curriculum-service
-     uri: "http://${CURRICULUM_BOT_HOST:localhost}:${CURRICULUM_BOT_PORT:8001}"
-     predicates:
-       - Path=/api/curriculum/**
-     filters:
-       - RewritePath=/api/curriculum/(?<segment>.*), /$\{segment}
-   ```
-
-2. **`ChatClient` 구현 교체** — `app/(main)/curriculum-recommendation/page.tsx`의 `createMockChatClient()` 자리에 `apiFetch`를 쓰는 구현을 넣으면 됩니다. `features/curriculum/types.ts`의 인터페이스만 지키면 컴포넌트는 손대지 않습니다.
-
-   ```ts
-   export interface ChatClient {
-     send(request: ChatRequest): Promise<ChatResponse>;
-   }
-   ```
-
-3. **응답 본문의 커리큘럼 중복 제거** — 봇은 커리큘럼을 `curriculum` 필드로 내려주면서 `_render_curriculum()`으로 렌더링한 같은 내용을 `message` 본문에도 넣습니다. 화면은 `curriculum`으로 카드를 그리므로 그대로 두면 같은 내용이 두 번 보입니다.
-
-CORS는 게이트웨이의 `CorsConfig`가 처리하므로 봇에 미들웨어를 추가할 필요는 없습니다.
-
-### 목 클라이언트
-
-`features/curriculum/mockClient.ts`는 턴을 세어 상태를 옮깁니다 — 인터뷰 2턴 → 커리큘럼 제시 → (승인이면 확정 / 아니면 재제안). 승인 판정은 봇 `feedback_node`의 규칙 기반 문구 목록을 그대로 옮겼고, 확정 뒤에 다시 말을 걸면 검토로 돌아가는 것도 봇의 `route_from_start`와 맞췄습니다.
-
-강좌 데이터는 봇에 하드코딩된 12건을 `features/curriculum/courseCatalog.ts`에 복제했습니다. 화면 설계는 `design/curriculum-recommand/code.html`을 따릅니다.
+Gateway 라우트는 `/api/curriculum/**`를 `curriculum-service`의 같은 경로로 전달합니다. CORS도 Gateway에서 처리하므로 프론트엔드는 서비스에 직접 접근하지 않습니다.
