@@ -276,14 +276,27 @@ services:
       context: .
       dockerfile: ./ai-tutor-service/Dockerfile
     container_name: lxp-ai-tutor-service
+
     environment:
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      # [수정] 로컬 PC Ollama → Docker Ollama
+      OLLAMA_BASE_URL: http://ollama:11434
+
+      # [추가] Docker에서 사용하는 모델
+      OLLAMA_CHAT_MODEL: qwen3.5:4b
+      OLLAMA_EMBEDDING_MODEL: qwen3-embedding:0.6b
+
       COURSE_SERVICE_URL: http://course-service:8083
+
+    # [추가] Ollama 모델 다운로드 완료 후 AI Tutor 실행
+    depends_on:
+      ollama-model-init:
+        condition: service_completed_successfully
+
     volumes:
       - ai-tutor-chroma-data:/app/data/chroma
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
     networks: [lxp-net]
+
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s

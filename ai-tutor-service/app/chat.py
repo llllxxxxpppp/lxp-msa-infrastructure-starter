@@ -35,14 +35,17 @@ MIN_RELEVANCE_SCORE = float(
     os.getenv("RAG_MIN_RELEVANCE_SCORE", "0.11")
 )
 
-# 로컬 답변 모델
+# Ollama 답변 모델
 llm = ChatOllama(
-    model="qwen3.5:4b",
+    # [수정] compose.yaml의 OLLAMA_CHAT_MODEL 사용
+    model=os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:4b"),
+
+    # Docker 실행 시 compose.yaml의 http://ollama:11434 사용
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+
     temperature=0,
     reasoning=False,
 )
-
 
 class ChatRequest(BaseModel):
     question: str
