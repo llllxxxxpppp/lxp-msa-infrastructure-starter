@@ -87,10 +87,11 @@ Course Service가 강좌를 공개·비공개·삭제할 때 발행하는 이벤
   발생한 이벤트가 큐에 쌓였다가 처리되어 유실 구간이 생기지 않습니다.
 - 처리에 실패한 메시지는 `curriculum.course-sync.dlq`로 보냅니다. 재처리를
   요청하지 않으므로 브로커와 본 서비스 사이에서 메시지가 맴돌지 않습니다.
-- 브로커 장애 등으로 이벤트를 놓쳤다면 `PUT /api/courses`로 전체를 다시
-  적재할 수 있습니다.
+- 브로커 장애 등으로 이벤트를 놓쳤다면 `PUT /api/curriculum/courses`로 전체를
+  다시 적재할 수 있습니다.
 - 초기 적재에 실패하면 경고를 남기고 빈 인덱스로 기동합니다. Course Service가
-  늦게 뜨는 경우를 위해서이며, 이후 이벤트나 `PUT /api/courses`로 채워집니다.
+  늦게 뜨는 경우를 위해서이며, 이후 이벤트나 `PUT /api/curriculum/courses`로
+  채워집니다.
 
 ## 테스트
 
@@ -118,17 +119,23 @@ docker compose up --build curriculum-service
 - API 문서 주소: `http://localhost:8000/docs`
 - `GET /health`: 인증 없이 서비스 상태 조회
 
+    아래 경로는 단독 실행(`localhost:8000`) 기준입니다. `compose.yaml`으로 띄울
+    때는 호스트 포트를 게시하지 않으므로 Gateway를 통해서만 접근합니다. 이때
+    주소는 `http://localhost:8080/api/curriculum/...`이고 `X-User-Id`·`X-Role`
+    대신 `Authorization: Bearer <accessToken>`을 보내면 Gateway가 검증 후 두
+    헤더를 주입합니다.
+
 - 채팅 API
 
-    - `POST /chat`: 현재 사용자의 대화를 이어서 처리
-    - `DELETE /chat/session`: 현재 사용자의 대화를 초기화하며, 세션 존재 여부와
-      관계없이 `204 No Content` 반환
+    - `POST /api/curriculum/chat`: 현재 사용자의 대화를 이어서 처리
+    - `DELETE /api/curriculum/chat/session`: 현재 사용자의 대화를 초기화하며,
+      세션 존재 여부와 관계없이 `204 No Content` 반환
 
 - 임베딩 강좌 관리 API
 
-    - `GET /api/courses`: 현재 임베딩된 강좌 조회
-    - `PUT /api/courses`: 전체 강좌 조회 및 임베딩 재구성
-    - `PUT /api/courses/{courseId}`: 특정 강좌 조회 및 임베딩 갱신
+    - `GET /api/curriculum/courses`: 현재 임베딩된 강좌 조회
+    - `PUT /api/curriculum/courses`: 전체 강좌 조회 및 임베딩 재구성
+    - `PUT /api/curriculum/courses/{courseId}`: 특정 강좌 조회 및 임베딩 갱신
 
     모든 임베딩 강좌 관리 API는 유효한 `X-User-Id`와 대소문자를 구분하여
     정확히 일치하는 `X-Role: ROLE_ADMIN` 헤더가 필요합니다. 사용자 인증이
@@ -140,7 +147,7 @@ docker compose up --build curriculum-service
     같은 `X-User-Id`를 사용하면 이전 대화 상태를 이어갑니다.
 
     ```bash
-    curl -X POST http://localhost:8000/chat \
+    curl -X POST http://localhost:8000/api/curriculum/chat \
         -H 'Content-Type: application/json' \
         -H 'X-User-Id: 1' \
         -d '{
@@ -151,14 +158,14 @@ docker compose up --build curriculum-service
     현재 사용자의 대화를 초기화합니다.
 
     ```bash
-    curl -X DELETE http://localhost:8000/chat/session \
+    curl -X DELETE http://localhost:8000/api/curriculum/chat/session \
         -H 'X-User-Id: 1'
     ```
 
     관리자 권한으로 현재 임베딩된 강좌를 조회합니다.
 
     ```bash
-    curl http://localhost:8000/api/courses \
+    curl http://localhost:8000/api/curriculum/courses \
         -H 'X-User-Id: 1' \
         -H 'X-Role: ROLE_ADMIN'
     ```

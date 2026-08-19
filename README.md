@@ -26,7 +26,7 @@ AI 서비스
   └─ Zipkin : 분산 트레이싱 저장/조회
 ```
 
-Spring 기반 도메인 서비스는 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `curriculum-service`는 현재 호스트 포트 8001로 직접 접근합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
+Spring 기반 도메인 서비스와 FastAPI 기반 봇 서비스(`ai-tutor-service`, `curriculum-service`)는 모두 Gateway를 단일 진입점으로 두고 경로 기반으로 라우팅합니다. `config-server`와 Consul 등 공통 인프라는 Gateway에 노출하지 않고 서비스가 직접 사용합니다.
 
 > 구독(subscription)과 결제(payment) 도메인은 현재 결합도가 높아 `subscription-service` 하나로 통합해 운영합니다. `/api/subscriptions/**`와
 `/api/payments/**` 모두 이 서비스가 서빙하며, 도메인 경계가 명확해지면 별도 서비스로 분리할 예정입니다.
@@ -188,12 +188,14 @@ docker compose up --build curriculum-service
 | auth-service         | http://localhost:8081/actuator/health | http://localhost:8080/api/auth/ping       |
 | member-service       | http://localhost:8082/actuator/health | http://localhost:8080/api/members/ping    |
 | course-service       | http://localhost:8083/actuator/health | http://localhost:8080/api/courses/ping    |
-| curriculum-service   | http://localhost:8001/health           | -                                         |
+| curriculum-service   | -                                     | -                                         |
 | subscription-service | http://localhost:8084/actuator/health | http://localhost:8080/api/subscriptions/1 |
 
 > `subscription-service`는 payment 도메인도 서빙합니다: http://localhost:8080/api/payments/subscriptions/1
 
-Curriculum Service의 API 문서는 http://localhost:8001/docs 에서 확인할 수 있습니다.
+`curriculum-service`는 호스트 포트를 게시하지 않습니다. 상태는 `docker compose ps`의 healthy 표시로 확인하고, 컨테이너 안에서 직접 볼 때는 `docker compose exec curriculum-service curl -s localhost:8000/health`를 사용합니다. Gateway 경유 경로는 `/api/curriculum/**`이며 로그인 토큰이 필요합니다.
+
+Curriculum Service의 API 문서는 단독 실행(`uv run uvicorn app.main:app --reload`) 시 http://localhost:8000/docs 에서 확인할 수 있습니다.
 
 **공통 인프라**
 
