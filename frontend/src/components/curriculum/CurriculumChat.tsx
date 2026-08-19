@@ -8,8 +8,7 @@ import type { ChatClient, ChatStatus } from "@/features/curriculum/types";
 
 interface CurriculumChatProps {
   /**
-   * 봇과 통신하는 방법. 렌더마다 같은 인스턴스를 넘겨야 대화가 이어진다.
-   * 이 prop 하나가 목과 실제 봇을 가르는 지점이다.
+   * 봇과 통신하는 방법. 렌더마다 같은 인스턴스를 넘겨야 세션 초기화가 반복되지 않는다.
    */
   client: ChatClient;
   /** 확정 뒤에 CTA를 붙이는 등 페이지가 상태를 알아야 할 때 쓴다. */
