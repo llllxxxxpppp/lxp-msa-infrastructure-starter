@@ -16,6 +16,57 @@ function locationLabel(conflict: ConflictItem): string {
   return conflict.page != null ? `${conflict.source} (p.${conflict.page + 1})` : conflict.source;
 }
 
+/** CSV 필드 이스케이프: 쉼표·큰따옴표·줄바꿈이 있으면 큰따옴표로 감싸고 내부 "는 ""로 이스케이프. */
+function csvEscape(value: string): string {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+/**
+ * conflicts 전체를 "해당 파일 및 위치"/"변경 제안 상세" 열로 정리한 CSV 문자열을 만든다.
+ * 최상단에 사용자가 작성한 원본 요청("변경하고자 하는 규정 작성")을 먼저 넣어, 리포트만 봐도
+ * 어떤 요청으로 나온 결과인지 알 수 있게 한다.
+ */
+function buildConflictsCsv(conflicts: ConflictItem[], request: string): string {
+  const requestBlock = ["변경하고자 하는 규정 작성", csvEscape(request), ""].join("\r\n");
+
+  const header = ["번호", "파일명", "위치", "기존 내용", "신규 규정 팩트", "변경 제안", "판단 근거"];
+  const rows = conflicts.map((c, i) => [
+    String(i + 1),
+    c.source,
+    c.page != null ? `p.${c.page + 1}` : "",
+    c.old_content,
+    c.new_fact,
+    c.action_suggested,
+    c.reasoning,
+  ]);
+  const table = [header, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
+
+  return requestBlock + "\r\n" + table;
+}
+
+/** CSV 문자열을 파일로 다운로드한다. 엑셀에서 한글이 깨지지 않도록 UTF-8 BOM을 붙인다. */
+function downloadCsv(csv: string, filename: string) {
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+/** "YYYYMMDD_HHmm" 형태의 타임스탬프(파일명용). */
+function timestampForFilename(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+    `_${pad(date.getHours())}${pad(date.getMinutes())}`
+  );
+}
+
 export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
   const [request, setRequest] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +75,12 @@ export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const selected = selectedIndex != null ? conflicts?.[selectedIndex] : undefined;
+
+  function handleExportReport() {
+    if (!conflicts || conflicts.length === 0) return;
+    const csv = buildConflictsCsv(conflicts, request);
+    downloadCsv(csv, `정책변경제안_${timestampForFilename(new Date())}.csv`);
+  }
 
   async function handleGenerate() {
     if (!request.trim() || isLoading) return;
@@ -153,8 +210,13 @@ export function PolicyAiAssistModal({ onClose }: PolicyAiAssistModalProps) {
           >
             취소
           </button>
-          {/* MOCK: 실제 적용 로직 없음. 백엔드에 변경 반영 API가 준비되면 이 버튼에서 호출 후 onClose(). */}
-          <Button onClick={onClose}>변경 사항 적용</Button>
+          <Button
+            type="button"
+            disabled={!conflicts || conflicts.length === 0}
+            onClick={handleExportReport}
+          >
+            레포트 출력
+          </Button>
         </div>
       </div>
     </div>
