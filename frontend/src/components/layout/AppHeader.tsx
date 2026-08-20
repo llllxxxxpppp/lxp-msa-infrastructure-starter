@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLogout } from "@/features/auth/hooks";
 import { getAccessToken } from "@/lib/token-storage";
 import { decodeAccessToken } from "@/lib/jwt";
@@ -19,21 +19,31 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+// token-storage는 변경을 구독할 수단이 없으므로 subscribe는 아무것도 하지 않는다 —
+// useSyncExternalStore는 마운트 시 getSnapshot을 다시 읽어 서버 스냅샷과 동기화해 준다.
+function subscribeToNothing() {
+  return () => {};
+}
+
+function getEmailSnapshot(): string | null {
+  const token = getAccessToken();
+  return token ? (decodeAccessToken(token)?.sub ?? null) : null;
+}
+
+function getServerEmailSnapshot(): string | null {
+  return null;
+}
+
 /** design/course/course-list, design/mypage 등에 공통으로 나오는 상단 내비게이션. */
 export function AppHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const logout = useLogout();
-  // 서버/클라이언트 최초 렌더 결과를 동일하게 유지하기 위해 null로 시작하고,
-  // mount 이후 effect에서만 토큰을 읽어 실제 email로 갱신한다.
-  const [email, setEmail] = useState<string | null>(null);
+  // 서버 렌더와 클라이언트 최초 렌더 결과를 동일하게(null) 유지하기 위해
+  // localStorage 기반 email을 useSyncExternalStore로 읽는다.
+  const email = useSyncExternalStore(subscribeToNothing, getEmailSnapshot, getServerEmailSnapshot);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const token = getAccessToken();
-    setEmail(token ? (decodeAccessToken(token)?.sub ?? null) : null);
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -40,16 +40,30 @@ class OpenApiIntegrationTest {
     private MockMvc mockMvc;
 
     // -------------------------------------------------------------------------
-    // 완료 기준 1: build.gradle에 springdoc-openapi-starter-webmvc-ui 의존성 추가
+    // 완료 기준 1: springdoc-openapi-starter-webmvc-ui 의존성 추가
+    //
+    // springdoc 의존성은 더 이상 member-service/build.gradle에 직접 선언되지 않고,
+    // 공용 컨벤션 플러그인(buildlogic.java-spring-boot-swagger-conventions)으로 이동했다.
+    // 그래서 이 테스트도 (1) build.gradle이 해당 플러그인을 적용하는지, (2) 그 플러그인이
+    // 실제로 springdoc 의존성을 선언하는지 두 단계로 확인한다.
     // -------------------------------------------------------------------------
 
+    private static final String SWAGGER_CONVENTION_PLUGIN_ID = "buildlogic.java-spring-boot-swagger-conventions";
+    private static final Path SWAGGER_CONVENTION_PLUGIN_FILE =
+            Path.of("../buildLogic/src/main/groovy/" + SWAGGER_CONVENTION_PLUGIN_ID + ".gradle");
+
     @Test
-    @DisplayName("build.gradle 파일에 springdoc-openapi-starter-webmvc-ui 의존성이 선언되어 있다")
+    @DisplayName("build.gradle이 swagger 컨벤션 플러그인을 적용하고, 그 플러그인이 springdoc-openapi-starter-webmvc-ui 의존성을 선언한다")
     void givenBuildGradleFile_whenReadingDependencies_thenContainsSpringdocOpenApiStarterWebMvcUi() throws IOException {
         String buildGradleContent = Files.readString(Path.of("build.gradle"));
 
-        assertTrue(buildGradleContent.contains("springdoc-openapi-starter-webmvc-ui"),
-                "build.gradle에 springdoc-openapi-starter-webmvc-ui 의존성이 존재해야 한다.");
+        assertTrue(buildGradleContent.contains(SWAGGER_CONVENTION_PLUGIN_ID),
+                "build.gradle이 " + SWAGGER_CONVENTION_PLUGIN_ID + " 플러그인을 적용해야 한다.");
+
+        String conventionPluginContent = Files.readString(SWAGGER_CONVENTION_PLUGIN_FILE);
+
+        assertTrue(conventionPluginContent.contains("springdoc-openapi-starter-webmvc-ui"),
+                SWAGGER_CONVENTION_PLUGIN_ID + " 플러그인에 springdoc-openapi-starter-webmvc-ui 의존성이 존재해야 한다.");
     }
 
     // -------------------------------------------------------------------------

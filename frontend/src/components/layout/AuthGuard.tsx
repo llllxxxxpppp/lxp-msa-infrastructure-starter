@@ -1,8 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/lib/token-storage";
+
+// token-storage는 변경을 구독할 수단이 없으므로 subscribe는 아무것도 하지 않는다 —
+// useSyncExternalStore는 마운트 시 getSnapshot을 다시 읽어 서버 스냅샷과 동기화해 준다.
+function subscribeToNothing() {
+  return () => {};
+}
+
+function getIsAuthedSnapshot(): boolean {
+  return !!getAccessToken();
+}
+
+function getServerIsAuthedSnapshot(): boolean {
+  return false;
+}
 
 /**
  * 로그인 필요한 라우트 그룹((main))을 감싸는 클라이언트 가드.
@@ -14,17 +28,17 @@ import { getAccessToken } from "@/lib/token-storage";
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  // 서버/클라이언트 최초 렌더 결과를 동일하게 유지하기 위해 null로 시작하고,
-  // mount 이후 effect에서만 토큰을 읽어 인증 여부를 확정한다.
-  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
+  // 서버 렌더와 클라이언트 최초 렌더 결과를 동일하게(false) 유지하기 위해
+  // localStorage 기반 인증 여부를 useSyncExternalStore로 읽는다.
+  const isAuthed = useSyncExternalStore(subscribeToNothing, getIsAuthedSnapshot, getServerIsAuthedSnapshot);
 
   useEffect(() => {
-    const authed = !!getAccessToken();
-    if (!authed) {
+    // isAuthed(동기화된 스냅샷)이 아니라 실제 토큰을 다시 읽는다 — 서버 스냅샷(false)과
+    // 아직 동기화되기 전인 마운트 시점에는 isAuthed가 일시적으로 false일 수 있어,
+    // 그 값을 그대로 리다이렉트 조건으로 쓰면 로그인된 사용자도 잘못 튕겨나갈 수 있다.
+    if (!getAccessToken()) {
       router.replace("/login");
-      return;
     }
-    setIsAuthed(true);
   }, [router]);
 
   if (!isAuthed) return null;
