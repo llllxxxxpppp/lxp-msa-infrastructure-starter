@@ -2,6 +2,8 @@ import os
 
 # [추가]
 import json
+import logging
+from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 from io import BytesIO
@@ -14,6 +16,8 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter(
     prefix="/api/ai/courses/{course_id}/documents",
@@ -73,6 +77,102 @@ def verify_course_owner(course_id: int, user_id: int) -> None:
         )
 
 
+# [추가] PDF를 파싱해서 청크로 분할하고 Chroma에 저장한다. 업로드 API와 demo 자동 등록이 공통으로 사용한다.
+def index_pdf(course_id: int, filename: str, file_bytes: bytes) -> tuple[str | None, int]:
+    # PDF를 메모리에서 바로 읽는다.
+    reader = PdfReader(BytesIO(file_bytes))
+    documents = []
+
+    # 페이지별로 텍스트를 추출한다.
+    for page_number, page in enumerate(reader.pages, start=1):
+        text = (page.extract_text() or "").strip()
+
+        # 텍스트가 없는 페이지는 제외한다.
+        if not text:
+            continue
+
+        # 페이지 텍스트를 여러 청크로 분할한다.
+        chunks = text_splitter.create_documents(
+            [text],
+            metadatas=[
+                {
+                    "course_id": course_id,
+                    "filename": filename,
+                    "page_number": page_number,
+                }
+            ],
+        )
+
+        documents.extend(chunks)
+
+    # 스캔 PDF처럼 텍스트를 추출할 수 없는 경우
+    if not documents:
+        return None, 0
+
+    # 업로드된 PDF 하나를 구분하는 고유 ID
+    document_id = str(uuid4())
+
+    # 각 청크에 문서 ID와 순번을 저장한다.
+    for index, document in enumerate(documents):
+        document.metadata["document_id"] = document_id
+        document.metadata["chunk_index"] = index
+
+    # 각 청크를 임베딩한 후 Chroma에 저장한다.
+    vector_store.add_documents(
+        documents=documents,
+        ids=[f"{document_id}:{index}" for index in range(len(documents))],
+    )
+
+    return document_id, len(documents)
+
+
+# [추가] course_id + filename 기준으로 이미 등록된 PDF인지 확인한다.
+def is_pdf_indexed(course_id: int, filename: str) -> bool:
+    result = vector_store.get(
+        where={
+            "$and": [
+                {"course_id": {"$eq": course_id}},
+                {"filename": {"$eq": filename}},
+            ]
+        }
+    )
+
+    return bool(result.get("ids"))
+
+
+# [추가] 서비스 시작 시 demo 폴더의 PDF를 발표용 강좌에 자동으로 등록한다.
+def index_demo_pdfs() -> None:
+    course_id_raw = os.getenv("DEMO_COURSE_ID")
+
+    if not course_id_raw:
+        return
+
+    course_id = int(course_id_raw)
+    demo_dir = Path(__file__).resolve().parent.parent / "demo"
+
+    if not demo_dir.is_dir():
+        return
+
+    for pdf_path in sorted(demo_dir.glob("*.pdf")):
+        filename = pdf_path.name
+
+        if is_pdf_indexed(course_id, filename):
+            logger.info("Demo PDF already exists, skip: %s", filename)
+            continue
+
+        try:
+            document_id, _ = index_pdf(course_id, filename, pdf_path.read_bytes())
+        except Exception:
+            logger.warning("Demo PDF failed to index, skip: %s", filename, exc_info=True)
+            continue
+
+        if document_id is None:
+            logger.warning("Demo PDF has no extractable text, skip: %s", filename)
+            continue
+
+        logger.info("Demo PDF indexed: %s", filename)
+
+
 @router.post("", status_code=201)
 async def upload_document(
     course_id: int,
@@ -94,32 +194,7 @@ async def upload_document(
         )
 
     try:
-        # 업로드된 PDF를 메모리에서 바로 읽는다.
-        reader = PdfReader(BytesIO(file.file.read()))
-        documents = []
-
-        # 페이지별로 텍스트를 추출한다.
-        for page_number, page in enumerate(reader.pages, start=1):
-            text = (page.extract_text() or "").strip()
-
-            # 텍스트가 없는 페이지는 제외한다.
-            if not text:
-                continue
-
-            # 페이지 텍스트를 여러 청크로 분할한다.
-            chunks = text_splitter.create_documents(
-                [text],
-                metadatas=[
-                    {
-                        "course_id": course_id,
-                        "filename": filename,
-                        "page_number": page_number,
-                    }
-                ],
-            )
-
-            documents.extend(chunks)
-
+        document_id, chunk_count = index_pdf(course_id, filename, file.file.read())
     except PdfReadError as exc:
         raise HTTPException(
             status_code=400,
@@ -127,30 +202,16 @@ async def upload_document(
         ) from exc
 
     # 스캔 PDF처럼 텍스트를 추출할 수 없는 경우
-    if not documents:
+    if document_id is None:
         raise HTTPException(
             status_code=400,
             detail="PDF에서 텍스트를 찾을 수 없습니다.",
         )
 
-    # 업로드된 PDF 하나를 구분하는 고유 ID
-    document_id = str(uuid4())
-
-    # 각 청크에 문서 ID와 순번을 저장한다.
-    for index, document in enumerate(documents):
-        document.metadata["document_id"] = document_id
-        document.metadata["chunk_index"] = index
-
-    # 각 청크를 임베딩한 후 Chroma에 저장한다.
-    vector_store.add_documents(
-        documents=documents,
-        ids=[f"{document_id}:{index}" for index in range(len(documents))],
-    )
-
     return {
         "document_id": document_id,
         "filename": filename,
-        "chunk_count": len(documents),
+        "chunk_count": chunk_count,
     }
 
 
