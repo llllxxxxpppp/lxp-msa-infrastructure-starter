@@ -66,7 +66,7 @@ def test_high_relevance_result_is_answered(monkeypatch):
 
     llm_mock = Mock()
     llm_mock.stream.return_value = [
-        SimpleNamespace(content="20일입니다."),
+        SimpleNamespace(content="20일입니다.", response_metadata={}),
     ]
 
     monkeypatch.setattr(chat, "vector_store", vector_store_mock)

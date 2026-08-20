@@ -9,4 +9,7 @@ RUN uv sync --frozen --no-dev --no-install-project
 # FastAPI 소스코드
 COPY ai-tutor-service/app ./app
 
+# 발표용 demo PDF
+COPY ai-tutor-service/demo ./demo
+
 CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

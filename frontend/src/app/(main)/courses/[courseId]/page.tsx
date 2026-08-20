@@ -112,10 +112,7 @@ export default function CourseDetailPage() {
         )}
       </Card>
 
-      <CourseChatWidget
-        courseTitle={course.title}
-        lectureTitles={course.lectures.map((l) => l.title)}
-      />
+      <CourseChatWidget courseId={course.courseId} courseTitle={course.title} />
     </div>
   );
 }

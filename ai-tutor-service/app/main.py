@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.chat import router as chat_router
-from app.documents import router as documents_router
+from app.documents import index_demo_pdfs, router as documents_router
 
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from fastapi.responses import Response
@@ -14,7 +14,14 @@ app.include_router(documents_router)
 
 # RAG 질문 API
 app.include_router(chat_router)
- 
+
+
+# [추가] 서비스 시작 시 발표용 demo PDF 자동 등록
+@app.on_event("startup")
+def startup_event() -> None:
+    index_demo_pdfs()
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     """AI Tutor 서비스 실행 상태를 확인한다."""

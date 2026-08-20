@@ -3,51 +3,107 @@
 import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
+import { apiFetchResponse } from "@/lib/api-client";
 
 /**
- * design/course-chatbot/{chatbot-buttoon,chatbot-chat-screen} 정적 목업.
- *
- * ⚠️ 실제 AI/챗봇 백엔드가 리포에 없다(어떤 서비스도 이 기능을 제공하지 않음).
- * 열림/닫힘 토글과 메시지 리스트는 실제 로컬 상태로 동작하지만, 답변은 하드코딩된 스크립트다.
- * 백엔드가 준비되면 handleSend 안의 setTimeout 부분을 실제 API 호출로 교체하면 된다.
+ * design/course-chatbot/{chatbot-buttoon,chatbot-chat-screen} 정적 목업 기반.
+ * ai-tutor-service의 `POST /api/ai/courses/{courseId}/chat` SSE(`token`/`sources`/`done`)에 연결한다.
  */
+
+interface ChatSource {
+  filename: string;
+  page_number: number;
+}
 
 interface ChatMessage {
   role: "assistant" | "user";
   text: string;
+  sources?: ChatSource[];
 }
 
 interface CourseChatWidgetProps {
+  courseId: number;
   courseTitle: string;
-  lectureTitles: string[];
 }
 
-export function CourseChatWidget({ courseTitle, lectureTitles }: CourseChatWidgetProps) {
+export function CourseChatWidget({ courseId, courseTitle }: CourseChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLecture, setSelectedLecture] = useState(lectureTitles[0] ?? courseTitle);
   const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      text: `안녕하세요! 선택하신 "${lectureTitles[0] ?? courseTitle}" 강의에 대해 궁금한 점이 있으신가요?`,
+      text: `안녕하세요! "${courseTitle}" 강의에 대해 궁금한 점이 있으신가요?`,
     },
   ]);
 
-  function handleSend(event: FormEvent) {
+  async function handleSend(event: FormEvent) {
     event.preventDefault();
     const text = input.trim();
-    if (!text) return;
+    if (!text || isSending) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", text },
-      // MOCK: 실제 AI 백엔드 연동 전까지는 고정 안내 문구로 응답한다.
-      {
-        role: "assistant",
-        text: "아직 준비 중인 기능이에요. 실제 AI 답변은 백엔드 연동 후 제공될 예정입니다.",
-      },
-    ]);
+    setMessages((prev) => [...prev, { role: "user", text }, { role: "assistant", text: "" }]);
     setInput("");
+    setIsSending(true);
+
+    try {
+      const response = await apiFetchResponse(`/api/ai/courses/${courseId}/chat`, {
+        method: "POST",
+        body: { question: text },
+        headers: { Accept: "text/event-stream" },
+      });
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const blocks = buffer.split(/\r?\n\r?\n/);
+        buffer = blocks.pop() ?? "";
+
+        for (const block of blocks) {
+          const lines = block.split(/\r?\n/);
+          const eventLine = lines.find((line) => line.startsWith("event:"));
+          const dataLine = lines.find((line) => line.startsWith("data:"));
+          if (!eventLine || !dataLine) continue;
+
+          const eventName = eventLine.slice(6).trim();
+          const data = dataLine.slice(5).trim();
+
+          if (eventName === "token") {
+            const { content } = JSON.parse(data) as { content: string };
+            setMessages((prev) => {
+              const next = [...prev];
+              const last = next[next.length - 1];
+              next[next.length - 1] = { ...last, text: last.text + content };
+              return next;
+            });
+          } else if (eventName === "sources") {
+            const sources = JSON.parse(data) as ChatSource[];
+            setMessages((prev) => {
+              const next = [...prev];
+              next[next.length - 1] = { ...next[next.length - 1], sources };
+              return next;
+            });
+          }
+        }
+      }
+    } catch {
+      setMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = {
+          role: "assistant",
+          text: "답변을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        };
+        return next;
+      });
+    } finally {
+      setIsSending(false);
+    }
   }
 
   if (!isOpen) {
@@ -82,20 +138,6 @@ export function CourseChatWidget({ courseTitle, lectureTitles }: CourseChatWidge
         </button>
       </div>
 
-      {lectureTitles.length > 0 && (
-        <div className="border-outline-variant p-stack-sm border-b">
-          <select
-            value={selectedLecture}
-            onChange={(e) => setSelectedLecture(e.target.value)}
-            className="border-outline-variant bg-surface text-body-sm text-on-surface focus:border-secondary focus:ring-secondary w-full cursor-pointer appearance-none rounded-lg border py-2 pr-10 pl-3 focus:ring-1 focus:outline-none"
-          >
-            {lectureTitles.map((title) => (
-              <option key={title}>{title}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
       <div className="space-y-stack-sm p-stack-md flex-1 overflow-y-auto">
         {messages.map((message, index) => (
           <div
@@ -107,6 +149,15 @@ export function CourseChatWidget({ courseTitle, lectureTitles }: CourseChatWidge
             }`}
           >
             {message.text}
+            {message.sources && message.sources.length > 0 && (
+              <ul className="text-label-sm text-outline mt-stack-sm space-y-0.5">
+                {message.sources.map((source, sourceIndex) => (
+                  <li key={sourceIndex}>
+                    {source.filename} · {source.page_number}쪽
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>
@@ -120,9 +171,10 @@ export function CourseChatWidget({ courseTitle, lectureTitles }: CourseChatWidge
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="질문을 입력하세요."
-          className="border-outline-variant bg-surface text-body-sm text-on-surface focus:border-secondary focus:ring-secondary flex-1 rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none"
+          disabled={isSending}
+          className="border-outline-variant bg-surface text-body-sm text-on-surface focus:border-secondary focus:ring-secondary flex-1 rounded-lg border px-4 py-2.5 focus:ring-1 focus:outline-none disabled:opacity-50"
         />
-        <Button type="submit" className="px-4 py-2.5">
+        <Button type="submit" disabled={isSending} className="px-4 py-2.5">
           <MaterialIcon name="send" className="text-[18px]" />
         </Button>
       </form>
