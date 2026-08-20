@@ -1,73 +1,73 @@
 package com.lcs.auth.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
-import com.lcs.auth.domain.RefreshToken;
-import java.time.Instant;
+import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
-@DataJpaTest
-@DisplayName("RefreshTokenRepository 통합 테스트")
+@ExtendWith(MockitoExtension.class)
+@DisplayName("RefreshTokenRepository 단위 테스트")
 class RefreshTokenRepositoryTest {
 
-    @Autowired
+    @Mock
+    private StringRedisTemplate redisTemplate;
+
+    @Mock
+    private ValueOperations<String, String> valueOperations;
+
     private RefreshTokenRepository refreshTokenRepository;
 
     @Test
-    @DisplayName("저장한 토큰은 findByToken으로 조회된다")
-    void save_and_findByToken_returnsSavedEntity() {
-        refreshTokenRepository.save(
-                new RefreshToken("user@test.com", "token-value", Instant.now().plusSeconds(600)));
+    @DisplayName("save는 Refresh Token을 Key로, email을 Value로, TTL과 함께 저장한다")
+    void save_storesTokenAsKeyAndEmailAsValueWithTtl() {
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        refreshTokenRepository = new RefreshTokenRepository(redisTemplate);
 
-        Optional<RefreshToken> found = refreshTokenRepository.findByToken("token-value");
+        refreshTokenRepository.save("token-value", "user@test.com", 600L);
 
-        assertThat(found).isPresent();
-        assertThat(found.get().getEmail()).isEqualTo("user@test.com");
+        verify(valueOperations).set("token-value", "user@test.com", Duration.ofSeconds(600L));
     }
 
     @Test
-    @DisplayName("저장한 토큰은 findByEmail로 조회된다")
-    void findByEmail_returnsSavedEntity() {
-        refreshTokenRepository.save(
-                new RefreshToken("user2@test.com", "token-2", Instant.now().plusSeconds(600)));
+    @DisplayName("findEmailByToken은 저장된 토큰이면 email을 반환한다")
+    void findEmailByToken_existingToken_returnsEmail() {
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        refreshTokenRepository = new RefreshTokenRepository(redisTemplate);
+        given(valueOperations.get("token-value")).willReturn("user@test.com");
 
-        assertThat(refreshTokenRepository.findByEmail("user2@test.com")).isPresent();
+        Optional<String> email = refreshTokenRepository.findEmailByToken("token-value");
+
+        assertThat(email).contains("user@test.com");
     }
 
     @Test
-    @DisplayName("존재하지 않는 토큰을 조회하면 빈 Optional을 반환한다")
-    void findByToken_unknownToken_returnsEmpty() {
-        assertThat(refreshTokenRepository.findByToken("no-such-token")).isEmpty();
+    @DisplayName("findEmailByToken은 존재하지 않는 토큰이면 빈 Optional을 반환한다")
+    void findEmailByToken_unknownToken_returnsEmpty() {
+        given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        refreshTokenRepository = new RefreshTokenRepository(redisTemplate);
+        given(valueOperations.get("no-such-token")).willReturn(null);
+
+        Optional<String> email = refreshTokenRepository.findEmailByToken("no-such-token");
+
+        assertThat(email).isEmpty();
     }
 
     @Test
-    @DisplayName("동일한 이메일로 두 번 저장하면 unique 제약조건 위반이 발생한다")
-    void duplicateEmail_violatesUniqueConstraint() {
-        refreshTokenRepository.saveAndFlush(
-                new RefreshToken("dup@test.com", "token-a", Instant.now().plusSeconds(600)));
+    @DisplayName("delete는 해당 Refresh Token Key를 Redis에서 삭제한다")
+    void delete_removesKeyFromRedis() {
+        refreshTokenRepository = new RefreshTokenRepository(redisTemplate);
 
-        RefreshToken duplicate = new RefreshToken("dup@test.com", "token-b", Instant.now().plusSeconds(600));
+        refreshTokenRepository.delete("token-value");
 
-        assertThatThrownBy(() -> refreshTokenRepository.saveAndFlush(duplicate))
-                .isInstanceOf(DataIntegrityViolationException.class);
-    }
-
-    @Test
-    @DisplayName("동일한 토큰 값으로 두 번 저장하면 unique 제약조건 위반이 발생한다")
-    void duplicateToken_violatesUniqueConstraint() {
-        refreshTokenRepository.saveAndFlush(
-                new RefreshToken("user-a@test.com", "same-token", Instant.now().plusSeconds(600)));
-
-        RefreshToken duplicate =
-                new RefreshToken("user-b@test.com", "same-token", Instant.now().plusSeconds(600));
-
-        assertThatThrownBy(() -> refreshTokenRepository.saveAndFlush(duplicate))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        verify(redisTemplate).delete("token-value");
     }
 }

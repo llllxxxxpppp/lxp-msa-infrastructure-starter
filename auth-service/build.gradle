@@ -19,6 +19,9 @@ dependencies {
 
     // gRPC (버전은 grpc 컨벤션의 grpc-bom이 관리)
     testImplementation 'io.grpc:grpc-inprocess'
+
+    // [추가] Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
