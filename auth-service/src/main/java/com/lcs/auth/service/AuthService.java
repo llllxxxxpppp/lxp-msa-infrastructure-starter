@@ -39,8 +39,7 @@ public class AuthService {
                 // [유지] Refresh Token 만료시간(ms) → Redis TTL(초)
                 long ttlSeconds = jwtTokenProvider.getRefreshTokenValidityMilliseconds() / 1000;
 
-                // Redis 저장
-                // TTL = Refresh Token 만료시간
+               // [수정] 기존 토큰 삭제 + 새 토큰 저장을 Lua Script로 한 번에 처리
                 refreshTokenRepository.save(
                                 newRefreshTokenValue,
                                 email,
@@ -53,7 +52,7 @@ public class AuthService {
 
         public void logout(String refreshTokenValue) {
 
-                // [유지] Refresh Token을 Redis Key로 삭제
+                // [수정] 양방향 Key를 Lua Script로 함께 삭제
                 refreshTokenRepository.delete(refreshTokenValue);
         }
 }
