@@ -1,5 +1,6 @@
 """사용자 기반 채팅과 세션 초기화 API 테스트."""
 
+import json
 from typing import Annotated
 from unittest import TestCase
 from unittest.mock import AsyncMock, Mock
@@ -30,10 +31,29 @@ def _client(session_service) -> TestClient:
         session_service=session_service,
         ollama_model="test-model",
         ollama_base_url="http://ollama.test",
+        stream_chunk_delay_seconds=0,
     )
     app = FastAPI()
     app.include_router(controller.router)
     return TestClient(app)
+
+
+def _sse_events(response) -> list[tuple[str, object]]:
+    events = []
+    for block in response.text.strip().split("\n\n"):
+        lines = block.splitlines()
+        event = next(
+            line.removeprefix("event: ")
+            for line in lines
+            if line.startswith("event: ")
+        )
+        data = next(
+            line.removeprefix("data: ")
+            for line in lines
+            if line.startswith("data: ")
+        )
+        events.append((event, json.loads(data)))
+    return events
 
 
 class ChatControllerApiTest(TestCase):
@@ -66,6 +86,88 @@ class ChatControllerApiTest(TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.session_service.chat.assert_not_awaited()
+
+    def test_chat_stream_returns_metadata_deltas_and_done(self) -> None:
+        response = self.client.post(
+            "/api/curriculum/chat/stream",
+            headers={"X-User-Id": "7"},
+            json={"message": "안녕하세요"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.headers["content-type"].startswith("text/event-stream"))
+        events = _sse_events(response)
+        self.assertEqual(events[0], ("start", {}))
+        self.assertEqual(events[1][0], "metadata")
+        self.assertNotIn("message", events[1][1])
+        self.assertEqual(events[1][1]["status"], "interviewing")
+        self.assertEqual(
+            "".join(data["content"] for event, data in events if event == "delta"),
+            "응답",
+        )
+        self.assertEqual(events[-1], ("done", {}))
+
+    def test_chat_stream_requires_authentication_and_message(self) -> None:
+        unauthenticated = self.client.post(
+            "/api/curriculum/chat/stream",
+            json={"message": "안녕하세요"},
+        )
+        invalid_request = self.client.post(
+            "/api/curriculum/chat/stream",
+            headers={"X-User-Id": "7"},
+            json={},
+        )
+
+        self.assertEqual(unauthenticated.status_code, 401)
+        self.assertEqual(invalid_request.status_code, 422)
+        self.session_service.chat.assert_not_awaited()
+
+    def test_chat_stream_only_emits_review_prompt_with_curriculum(self) -> None:
+        prompt = "이 커리큘럼이 괜찮으신가요? 바꾸고 싶은 부분이 있다면 말씀해 주세요."
+        curriculum = {
+            "summary": "학습 방향",
+            "steps": [
+                {
+                    "stage": "입문",
+                    "course_id": 1,
+                    "title": "입문 강좌",
+                    "duration_minutes": 30,
+                    "reason": "기초 학습",
+                }
+            ],
+        }
+        self.session_service.chat.return_value = {
+            **_result(f"학습 방향\n\n- 입문: 입문 강좌\n\n{prompt}"),
+            "status": "reviewing",
+            "draft_curriculum": curriculum,
+        }
+
+        response = self.client.post(
+            "/api/curriculum/chat/stream",
+            headers={"X-User-Id": "7"},
+            json={"message": "추천해 주세요"},
+        )
+
+        events = _sse_events(response)
+        metadata = next(data for event, data in events if event == "metadata")
+        text = "".join(data["content"] for event, data in events if event == "delta")
+        self.assertEqual(metadata["curriculum"], curriculum)
+        self.assertEqual(text, prompt)
+
+    def test_chat_stream_converts_workflow_failure_to_error_event(self) -> None:
+        self.session_service.chat.side_effect = RuntimeError("연결 실패")
+
+        response = self.client.post(
+            "/api/curriculum/chat/stream",
+            headers={"X-User-Id": "7"},
+            json={"message": "안녕하세요"},
+        )
+
+        events = _sse_events(response)
+        self.assertEqual(events[0], ("start", {}))
+        self.assertEqual(events[1][0], "error")
+        self.assertIn("Ollama 모델 호출에 실패했습니다.", events[1][1]["message"])
+        self.assertEqual(len(events), 2)
 
     def test_invalid_user_id_returns_401_without_calling_session(self) -> None:
         for user_id in (None, "", "0", "invalid"):

@@ -7,21 +7,15 @@ interface CurriculumCardProps {
   confirmed: boolean;
 }
 
-/** "5시간" 같은 표기에서 숫자만 뽑는다. 봇이 시간 단위 문자열로만 내려준다. */
-function hoursOf(duration: string): number {
-  const parsed = Number.parseInt(duration, 10);
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
-
 export function CurriculumCard({ plan, confirmed }: CurriculumCardProps) {
-  const totalHours = plan.steps.reduce((sum, step) => sum + hoursOf(step.duration), 0);
+  const totalMinutes = plan.steps.reduce((sum, step) => sum + step.duration_minutes, 0);
 
   if (confirmed) {
     return (
       <div className="border-outline-variant mb-6 overflow-hidden rounded-xl border">
         <div className="border-outline-variant bg-surface-container-low border-b p-4">
           <p className="text-primary text-sm font-medium">
-            확정된 학습 로드맵 · 총 {totalHours}시간
+            확정된 학습 로드맵 · 총 {totalMinutes}분
           </p>
         </div>
         <ol>

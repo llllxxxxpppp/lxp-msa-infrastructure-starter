@@ -128,8 +128,13 @@ docker compose up --build curriculum-service
 - 채팅 API
 
     - `POST /api/curriculum/chat`: 현재 사용자의 대화를 이어서 처리
+    - `POST /api/curriculum/chat/stream`: 같은 대화를 SSE로 처리하며 답변을 점진 전송
     - `DELETE /api/curriculum/chat/session`: 현재 사용자의 대화를 초기화하며,
       세션 존재 여부와 관계없이 `204 No Content` 반환
+
+    스트림 API는 `start`, `metadata`, `delta`, `done` 순서로 이벤트를 반환합니다.
+    `metadata`에는 상태·사용자 프로필·커리큘럼이, `delta`에는 화면에 이어 붙일
+    텍스트 조각이 들어갑니다. 워크플로우 실행에 실패하면 `error` 이벤트를 반환합니다.
 
 - 임베딩 강좌 관리 API
 
@@ -148,6 +153,18 @@ docker compose up --build curriculum-service
 
     ```bash
     curl -X POST http://localhost:8000/api/curriculum/chat \
+        -H 'Content-Type: application/json' \
+        -H 'X-User-Id: 1' \
+        -d '{
+            "message": "데이터 분석가이고 고급 분석 기법을 공부하고 싶어요."
+        }'
+    ```
+
+    같은 요청을 SSE로 받고 이벤트가 도착하는 즉시 출력합니다.
+
+    ```bash
+    curl -N -X POST http://localhost:8000/api/curriculum/chat/stream \
+        -H 'Accept: text/event-stream' \
         -H 'Content-Type: application/json' \
         -H 'X-User-Id: 1' \
         -d '{

@@ -27,7 +27,9 @@ export function MessageItem({ message }: MessageItemProps) {
         }`}
       >
         {plan && <CurriculumCard plan={plan} confirmed={message.status === "completed"} />}
-        <p className={plan ? "text-primary text-sm font-medium" : undefined}>{message.text}</p>
+        {message.text && (
+          <p className={plan ? "text-primary text-sm font-medium" : undefined}>{message.text}</p>
+        )}
       </div>
     </li>
   );

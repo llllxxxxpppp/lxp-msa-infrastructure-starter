@@ -65,7 +65,11 @@ async function parseErrorBody(res: Response): Promise<ApiErrorResponse | undefin
   }
 }
 
-export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
+/** 인증과 토큰 재발급을 적용하고 성공한 원본 Response를 반환한다. */
+export async function apiFetchResponse(
+  path: string,
+  options: RequestOptions = {},
+): Promise<Response> {
   const { body, headers, _retried, ...rest } = options;
   const accessToken = getAccessToken();
   // FormData(파일 업로드)는 브라우저가 boundary 포함 Content-Type을 직접 설정해야 하므로
@@ -85,15 +89,25 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   if (res.status === 401 && !_retried) {
     const newAccessToken = await refreshAccessToken();
     if (newAccessToken) {
-      return apiFetch<T>(path, { ...options, _retried: true });
+      return apiFetchResponse(path, { ...options, _retried: true });
     }
   }
 
   if (!res.ok) {
     const errorBody = await parseErrorBody(res);
     // message: Java 서비스(course/member/subscription/auth), detail: FastAPI(policy-explorer-service).
-    throw new ApiError(res.status, errorBody?.message ?? errorBody?.detail ?? res.statusText, errorBody);
+    throw new ApiError(
+      res.status,
+      errorBody?.message ?? errorBody?.detail ?? res.statusText,
+      errorBody,
+    );
   }
+
+  return res;
+}
+
+export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const res = await apiFetchResponse(path, options);
 
   if (res.status === 204) {
     return undefined as T;
