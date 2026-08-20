@@ -325,7 +325,7 @@ services:
       COURSE_SERVICE_URL: http://course-service:8083
 
       # [추가] 발표용 demo PDF를 등록할 강좌 ID
-      DEMO_COURSE_ID: ${DEMO_COURSE_ID:-30031}
+      DEMO_COURSE_ID: ${DEMO_COURSE_ID:-30002}
 
     # [추가] Ollama 모델 다운로드 완료 후 AI Tutor 실행
     depends_on:
