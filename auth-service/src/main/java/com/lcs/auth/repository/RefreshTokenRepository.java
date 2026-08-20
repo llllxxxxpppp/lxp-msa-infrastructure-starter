@@ -95,22 +95,6 @@ public class RefreshTokenRepository {
     }
 
     /**
-     * email로 기존 Refresh Token을 조회한다.
-     */
-    public Optional<String> findTokenByEmail(String email) {
-
-        String emailKey = EMAIL_KEY_PREFIX + email;
-
-        String refreshToken = redisTemplate.opsForValue().get(emailKey);
-
-        if (refreshToken == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(refreshToken);
-    }
-
-    /**
      * [수정] Refresh Token의 양방향 Key를 함께 삭제한다.
      */
     public void delete(String refreshToken) {

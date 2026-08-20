@@ -87,22 +87,6 @@ class RefreshTokenRepositoryTest {
     }
 
     @Test
-    @DisplayName("findTokenByEmail은 refresh:email:{email} Key로 저장된 토큰을 반환한다")
-    void findTokenByEmail_existingEmail_returnsToken() {
-
-        given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        refreshTokenRepository = new RefreshTokenRepository(redisTemplate);
-
-        given(valueOperations.get("refresh:email:user@test.com"))
-                .willReturn("token-value");
-
-        Optional<String> token =
-                refreshTokenRepository.findTokenByEmail("user@test.com");
-
-        assertThat(token).contains("token-value");
-    }
-
-    @Test
     @DisplayName("delete는 Lua Script로 양방향 Key 삭제를 처리한다")
     void delete_executesLuaScript() {
 
