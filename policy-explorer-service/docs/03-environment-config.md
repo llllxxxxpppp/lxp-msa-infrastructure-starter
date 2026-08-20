@@ -49,8 +49,8 @@
 | 환경변수 | 설명 | 예시 값 |
 |---|---|---|
 | `SERVICE_PORT` | FastAPI/Uvicorn 리슨 포트 | `8000` |
-| `OLLAMA_BASE_URL` | Ollama 서버 주소 (컨테이너 분리 시 서비스명으로) | `http://ollama:11434` |
-| `OLLAMA_MODEL` | Ollama에 로드할 모델 태그 | `qwen2.5:7b` |
+| `OLLAMA_BASE_URL` | Ollama 서버 주소 — compose 기본값은 공유 Docker Ollama 서비스명 | `http://ollama:11434` |
+| `OLLAMA_MODEL` | Ollama에 로드할 모델 태그 (ai-tutor-service/curriculum-service와 공유, 팀 협의 8/19) | `qwen3.5:4b` |
 | `VLLM_BASE_URL` | vLLM OpenAI 호환 엔드포인트 | `http://vllm:8000/v1` |
 | `VLLM_MODEL_NAME` | vLLM에 서빙 중인 모델 식별자 | `Qwen/Qwen2.5-7B-Instruct` |
 | `EMBEDDING_MODEL_NAME` | HuggingFace 임베딩 모델 | `jhgan/ko-sroberta-multitask` |

@@ -12,30 +12,21 @@
 PDF/DOCX 업로드 → 청킹 → bge-m3 임베딩 → Chroma + BM25 적재
 
 신규 규정 텍스트 입력
-  → ① 규정 팩트 추출 (qwen2.5:7b)
+  → ① 규정 팩트 추출 (qwen3.5:4b)
   → ② 하이브리드 검색 (Chroma 벡터 50% + BM25 키워드 50%)
-  → ③ 충돌 판단 (qwen2.5:7b, 검색된 조각마다 1회)
+  → ③ 충돌 판단 (qwen3.5:4b, 검색된 조각마다 1회)
   → ④ 마크다운 리포트 생성
 ```
 
-## 사전 준비 — Ollama와 모델 2개
+## 사전 준비 — Ollama
 
-**Ollama는 `docker compose`가 띄우지 않습니다.** 호스트에서 실행 중인 Ollama에 붙습니다.
+**기본은 이제 Docker Ollama입니다.** `compose.yaml`의 공유 `ollama`/`ollama-model-init` 서비스가
+`ai-tutor-service`/`curriculum-service`와 함께 이 서비스가 쓰는 모델(`qwen3.5:4b`, `bge-m3`)도
+자동으로 pull합니다 — 별도 준비 없이 `docker compose up`만 하면 됩니다.
 
-> **왜 컨테이너로 안 띄우나**: Docker Desktop은 리눅스 VM 안에서 돌고, macOS의 Metal GPU는 그
-> VM으로 전달되지 않습니다. Ollama를 컨테이너에 넣으면 CPU 추론이 되어 요청당 수 분이 걸립니다.
-> 호스트 Ollama는 GPU를 100% 사용해 같은 작업이 약 12초에 끝납니다.
-
-```bash
-# 1) Ollama 실행 확인
-curl http://localhost:11434          # -> "Ollama is running"
-
-# 2) 모델 2개 준비 (최초 1회)
-ollama pull qwen2.5:7b               # 생성 — 4.7GB
-ollama pull bge-m3                   # 임베딩 — 1.2GB
-
-ollama list                          # 두 모델이 보여야 한다
-```
+GPU 패스스루가 중요한 환경(예: macOS Metal — Docker Desktop의 리눅스 VM에는 GPU가 전달되지
+않아 컨테이너 Ollama는 CPU 추론만 가능)에서는 호스트에서 직접 실행 중인 Ollama에 붙이는 대안도
+여전히 지원합니다. **두 경로의 단계별 절차는 [DEV_RUN.md](DEV_RUN.md)를 참고하세요.**
 
 ## 실행
 
@@ -58,8 +49,8 @@ curl localhost:8086/health
   "status": "UP",
   "ollama": {
     "status": "UP",
-    "base_url": "http://host.docker.internal:11434",
-    "models": { "llm": "qwen2.5:7b", "embedding": "bge-m3" }
+    "base_url": "http://ollama:11434",
+    "models": { "llm": "qwen3.5:4b", "embedding": "bge-m3" }
   },
   "chroma": {
     "status": "UP",
@@ -80,7 +71,7 @@ curl localhost:8086/health
 |---|---|
 | `status: UP` | 모든 의존 컴포넌트 정상 |
 | `status: DEGRADED` | 프로세스는 살아 있으나 아래 중 하나에 문제 |
-| `ollama.status: DOWN` | Ollama에 도달 못 함 — 호스트에서 실행 중인지 확인 |
+| `ollama.status: DOWN` | Ollama에 도달 못 함 — `ollama` 컨테이너가 떠 있는지(또는 override한 호스트 Ollama가 실행 중인지) 확인 |
 | `ollama.status: MODEL_MISSING` | 도달했지만 필요한 모델이 없음. `missing_models` 필드 확인 → `ollama pull` |
 | `chroma.status: DOWN` | 벡터 스토어 접근 실패 — 볼륨 마운트 확인 |
 | `consul.status: DISABLED` | `CONSUL_HOST` 미설정. 단독 실행에서는 정상입니다 |
@@ -144,7 +135,7 @@ curl -X DELETE localhost:8086/api/policies/documents
 {
   "status": "success",
   "engine": "Ollama",
-  "model": "qwen2.5:7b",
+  "model": "qwen3.5:4b",
   "total_time_seconds": 12.28,
   "documents_in_store": 1,
   "extracted_rules": [{ "keyword": "반차 사용 기준 시간", "fact": "4.5시간으로 변경" }],
@@ -161,8 +152,8 @@ curl -X DELETE localhost:8086/api/policies/documents
 | 환경변수 | 기본값 | 용도 |
 |---|---|---|
 | `SERVICE_PORT` | `8086` | uvicorn 리슨 포트 |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama 주소 (compose는 `host.docker.internal`) |
-| `OLLAMA_MODEL` | `qwen2.5:7b` | 생성 모델 |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama 주소 (compose 기본값은 공유 Docker Ollama `http://ollama:11434`. 호스트 Ollama로 override하려면 `http://host.docker.internal:11434` — [DEV_RUN.md](DEV_RUN.md)) |
+| `OLLAMA_MODEL` | `qwen3.5:4b` | 생성 모델 (ai-tutor-service/curriculum-service와 공유) |
 | `OLLAMA_EMBEDDING_MODEL` | `bge-m3` | 임베딩 모델 |
 | `CHROMA_PERSIST_DIR` | `./chroma_db_fileupload` | 벡터 데이터 경로 (compose는 `/data/state/chroma`) |
 | `CHROMA_COLLECTION_NAME` | `policy_docs_bge_m3` | Chroma 컬렉션명 |
@@ -181,15 +172,12 @@ curl -X DELETE localhost:8086/api/policies/documents
 
 ## 리눅스 + NVIDIA GPU 서버로 옮길 때
 
-리포 루트에 `.env` 한 줄만 추가하면 됩니다. **코드도 `compose.yaml`도 고치지 않습니다.**
-
-```dotenv
-OLLAMA_BASE_URL=http://ollama:11434
-```
-
-그 환경에서는 `compose.yaml`에 `ollama` 서비스를 추가하고
-`deploy.resources.reservations.devices`로 GPU를 예약하면 컨테이너 Ollama가 GPU를 씁니다.
-(macOS에서는 GPU가 VM으로 전달되지 않으므로 이 구성을 두지 않았습니다.)
+공유 Docker Ollama(`compose.yaml`의 `ollama` 서비스)가 이미 기본이므로 이 서비스만을 위한 별도
+설정은 필요 없습니다. `ollama` 서비스 블록에 `deploy.resources.reservations.devices`로 GPU를
+예약하면 정책 탐색기를 포함한 모든 서비스의 Ollama 호출이 GPU를 씁니다(policy-explorer-service
+쪽 설정은 그대로 두면 됩니다). macOS에서는 GPU가 Docker Desktop의 리눅스 VM으로 전달되지
+않으므로 이 구성을 기본으로 두지 않았습니다 — 대신 호스트 Ollama로 override하는 방법을
+[DEV_RUN.md](DEV_RUN.md)에 정리했습니다.
 
 ## 로컬 실행 (컨테이너 없이)
 
@@ -199,7 +187,8 @@ uv sync
 uv run python -m app.main       # http://localhost:8086
 ```
 
-`OLLAMA_BASE_URL` 기본값이 `http://localhost:11434`라 호스트 Ollama에 바로 붙습니다.
+`OLLAMA_BASE_URL` 기본값이 `http://localhost:11434`라 호스트에서 실행 중인 Ollama에 바로
+붙습니다(`ollama pull qwen3.5:4b && ollama pull bge-m3` 필요 — [DEV_RUN.md](DEV_RUN.md) 참고).
 
 ## 데이터 저장 위치
 

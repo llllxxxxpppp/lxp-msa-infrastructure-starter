@@ -68,6 +68,9 @@ class ConflictItem(BaseModel):
     old_content: str
     new_fact: str
     action_suggested: str
+    # 판단 근거. action_suggested(한 문장 조치)와 분리해 UI가 결론/근거를 따로 렌더링할 수
+    # 있게 한다 — 한 필드에 섞어두면 긴 서술형 문단으로 뭉쳐 가독성이 떨어졌다.
+    reasoning: str
 
 
 class AnalyzeResponse(BaseModel):

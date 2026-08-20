@@ -79,6 +79,8 @@
 | 12 | `AnalyzeResponse`에 `conflicts`(구조화된 `conflict_report`) 추가, `page`(PDF 페이지 번호) 메타데이터를 `search_results`/`conflict_report`까지 전달 | 백오피스 AI Assistance 모달이 "해당 파일 및 위치"/"변경 제안 상세"를 `markdown_report` 문자열 파싱 없이 렌더링하려면 구조화된 위치 정보가 필요했다. `page`는 `PyPDFLoader`가 이미 채집하던 값을 응답까지 흘려보낸 것뿐이라 파이프라인 로직 변경은 없다 |
 | 13 | **문서 메타데이터 DB(SQLite) 도입** ([`app/metadata_db.py`](app/metadata_db.py)) + **경로 순회 취약점 수정**(`{document_id}/{원본파일명}` UUID 하위 디렉터리 저장) + **체크섬(SHA-256) 기반 중복 감지** + **컨테이너 기동 시 `SEED_DOCUMENTS_DIR` 자동 색인**, `GET /api/policies/documents`·`UploadResponse` 스키마 확장 | PoC `docs/09`가 제안만 해두고 미구현이던 항목([08](docs/08-migration-checklist.md) 🔴). 백오피스 파일 업로드 UI를 실제로 연동하려니 "문서가 하나도 없어 테스트 불가" 문제가 드러나 이번에 구현. 체크섬 중복 감지 덕분에 API 재업로드와 컨테이너 재기동 시 시드 문서 재처리가 같은 로직으로 방지된다 |
 | 14 | 체크섬 중복 감지를 `status='ready'`만 보던 것 → 같은 체크섬의 **모든 행**을 조회(`find_all_by_checksum`)해 `ready`가 아닌 행은 항상 정리(`RagStore._discard_stale_document`)하도록 변경 | 버그 수정. Ollama 콜드스타트 중 자동 시드가 실패하면 `failed` 행이 영구히 남는데, 기존 로직(및 그 1차 수정판 `find_by_checksum`도 "가장 최근 행 1개"만 봤다)은 이미 `ready` 행이 더 최근이면 그것만 보고 끝나서 더 오래된 `failed` 잔재를 영영 못 찾았다 — 재기동을 반복해도 "같은 문서가 중복(실패 1개+성공 1개)으로 보이는" 현상이 실제로 재현됐다. 지금은 상태·최근순 무관하게 전부 훑어 `ready`가 아닌 행을 항상 정리한다 |
+| 15 | **LLM 모델 `qwen2.5:7b` → `qwen3.5:4b` 전환**, `OLLAMA_BASE_URL` 기본값을 `host.docker.internal`(호스트 Ollama)에서 `http://ollama:11434`(공유 Docker Ollama)로 전환. 임베딩(`bge-m3`)은 그대로 유지 | 팀 협의(8/19, [docs/task-change.md](docs/task-change.md)). `ai-tutor-service`/`curriculum-service`가 main에 들어오며 공유 `ollama`/`ollama-model-init` 컨테이너가 생겼는데, `qwen3.5:4b`는 그 두 서비스가 이미 쓰는 모델이라 재사용하면 별도 4.7GB pull이 필요 없다. 임베딩은 강의/커리큘럼 챗봇(`qwen3-embedding:0.6b`)과 다르게 이 서비스만 `bge-m3`를 그대로 쓴다 — 품질 검증 없이 바꾸지 않는다. 호스트 Ollama로 되돌리고 싶으면 `.env`에서 `OLLAMA_BASE_URL`을 override하면 된다([DEV_RUN.md](DEV_RUN.md)) |
+| 16 | `ConflictAnalysis`/`ConflictItem`의 `action_suggested`(결론) 필드에서 판단 근거를 `reasoning` 필드로 분리, 프롬프트에도 "결론과 근거를 분리해서 답하라"는 출력 형식 지시 추가 | 가독성 버그 수정. `action_suggested` 하나에 결론과 근거가 섞여 있어 `qwen3.5:4b`가 복잡한 케이스(법령 충돌 등)에서 긴 서술형 문단을 그대로 반환했고, 백오피스 AI Assistance 모달이 그걸 줄바꿈 없는 한 문단으로 렌더링해 실제 화면에서 가독성 저하가 재현됐다. `action_suggested`는 한 문장 조치만, `reasoning`은 근거 서술 전용으로 역할을 나눴다 |
 
 ---
 
@@ -112,8 +114,10 @@ policy-explorer-service/
 
 ## 실행과 검증
 
-Ollama는 **compose가 띄우지 않습니다.** 호스트에서 실행 중인 Ollama에 붙습니다. 이유와 전환
-방법은 [README.md](README.md)와 `compose.yaml`의 주석을 보세요.
+Ollama는 이제 **compose가 공유 `ollama`/`ollama-model-init` 서비스로 기본 기동**합니다
+(`ai-tutor-service`/`curriculum-service`와 공유). 호스트에서 직접 실행 중인 Ollama에 붙이는
+것도 여전히 가능한 대안입니다(GPU 패스스루가 중요한 경우 등). 두 경로 모두
+[DEV_RUN.md](DEV_RUN.md)에 단계별로 정리해뒀습니다.
 
 ```bash
 # 리포 루트에서

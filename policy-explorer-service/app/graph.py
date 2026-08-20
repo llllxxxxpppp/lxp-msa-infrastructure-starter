@@ -47,8 +47,20 @@ class RuleExtractionOutput(BaseModel):
 class ConflictAnalysis(BaseModel):
     is_conflict: bool = Field(description="기존 내용과 신규 규정이 충돌(불일치)하면 true, 아니면 false")
     # 🚨 Qwen/EXAONE 모두 구조화 출력에서 중국어가 섞여 나오는 이슈가 있어 한국어를 강제한다.
+    # action_suggested/reasoning을 분리한 이유: 이전에는 결론과 판단 근거가 한 필드에 섞여 나와
+    # UI에서 긴 서술형 문단 하나로 뭉쳐 보였다(가독성 저하 — 실제 사용자 화면에서 재현됨).
     action_suggested: str = Field(
-        description="수정 제안 (충돌 시에만 작성하되, 반드시 '한국어(Korean)'로만 작성할 것. 예: 5일을 7일로 변경 권장)"
+        description=(
+            "수정 제안 — 반드시 한 문장, 조치만 명시할 것. 이유·설명은 절대 포함하지 말 것"
+            "(그건 reasoning 필드에 쓴다). 충돌 시에만 작성하며 반드시 '한국어(Korean)'로만"
+            " 작성할 것. 예: '5일을 7일로 변경 권장'"
+        )
+    )
+    reasoning: str = Field(
+        description=(
+            "왜 충돌로 판단했는지의 근거를 서술할 것. action_suggested와 달리 여러 문장으로"
+            " 자유롭게 설명해도 된다. 반드시 '한국어(Korean)'로만 작성할 것."
+        )
     )
 
 
@@ -76,6 +88,7 @@ def build_graph(store: RagStore):
         model=config.OLLAMA_MODEL,
         base_url=config.OLLAMA_BASE_URL,
         temperature=0.0,
+        reasoning=False,    # 추론 on/off
     )
     rule_extractor_llm = llm.with_structured_output(RuleExtractionOutput)
     structured_llm = llm.with_structured_output(ConflictAnalysis)
@@ -146,6 +159,9 @@ def build_graph(store: RagStore):
             "당신은 사내 HR 규정 검수자입니다.\n"
             "아래 '기존 콘텐츠' 내용이 '신규 규정 팩트'와 의미상 상충(불일치)하는지 판단하세요.\n\n"
             "🚨중요: 모든 분석 결과와 제안은 반드시 '한국어(Korean)'로만 작성해야 합니다. 절대 중국어나 영어를 사용하지 마세요.\n\n"
+            "🚨출력 형식: 결론과 근거를 반드시 분리해서 답하세요.\n"
+            "- action_suggested: 조치만 담은 한 문장 (예: '5일을 7일로 변경 권장'). 이유를 섞지 마세요.\n"
+            "- reasoning: 그렇게 판단한 근거. 여기에만 설명을 자유롭게 쓰세요.\n\n"
             "기존 콘텐츠: {old_content}\n"
             "신규 규정 팩트: {new_fact}"
         )
@@ -172,6 +188,7 @@ def build_graph(store: RagStore):
                         "old_content": item["old_content"],
                         "new_fact": item["new_fact"],
                         "action_suggested": analysis.action_suggested,
+                        "reasoning": analysis.reasoning,
                     }
                 )
 
