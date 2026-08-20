@@ -120,22 +120,6 @@ services:
       retries: 10
       start_period: 20s
 
-    # [추가] Auth Service Refresh Token 저장용 Redis
-  redis:
-    image: redis:7.4-alpine
-    container_name: lxp-redis
-    ports:
-      - "6379:6379"
-    networks: [lxp-net]
-
-    # [추가] Redis 정상 실행 여부 확인
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-
   ollama:
     image: ollama/ollama:0.32.9
     container_name: lxp-ollama
@@ -241,11 +225,6 @@ services:
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       JWT_SECRET: ${JWT_SECRET}
       AUTH_SERVICE_MEMBER_CLIENT_MODE: grpc
-
-      # [추가] Auth Service에서 Redis 연결
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
-
     ports:
       - "8081:8081"
     volumes:
@@ -255,11 +234,6 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
-
-      # [추가] Redis가 정상 실행된 후 Auth Service 실행
-      redis:
-        condition: service_healthy
-
     networks: [lxp-net]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8081/actuator/health"]
