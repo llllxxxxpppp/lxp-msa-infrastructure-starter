@@ -24,13 +24,16 @@ export function AppHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const logout = useLogout();
-  // 지연 초기화로 마운트 시 1회만 평가한다 — effect 안에서 setState하지 않는다.
-  const [email] = useState<string | null>(() => {
-    const token = getAccessToken();
-    return token ? (decodeAccessToken(token)?.sub ?? null) : null;
-  });
+  // 서버/클라이언트 최초 렌더 결과를 동일하게 유지하기 위해 null로 시작하고,
+  // mount 이후 effect에서만 토큰을 읽어 실제 email로 갱신한다.
+  const [email, setEmail] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const token = getAccessToken();
+    setEmail(token ? (decodeAccessToken(token)?.sub ?? null) : null);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

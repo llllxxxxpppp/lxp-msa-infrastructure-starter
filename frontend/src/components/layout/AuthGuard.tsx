@@ -14,15 +14,18 @@ import { getAccessToken } from "@/lib/token-storage";
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  // 마운트 시 1회만 평가한다(지연 초기화) — effect 안에서 setState하지 않도록 상태 계산과
-  // 리다이렉트(부수효과)를 분리한다.
-  const [isAuthed] = useState(() => typeof window !== "undefined" && !!getAccessToken());
+  // 서버/클라이언트 최초 렌더 결과를 동일하게 유지하기 위해 null로 시작하고,
+  // mount 이후 effect에서만 토큰을 읽어 인증 여부를 확정한다.
+  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!isAuthed) {
+    const authed = !!getAccessToken();
+    if (!authed) {
       router.replace("/login");
+      return;
     }
-  }, [isAuthed, router]);
+    setIsAuthed(true);
+  }, [router]);
 
   if (!isAuthed) return null;
   return <>{children}</>;
