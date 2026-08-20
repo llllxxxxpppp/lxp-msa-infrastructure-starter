@@ -33,6 +33,10 @@ public class AuthService {
                 // [유지] Access Token 생성
                 String accessToken = jwtTokenProvider.createAccessToken(authentication);
 
+                // 기존 Refresh Token 삭제
+                refreshTokenRepository.findTokenByEmail(email)
+                                .ifPresent(refreshTokenRepository::delete);
+
                 // [유지] Refresh Token 생성
                 String newRefreshTokenValue = jwtTokenProvider.createRefreshToken();
 
