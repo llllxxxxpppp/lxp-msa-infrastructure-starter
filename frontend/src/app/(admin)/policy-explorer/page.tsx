@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { MaterialIcon } from "@/components/ui/MaterialIcon";
 import { PolicyAiAssistModal } from "@/components/policy/PolicyAiAssistModal";
+import { DocumentPreviewModal } from "@/components/policy/DocumentPreviewModal";
 import { ApiError } from "@/types/api";
-import { listDocuments, uploadDocument } from "@/features/policy/api";
+import { getDocumentContent, listDocuments, uploadDocument } from "@/features/policy/api";
 import type { DocumentInfo } from "@/features/policy/types";
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx"];
@@ -42,6 +43,10 @@ function isAcceptedFile(file: File): boolean {
   return ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 
+function isPdf(filename: string): boolean {
+  return filename.toLowerCase().endsWith(".pdf");
+}
+
 export default function PolicyExplorerPage() {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,6 +55,10 @@ export default function PolicyExplorerPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadDocuments() {
@@ -110,6 +119,46 @@ export default function PolicyExplorerPage() {
 
   const selected = documents.find((d) => d.id === selectedId) ?? null;
 
+  useEffect(() => {
+    // 트리에서 선택한 문서가 바뀔 때마다 원본 파일을 받아 Preview 카드에 보여준다.
+    // <iframe src="게이트웨이 절대 URL">로 직접 주면 Authorization 헤더가 안 붙어 401이
+    // 나므로, fetch → Blob → object URL을 거친다. cleanup에서 이전 object URL을 해제해
+    // 문서를 계속 바꿔가며 볼 때 메모리가 누적되지 않게 한다.
+    // 문서를 새로 선택하면 이전 문서를 보던 확대 모달은 닫는다(내용만 바뀌는 어색함 방지).
+    setIsPreviewModalOpen(false);
+
+    if (!selectedId) {
+      setPreviewUrl(null);
+      setPreviewError(null);
+      return;
+    }
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+    setIsPreviewLoading(true);
+    setPreviewError(null);
+    setPreviewUrl(null);
+
+    getDocumentContent(selectedId)
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setPreviewUrl(objectUrl);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setPreviewError(err instanceof ApiError ? err.message : "미리보기를 불러오지 못했습니다.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsPreviewLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedId]);
+
   return (
     <div className="gap-stack-lg flex h-full flex-col">
       <header className="flex items-center justify-between">
@@ -125,14 +174,14 @@ export default function PolicyExplorerPage() {
         </Button>
       </header>
 
-      <div className="gap-stack-lg grid flex-1 grid-cols-1 lg:grid-cols-2">
+      <div className="gap-stack-lg grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
         {/* 좌측: 파일 트리 + 메타 정보 */}
-        <div className="gap-stack-lg flex flex-col">
-          <Card className="flex flex-1 flex-col p-stack-md">
+        <div className="gap-stack-lg flex min-h-0 flex-col">
+          <Card className="flex min-h-0 flex-1 flex-col p-stack-md">
             <h3 className="mb-stack-sm shrink-0 border-b border-outline-variant pb-2 text-headline-sm text-primary">
               파일 Tree
             </h3>
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-0 max-h-[55vh] flex-1 overflow-y-auto">
               <div className="mt-2 flex items-center gap-2 rounded p-1 text-on-surface">
                 <MaterialIcon name="folder_open" className="text-primary" />
                 <span className="text-label-md">사내 규정 문서</span>
@@ -193,7 +242,7 @@ export default function PolicyExplorerPage() {
         </div>
 
         {/* 우측: 업로드 + 미리보기 */}
-        <div className="gap-stack-lg flex flex-col">
+        <div className="gap-stack-lg flex min-h-0 flex-col">
           <input
             ref={fileInputRef}
             type="file"
@@ -224,20 +273,67 @@ export default function PolicyExplorerPage() {
             {uploadError && <p className="text-body-sm text-error-red mt-2">{uploadError}</p>}
           </div>
 
-          <Card className="flex flex-1 flex-col p-stack-md">
-            <h3 className="mb-stack-sm shrink-0 border-b border-outline-variant pb-2 text-headline-sm text-primary">
-              Preview (파일 미리보기)
-            </h3>
-            <div className="mt-2 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded border border-outline-variant bg-surface p-stack-lg text-center text-on-surface-variant">
-              <MaterialIcon name="visibility" className="mb-2 text-[64px] text-outline-variant" />
-              <p>- PDF 등 문서면 내용 미리 보기</p>
-              <p>- mp4 등 영상이면 영상 내용 및 프리뷰</p>
+          <Card className="flex min-h-0 flex-1 flex-col p-stack-md">
+            <div className="mb-stack-sm flex shrink-0 items-center justify-between border-b border-outline-variant pb-2">
+              <h3 className="text-headline-sm text-primary">Preview (파일 미리보기)</h3>
+              {selected && (
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewModalOpen(true)}
+                  aria-label="전체화면으로 보기"
+                  className="text-outline hover:text-primary"
+                >
+                  <MaterialIcon name="fullscreen" />
+                </button>
+              )}
             </div>
+            {!selected ? (
+              <div className="mt-2 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded border border-outline-variant bg-surface p-stack-lg text-center text-on-surface-variant">
+                <MaterialIcon name="visibility" className="mb-2 text-[64px] text-outline-variant" />
+                <p>- PDF 등 문서면 내용 미리 보기</p>
+                <p>- mp4 등 영상이면 영상 내용 및 프리뷰</p>
+              </div>
+            ) : isPreviewLoading ? (
+              <div className="mt-2 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded border border-outline-variant bg-surface p-stack-lg text-center text-on-surface-variant">
+                <p>불러오는 중...</p>
+              </div>
+            ) : previewError ? (
+              <div className="mt-2 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded border border-outline-variant bg-surface p-stack-lg text-center text-error-red">
+                <p>{previewError}</p>
+              </div>
+            ) : previewUrl && isPdf(selected.original_filename) ? (
+              <iframe
+                src={previewUrl}
+                title={selected.original_filename}
+                className="mt-2 min-h-0 w-full flex-1 rounded border border-outline-variant"
+              />
+            ) : previewUrl ? (
+              <div className="mt-2 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded border border-outline-variant bg-surface p-stack-lg text-center text-on-surface-variant">
+                <MaterialIcon name="description" className="mb-2 text-[64px] text-outline-variant" />
+                <p>이 형식은 미리보기를 지원하지 않습니다.</p>
+                <a
+                  href={previewUrl}
+                  download={selected.original_filename}
+                  className="text-primary underline"
+                >
+                  다운로드
+                </a>
+              </div>
+            ) : null}
           </Card>
         </div>
       </div>
 
       {isModalOpen && <PolicyAiAssistModal onClose={() => setIsModalOpen(false)} />}
+      {isPreviewModalOpen && selected && (
+        <DocumentPreviewModal
+          filename={selected.original_filename}
+          previewUrl={previewUrl}
+          isLoading={isPreviewLoading}
+          error={previewError}
+          onClose={() => setIsPreviewModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -14,10 +14,13 @@ PoC 리포(policy-explorer-service)의 `lxp-ollama-qwen-fileupload.py` 중
 """
 
 import logging
+import mimetypes
+import os
 import time
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app import config
@@ -132,6 +135,29 @@ async def upload_document(request: Request, file: UploadFile = File(...)):
 async def list_documents(request: Request):
     """현재 RAG 저장소에 적재된 문서(출처)별 청크 개수를 조회한다."""
     return request.app.state.store.list_documents()
+
+
+@router.get("/documents/{document_id}/content")
+async def get_document_content(document_id: str, request: Request):
+    """개별 문서의 원본 파일을 그대로 스트리밍한다(백오피스 미리보기/다운로드용)."""
+    store = request.app.state.store
+    doc = store.get_document(document_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="문서를 찾을 수 없습니다.")
+
+    file_path = os.path.join(config.UPLOAD_DIR, doc["storage_key"])
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+
+    # content_type 컬럼은 확장자 문자열(예: ".pdf")이 저장돼 있어(RagStore.add_document) MIME
+    # 타입으로 그대로 쓸 수 없다. 파일명 기준으로 실제 MIME 타입을 다시 계산한다.
+    media_type = mimetypes.guess_type(doc["original_filename"])[0] or "application/octet-stream"
+    return FileResponse(
+        file_path,
+        media_type=media_type,
+        filename=doc["original_filename"],
+        content_disposition_type="inline",
+    )
 
 
 @router.delete("/documents", response_model=ResetResponse)

@@ -83,14 +83,14 @@ export default function CourseDetailPage() {
         <p className="mt-stack-sm text-body-md text-slate-text">{course.description}</p>
       </div>
 
-      <Button
+      {/* <Button
         variant="secondary"
         className="w-fit"
         onClick={() => router.push("/curriculum-recommendation")}
       >
         <MaterialIcon name="auto_awesome" className="text-[18px]" />
         View Recommended Curriculum Path
-      </Button>
+      </Button> */}
 
       <Card className="p-stack-md">
         <h2 className="mb-stack-md text-headline-sm text-primary">커리큘럼</h2>

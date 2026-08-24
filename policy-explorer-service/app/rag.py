@@ -327,6 +327,11 @@ class RagStore:
         """
         return [dict(row) for row in self.metadata_store.list_active()]
 
+    def get_document(self, document_id: str) -> Optional[Dict]:
+        """id로 문서 메타데이터 단건을 조회한다. 없으면 None(미리보기/다운로드용)."""
+        row = self.metadata_store.get_by_id(document_id)
+        return dict(row) if row else None
+
     def reset(self) -> None:
         """Chroma 컬렉션 + BM25 인메모리 캐시 + 메타데이터 DB + 업로드 원본 파일을 모두 비운다."""
         ids = [c.metadata.get("id") for c in self.all_chunks if c.metadata.get("id")]

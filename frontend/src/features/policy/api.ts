@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api-client";
+import { apiFetch, apiFetchResponse } from "@/lib/api-client";
 import type { AnalyzeRequest, AnalyzeResponse, DocumentInfo, UploadResponse } from "./types";
 
 /**
@@ -26,4 +26,15 @@ export function uploadDocument(file: File): Promise<UploadResponse> {
     method: "POST",
     body: formData,
   });
+}
+
+/**
+ * GET /api/policies/documents/{id}/content — 원본 파일을 Blob으로 가져온다(미리보기/다운로드용).
+ * `<iframe src="...">`에 게이트웨이 절대 URL을 직접 넣으면 Authorization 헤더가 안 붙어 401이
+ * 나므로, `apiFetchResponse`로 인증 헤더를 붙여 받은 뒤 호출부에서 `URL.createObjectURL`로
+ * object URL을 만들어 써야 한다.
+ */
+export async function getDocumentContent(id: string): Promise<Blob> {
+  const res = await apiFetchResponse(`/api/policies/documents/${id}/content`);
+  return res.blob();
 }

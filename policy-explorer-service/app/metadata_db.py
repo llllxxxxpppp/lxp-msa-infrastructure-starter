@@ -102,6 +102,13 @@ class DocumentMetadataStore:
                 (error_message, _now_iso(), id),
             )
 
+    def get_by_id(self, id: str) -> Optional[sqlite3.Row]:
+        with self._connect() as conn:
+            cursor = conn.execute(
+                "SELECT * FROM documents WHERE id=? AND deleted_at IS NULL", (id,)
+            )
+            return cursor.fetchone()
+
     def find_all_by_checksum(self, checksum_sha256: str) -> list[sqlite3.Row]:
         """상태와 무관하게 체크섬이 일치하는 모든 행을 반환한다(오래된 실패/중단 잔재까지 전부).
 
